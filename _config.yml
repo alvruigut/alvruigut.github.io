@@ -1,128 +1,272 @@
-### VALUES YOU SHOULD CHANGE ###
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your entire site, values
+# which you are expected to set up once and rarely need to edit after that.
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# `jekyll serve`. If you change this file, please restart the server process.
 
-# GENERAL SITE SETTINGS
-# title: This will be displayed as the website's name in your browser tab.
-title: Neumorphism
-# description: This will be meta HTML tag content. This can be ignored.
-description: Personal website powered by Jekyll
-# baseurl: The subpath of your site
-# > set this to "", if you renamed the repository to <user>.github.io
-baseurl: "/neumorphism"
+# Theme Settings
+#
+# Review documentation to determine if you should use `theme` or `remote_theme`
+# https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/#installing-the-theme
 
-# LANDING PAGE
-# username: This will displayed on the landing page as your name.
-username: Neumorphism
-# typing_text: This will be typed before 'scroll down for more'.
-# > set this to your job title, e.g. Fullstack Developer
-typing_text: Jekyll Theme
-# email: Your E-Mail address for the email button.
-email: email@example.com
-# For every social button you want to display, set your username or userid
-# If you do not use one of the following websites, then leave it empty
-# > twitter_username:
-github_username: longpdo
-codepen_username: exampleUser
-dev_username: exampleUser
-linkedin_username: exampleUser
-twitter_username: exampleUser
+# theme                  : "minimal-mistakes-jekyll"
+remote_theme             : "mmistakes/minimal-mistakes@4.15.1"
+minimal_mistakes_skin    : "haxor" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
-# ABOUT ME SECTION
-# show_aboutme_card:
-# > setting this to true, will display the About Me section
-# > setting this to false, will omit the About Me section
-show_aboutme_card: true
-# about_me_title: The will be displayed as the title in the About Me section
-about_me_title: About Me
-# about_me_description: This will be displayed under the title.
-about_me_description: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. If you like this theme and want to use it for yourself, checkout the source code and the documentation at <a class="highlight-link" href="https://github.com/longpdo/neumorphism" target="_blank" rel="noreferrer"> Github </a>. You can also find me on <a class="highlight-link" href="https://jamstackthemes.dev/theme/jekyll-neumorphism/" target="_blank" rel="noreferrer">JAMstack Themes</a> and on <a class="highlight-link" href="https://jekyll-themes.com/neumorphism/" target="_blank" rel="noreferrer">Jekyll Themes</a>.
+# Site Settings
+locale                   : "en-US"
+title                    : "snowscan.io"
+title_separator          : "-"
+name                     : "Snowscan"
+description              : "Posts about security, CTFs and networking"
+url                      : "https://snowscan.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+baseurl                  : # the subpath of your site, e.g. "/blog"
+repository               : "slemire/slemire.github.io" # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
+logo                     : "/assets/images/masthead.png"
+teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
+breadcrumbs              : true # true, false (default)
+words_per_minute         : 200
+comments:
+  provider               : false # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "staticman_v2" "custom"
+  disqus:
+    shortname            : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
+  discourse:
+    server               : # https://meta.discourse.org/t/embedding-discourse-comments-via-javascript/31963 , e.g.: meta.discourse.org
+  facebook:
+    # https://developers.facebook.com/docs/plugins/comments
+    appid                :
+    num_posts            : # 5 (default)
+    colorscheme          : # "light" (default), "dark"
+staticman:
+  allowedFields          : # ['name', 'email', 'url', 'message']
+  branch                 : # "master"
+  commitMessage          : # "New comment."
+  filename               : # comment-{@timestamp}
+  format                 : # "yml"
+  moderation             : # true
+  path                   : # "/_data/comments/{options.slug}" (default)
+  requiredFields         : # ['name', 'email', 'message']
+  transforms:
+    email                : # "md5"
+  generatedFields:
+    date:
+      type               : # "date"
+      options:
+        format           : # "iso8601" (default), "timestamp-seconds", "timestamp-milliseconds"
+reCaptcha:
+  siteKey                :
+  secret                 :
+atom_feed:
+  path                   : # blank (default) uses feed.xml
+search                   : # true, false (default)
+search_full_content      : # true, false (default)
+search_provider          : # lunr (default), algolia, google
+algolia:
+  application_id         : # YOUR_APPLICATION_ID
+  index_name             : # YOUR_INDEX_NAME
+  search_only_api_key    : # YOUR_SEARCH_ONLY_API_KEY
+  powered_by             : # true (default), false
+google:
+  search_engine_id       : # YOUR_SEARCH_ENGINE_ID
+  instant_search         : # false (default), true
+# SEO Related
+google_site_verification :
+bing_site_verification   :
+yandex_site_verification :
+naver_site_verification  :
 
-# SKILLS SECTION
-# show_skills_card:
-# > setting this to true, will display the Skills section
-# > setting this to false, will omit the Skills section
-show_skills_card: true
-# about_me_title: The will be displayed as the title in the Skills section
-skills_title: Skills
+# Social Sharing
+twitter:
+  username               :
+facebook:
+  username               :
+  app_id                 :
+  publisher              :
+og_image                 : # Open Graph/Twitter default site image
+# For specifying social profiles
+# - https://developers.google.com/structured-data/customize/social-profiles
+social:
+  type                   : # Person or Organization (defaults to Person)
+  name                   : # If the user or organization name differs from the site's name
+  links: # An array of links to social media profiles
 
-# TIMELINE SECTION
-# show_timeline_card:
-# > setting this to true, will display the Timeline section
-# > setting this to false, will omit the Timeline section
-show_timeline_card: true
-# timeline_title: The will be displayed as the title in the Timeline section
-timeline_title: Education & Experience
-# cv_download_link: The link where you host your cv.
-# > e.g. you share your cv on your dropbox, then add the dropbox link here
-cv_download_link: https://example.com/
+# Analytics
+analytics:
+  provider               : "google" # false (default), "google", "google-universal", "custom"
+  google:
+    tracking_id          : "UA-145129883-1"
+    anonymize_ip         : false # (default)
 
-# PROJECTS SECTION
-# show_projects_card:
-# > setting this to true, will display the Projects section
-# > setting this to false, will omit the Projects section
-show_projects_card: true
-# show_projects:
-# > setting this to true, will display your listed projects in _data/projects.yml
-# > setting this to false, will omit your listed projects
-show_projects: true
-# projects_title: The will be displayed as the title of your projects
-projects_title: Projects
-# show_os_projects:
-# > setting this to true, will display your public projects on github
-# > setting this to false, will omit your public projects on github
-show_os_projects: true
-# os_projects_title: The will be displayed as the title of your open source projects
-os_projects_title: Open Source Projects
 
-# CONTACT SECTION
-# show_contact_card:
-# > setting this to true, will display the Contact section
-# > setting this to false, will omit the Contact section
-show_contact_card: true
-# contact_title: The will be displayed as the title in the Contact section
-contact_title: Contact
-# contact_description: This will be displayed under the title.
-contact_description: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. If you like this theme and want to use it for yourself, checkout the source code and the documentation at <a class="highlight-link" href="https://github.com/longpdo/neumorphism" target="_blank" rel="noreferrer"> Github </a>.
+# Site Author
+author:
+  name             : "Snowscan"
+  avatar           : "/assets/images/avatar.png"
+  bio              : "Pentester, CTF player<br>HackTheBox ATeam"
+  location         : "Canada"
+  email            : "info@snowscan.io"
+  uri              :
+  home             : # null (default), "absolute or relative url to link to author home"
+  bitbucket        :
+  codepen          :
+  dribbble         :
+  flickr           :
+  facebook         :
+  foursquare       :
+  github           : "slemire"
+  gitlab           :
+  google_plus      :
+  keybase          : "snowscan"
+  instagram        :
+  lastfm           :
+  linkedin         : # "john-doe-12345678" (the last part of your profile url, e.g. https://www.linkedin.com/in/john-doe-12345678)
+  pinterest        :
+  soundcloud       :
+  stackoverflow    : # "123456/username" (the last part of your profile url, e.g. https://stackoverflow.com/users/123456/username)
+  steam            : # "steamId" (the last part of your profile url, e.g. https://steamcommunity.com/id/steamId/)
+  tumblr           :
+  twitter          : "snowscan"
+  vine             :
+  weibo            :
+  xing             :
+  youtube          : # "https://youtube.com/c/MichaelRoseDesign"
 
-# GITHUB-METADATA
-# Set this to your forked repository
-# > e.g. <user>/<user>.github.io
-repository: longpdo/neumorphism
-projects:
-  # sortby:
-  # > set this to pushed, if you want to sort your github repositories by time.
-  # > set this to stars, if you want to sort your github repositories by stars.
-  sort_by: pushed
-  exclude:
-    # archived:
-    # > setting this to true, will exclude archived repositories
-    # > setting this to false, will also display archived repositories
-    archived: true
-    # forks:
-    # > setting this to true, will exclude forked repositories
-    # > setting this to false, will also display forked repositories
-    forks: true
-    # projects: A list of the repository names you want to exclude from the listing.
-    projects:
-    # - repo1-to-be-excluded
-    # - repo2-to-be-excluded
 
-# GOOGLE-ANALYTICS
-# Set the id, if you want to track your website with Google Analytics
-# > set this to "", if you do not want to track with Google Analytics
-google-analytics:
-  id: "UA-158757509-2"
-
-### END OF VALUES YOU SHOULD CHANGE ###
-
-plugins:
-  - "jekyll-github-metadata"
-
+# Reading Files
+include:
+  - .htaccess
+  - _pages
 exclude:
-  [
-    "_assets",
-    "Gemfile",
-    "Gemfile.lock",
-    "gulpfile.js",
-    "node_modules",
-    "package.json",
-  ]
+  - "*.sublime-project"
+  - "*.sublime-workspace"
+  - vendor
+  - .asset-cache
+  - .bundle
+  - .jekyll-assets-cache
+  - .sass-cache
+  - assets/js/plugins
+  - assets/js/_main.js
+  - assets/js/vendor
+  - Capfile
+  - CHANGELOG
+  - config
+  - Gemfile
+  - Gruntfile.js
+  - gulpfile.js
+  - LICENSE
+  - log
+  - node_modules
+  - package.json
+  - Rakefile
+  - README
+  - tmp
+  - /docs # ignore Minimal Mistakes /docs
+  - /test # ignore Minimal Mistakes /test
+keep_files:
+  - .git
+  - .svn
+encoding: "utf-8"
+markdown_ext: "markdown,mkdown,mkdn,mkd,md"
+
+
+# Conversion
+markdown: kramdown
+highlighter: rouge
+lsi: false
+excerpt_separator: "\n\n"
+incremental: false
+
+
+# Markdown Processing
+kramdown:
+  input: GFM
+  hard_wrap: false
+  auto_ids: true
+  footnote_nr: 1
+  entity_output: as_char
+  toc_levels: 1..6
+  smart_quotes: lsquo,rsquo,ldquo,rdquo
+  enable_coderay: false
+
+# Sass/SCSS
+sass:
+  sass_dir: _sass
+  style: compressed # http://sass-lang.com/documentation/file.SASS_REFERENCE.html#output_style
+
+
+# Outputting
+permalink: /:title/
+paginate: 10 # amount of posts to show
+paginate_path: /page:num/
+timezone: # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+
+
+# Plugins (previously gems:)
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jemoji
+  - jekyll-include-cache
+
+# mimic GitHub Pages with --safe
+whitelist:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jemoji
+
+
+# Archives
+#  Type
+#  - GitHub Pages compatible archive pages built with Liquid ~> type: liquid (default)
+#  - Jekyll Archives plugin archive pages ~> type: jekyll-archives
+#  Path (examples)
+#  - Archive page should exist at path when using Liquid method or you can
+#    expect broken links (especially with breadcrumbs enabled)
+#  - <base_path>/tags/my-awesome-tag/index.html ~> path: /tags/
+#  - <base_path/categories/my-awesome-category/index.html ~> path: /categories/
+#  - <base_path/my-awesome-category/index.html ~> path: /
+category_archive:
+  type: liquid
+  path: /categories/
+tag_archive:
+  type: liquid
+  path: /tags/
+# https://github.com/jekyll/jekyll-archives
+# jekyll-archives:
+#   enabled:
+#     - categories
+#     - tags
+#   layouts:
+#     category: archive-taxonomy
+#     tag: archive-taxonomy
+#   permalinks:
+#     category: /categories/:name/
+#     tag: /tags/:name/
+
+
+# HTML Compression
+# - http://jch.penibelst.de/
+compress_html:
+  clippings: all
+  ignore:
+    envs: development
+
+
+# Defaults
+defaults:
+  # _posts
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: false
+      comments: false
+      share: false
+      related: true
