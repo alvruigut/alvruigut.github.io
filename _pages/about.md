@@ -7,9 +7,6 @@ date: 2020-01-29
 
 <br>
 
-<p align="center">
-<img src="/assets/images/avatar.png">
-</p>
 
 Mi nombre es Álvaro Ruiz Gutiérrez (**RuyzTz7**), actualmente estoy estudiando.
 
