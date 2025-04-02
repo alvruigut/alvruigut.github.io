@@ -16,10 +16,9 @@ tags:
   - Linux From Scratch
   - LFS
   - Personalización
-  - S4viOS
 ---
 
-# Cómo construir tu propio sistema Linux (S4viOS)
+# Cómo construir tu propio sistema Linux
 
 ![Portada OS](https://wallpaperaccess.com/full/981849.png)
 
