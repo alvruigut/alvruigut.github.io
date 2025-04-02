@@ -283,8 +283,6 @@ PLATFORMS
 DEPENDENCIES
   dotenv
   github-pages
-  jekyll
-  jekyll-github-metadata
 
 BUNDLED WITH
    2.3.14
