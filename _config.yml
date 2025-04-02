@@ -16,14 +16,14 @@ minimal_mistakes_skin    : "haxor" # "air", "aqua", "contrast", "dark", "dirt", 
 
 # Site Settings
 locale                   : "en-US"
-title                    : "alvruigut.io"
+title                    : "RuyzTzt7 | Ciberseguridad y Hacking Ético"
 title_separator          : "-"
-name                     : "RuyzTz7"
-description              : "My personal website"
-url                      : "https://alvruigut.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+name                     : "Álvaro"
+description              : "Artículos sobre ciberseguridad, CTFs e investigaciones"
+url                      : "https://alvruigut.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "alvruigut/alvruigut.github.io" # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
-logo                     : "/assets/images/masthead.png"
+#logo                     : "/assets/images/masthead.png"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 breadcrumbs              : true # true, false (default)
 words_per_minute         : 200
@@ -101,11 +101,9 @@ analytics:
 
 # Site Author
 author:
-  name             : "Álvaro"
+  name             : "Álvaro"	
   avatar           : "/assets/images/avatar.png"
-  bio              : "Pentester, CTF player<br>HackTheBox ATeam"
-  location         : "Spain"
-  email            : "alvarorugu7@gmail.com"
+  bio              : "Future CyberSecurity Analyst"
   uri              :
   home             : # null (default), "absolute or relative url to link to author home"
   bitbucket        :
@@ -117,20 +115,20 @@ author:
   github           : "alvruigut"
   gitlab           :
   google_plus      :
-  keybase          : "alvruigut"
-  instagram        :
+  keybase          :
+  instagram        : "alvarorugu7"
   lastfm           :
-  linkedin         : # "john-doe-12345678" (the last part of your profile url, e.g. https://www.linkedin.com/in/john-doe-12345678)
+  linkedin         : "alvaro-ruiz-guti%C3%A9rrez-515684314/" # (the last part of your profile url, e.g. https://www.linkedin.com/in/john-doe-12345678)
   pinterest        :
   soundcloud       :
   stackoverflow    : # "123456/username" (the last part of your profile url, e.g. https://stackoverflow.com/users/123456/username)
   steam            : # "steamId" (the last part of your profile url, e.g. https://steamcommunity.com/id/steamId/)
   tumblr           :
-  twitter          : "x"
+  twitter          : 
   vine             :
   weibo            :
   xing             :
-  youtube          : # "https://youtube.com/c/MichaelRoseDesign"
+  youtube          : 
 
 
 # Reading Files
