@@ -24,10 +24,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          gem install bundler
-          bundle install
+          gem install bundler -v 2.4.22
+          bundle _2.4.22_ install
           yarn install
-
+          
       - name: Build site with Gulp
         run: gulp
 
