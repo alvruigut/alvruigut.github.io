@@ -1,6 +1,6 @@
 ---
 layout: single
-title: Cómo construir tu propio sistema Linux
+title: Cómo personalizar tu propio sistema Linux
 excerpt: "En este artículo, os enseño a crear vuestro propio sistema Linux desde cero, tomando completo control de las cosas que se instalan y arrancando el sistema con PArrotOS."
 date: 2025-04-02
 classes: wide
@@ -14,6 +14,10 @@ tags:
   - Linux
   - Personalización
 ---
+<p align="center">
+  <img src="/assets/images/ruyztz/ruyzIOS.png" alt="RuyzTzOS" width="600">
+</p>
+
 
 ## Índice y Estructura Principal
 
@@ -846,29 +850,32 @@ tags:
     echo "%{F#FF0000}ICONO ETHERNET %{F#FF0000}$(/usr/sbin/ifconfig ens33 | grep "inet " | awk '{ print $2 }') %{u=}"
 
 3. Repetir para los scripts `vpn_status.sh` y `target.sh`:
-
+ 
    **vpn_status.sh**:
-   
-       #!/bin/sh
-       IFACE=$(/usr/sbin/ifconfig | grep tun0 | awk '{ print $1 }' | tr -d ':')
-       if [ "$IFACE" = "tun0" ]; then
-           echo "%{F#1bbf3e}BOX %{F#1bbf3e}$(
-               /usr/sbin/ifconfig tun0 | grep "inet " | awk '{ print $2 }'
-           ) %{u=}"
-       else
-           echo "%{F#1bbf3e}BOX%{u=}  Disconnected"
-       fi
+    <p style="color: white; background-color: black; padding: 10px; font-family: monospace;">
+    #!/bin/sh<br>
+    IFACE=$(/usr/sbin/ifconfig | grep tun0 | awk '{ print $1 }' | tr -d ':')<br>
+    if [ "$IFACE" = "tun0" ]; then<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;echo "%{F#1bbf3e}BOX %{F#1bbf3e}$(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;/usr/sbin/ifconfig tun0 | grep "inet " | awk '{ print $2 }'<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;) %{u=}"<br>
+    else<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;echo "%{F#1bbf3e}BOX%{u=}  Disconnected"<br>
+    fi
+    </p>
 
-   **target.sh**:
+    **target.sh**:
+    <p style="color: white; background-color: black; padding: 10px; font-family: monospace;">
+    #!/bin/bash<br>
+    ipaddress=$(cat ~/.config/polybar/scripts/target | awk '{ print $1 }')<br>
+    machine_name=$(cat ~/.config/polybar/scripts/target | awk '{ print $2 }')<br>
+    if [ "$ipaddress" ] && [ "$machine_name" ]; then<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;echo "%{F#e51d0b}ICON TARGET %{F#FF0000} $ipaddress %{u=} = $machine_name"<br>
+    else<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;echo "%{F#e51d0b} icon %{u=}%{F#FF0000} No target"<br>
+    fi
+    </p>
 
-       #!/bin/bash
-       ipaddress=$(cat ~/.config/polybar/scripts/target | awk '{ print $1 }')
-       machine_name=$(cat ~/.config/polybar/scripts/target | awk '{ print $2 }')
-       if [ "$ipaddress" ] && [ "$machine_name" ]; then
-           echo "%{F#e51d0b}ICON TARGET %{F#FF0000} $ipaddress %{u=} = $machine_name"
-       else
-           echo "%{F#e51d0b} icon %{u=}%{F#FF0000} No target"
-       fi
 
 ### Configuración del Menú de Energía con Rofi
 

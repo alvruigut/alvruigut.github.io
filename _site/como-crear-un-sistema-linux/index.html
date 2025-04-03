@@ -9,7 +9,7 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>            Cómo construir tu propio sistema Linux - RuyzTzt7      Ciberseguridad y Hacking Ético      </title>
+<!-- begin _includes/seo.html --><title>            Cómo personalizar tu propio sistema Linux - RuyzTzt7      Ciberseguridad y Hacking Ético      </title>
 <meta name="description" content="En este artículo, os enseño a crear vuestro propio sistema Linux desde cero, tomando completo control de las cosas que se instalan y arrancando el sistema con PArrotOS.">
 
 
@@ -17,7 +17,7 @@
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="RuyzTzt7 | Ciberseguridad y Hacking Ético">
-<meta property="og:title" content="Cómo construir tu propio sistema Linux">
+<meta property="og:title" content="Cómo personalizar tu propio sistema Linux">
 <meta property="og:url" content="http://localhost:4000/como-crear-un-sistema-linux/">
 
 
@@ -166,7 +166,7 @@
         <span class="sep">/</span>
       
       
-        <li class="current">Cómo construir tu propio sistema Linux</li>
+        <li class="current">Cómo personalizar tu propio sistema Linux</li>
       
     
   </ol>
@@ -295,7 +295,7 @@
 
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Cómo construir tu propio sistema Linux">
+    <meta itemprop="headline" content="Cómo personalizar tu propio sistema Linux">
     <meta itemprop="description" content="En este artículo, os enseño a crear vuestro propio sistema Linux desde cero, tomando completo control de las cosas que se instalan y arrancando el sistema con PArrotOS.">
     <meta itemprop="datePublished" content="April 02, 2025">
     
@@ -303,7 +303,7 @@
     <div class="page__inner-wrap">
       
         <header>
-          <h1 id="page-title" class="page__title" itemprop="headline">Cómo construir tu propio sistema Linux
+          <h1 id="page-title" class="page__title" itemprop="headline">Cómo personalizar tu propio sistema Linux
 </h1>
           
         </header>
@@ -317,7 +317,11 @@
           
           
         </p>
-        <h2 id="índice-y-estructura-principal">Índice y Estructura Principal</h2>
+        <p align="center">
+  <img src="/assets/images/ruyztz/ruyzIOS.png" alt="RuyzTzOS" width="600" />
+</p>
+
+<h2 id="índice-y-estructura-principal">Índice y Estructura Principal</h2>
 
 <ul>
   <li><a href="#instalación-del-sistema-operativo">Instalación del Sistema Operativo</a>
@@ -1404,29 +1408,29 @@
     <p>Repetir para los scripts <code class="language-plaintext highlighter-rouge">vpn_status.sh</code> y <code class="language-plaintext highlighter-rouge">target.sh</code>:</p>
 
     <p><strong>vpn_status.sh</strong>:</p>
-
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/sh
-IFACE=$(/usr/sbin/ifconfig | grep tun0 | awk '{ print $1 }' | tr -d ':')
-if [ "$IFACE" = "tun0" ]; then
-    echo "%{F#1bbf3e}BOX %{F#1bbf3e}$(
-        /usr/sbin/ifconfig tun0 | grep "inet " | awk '{ print $2 }'
-    ) %{u=}"
-else
-    echo "%{F#1bbf3e}BOX%{u=}  Disconnected"
-fi
-</code></pre></div>    </div>
+    <p style="color: white; background-color: black; padding: 10px; font-family: monospace;">
+ #!/bin/sh<br />
+ IFACE=$(/usr/sbin/ifconfig | grep tun0 | awk '{ print $1 }' | tr -d ':')<br />
+ if [ "$IFACE" = "tun0" ]; then<br />
+ &nbsp;&nbsp;&nbsp;&nbsp;echo "%{F#1bbf3e}BOX %{F#1bbf3e}$(<br />
+ &nbsp;&nbsp;&nbsp;&nbsp;/usr/sbin/ifconfig tun0 | grep "inet " | awk '{ print $2 }'<br />
+ &nbsp;&nbsp;&nbsp;&nbsp;) %{u=}"<br />
+ else<br />
+ &nbsp;&nbsp;&nbsp;&nbsp;echo "%{F#1bbf3e}BOX%{u=}  Disconnected"<br />
+ fi
+ </p>
 
     <p><strong>target.sh</strong>:</p>
-
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/bash
-ipaddress=$(cat ~/.config/polybar/scripts/target | awk '{ print $1 }')
-machine_name=$(cat ~/.config/polybar/scripts/target | awk '{ print $2 }')
-if [ "$ipaddress" ] &amp;&amp; [ "$machine_name" ]; then
-    echo "%{F#e51d0b}ICON TARGET %{F#FF0000} $ipaddress %{u=} = $machine_name"
-else
-    echo "%{F#e51d0b} icon %{u=}%{F#FF0000} No target"
-fi
-</code></pre></div>    </div>
+    <p style="color: white; background-color: black; padding: 10px; font-family: monospace;">
+ #!/bin/bash<br />
+ ipaddress=$(cat ~/.config/polybar/scripts/target | awk '{ print $1 }')<br />
+ machine_name=$(cat ~/.config/polybar/scripts/target | awk '{ print $2 }')<br />
+ if [ "$ipaddress" ] &amp;&amp; [ "$machine_name" ]; then<br />
+ &nbsp;&nbsp;&nbsp;&nbsp;echo "%{F#e51d0b}ICON TARGET %{F#FF0000} $ipaddress %{u=} = $machine_name"<br />
+ else<br />
+ &nbsp;&nbsp;&nbsp;&nbsp;echo "%{F#e51d0b} icon %{u=}%{F#FF0000} No target"<br />
+ fi
+ </p>
   </li>
 </ol>
 

