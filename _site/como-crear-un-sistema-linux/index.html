@@ -1,4 +1,323 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-04-03T14:59:54+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">RuyzTzt7 | Ciberseguridad y Hacking Ético</title><subtitle>Artículos sobre ciberseguridad, CTFs e investigaciones</subtitle><author><name>Álvaro Ruiz Gutiérrez</name></author><entry><title type="html">Cómo construir tu propio sistema Linux</title><link href="http://localhost:4000/como-crear-un-sistema-linux/" rel="alternate" type="text/html" title="Cómo construir tu propio sistema Linux" /><published>2025-04-02T00:00:00+02:00</published><updated>2025-04-02T00:00:00+02:00</updated><id>http://localhost:4000/como-crear-un-sistema-linux</id><content type="html" xml:base="http://localhost:4000/como-crear-un-sistema-linux/"><![CDATA[<h2 id="índice-y-estructura-principal">Índice y Estructura Principal</h2>
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>            Cómo construir tu propio sistema Linux - RuyzTzt7      Ciberseguridad y Hacking Ético      </title>
+<meta name="description" content="En este artículo, os enseño a crear vuestro propio sistema Linux desde cero, tomando completo control de las cosas que se instalan y arrancando el sistema con PArrotOS.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="RuyzTzt7 | Ciberseguridad y Hacking Ético">
+<meta property="og:title" content="Cómo construir tu propio sistema Linux">
+<meta property="og:url" content="http://localhost:4000/como-crear-un-sistema-linux/">
+
+
+  <meta property="og:description" content="En este artículo, os enseño a crear vuestro propio sistema Linux desde cero, tomando completo control de las cosas que se instalan y arrancando el sistema con PArrotOS.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/ruyztz/ruyzIOS.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2025-04-02T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/como-crear-un-sistema-linux/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Álvaro",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="RuyzTzt7 | Ciberseguridad y Hacking Ético Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Artículos</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categorías</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Etiquetas</a>
+            </li><li class="masthead__menu-item">
+              <a href="/buscador/" >Buscador</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >Contacto</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Cómo construir tu propio sistema Linux</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="Álvaro Ruiz Gutiérrez" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Álvaro Ruiz Gutiérrez</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Estudiante de Ingeniería Informática del Software de la Universidad de Sevilla y Futuro Analista de CiberSeguridad
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/alvaro-ruiz-guti%C3%A9rrez-515684314/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+        <li>
+          <a href="https://instagram.com/alvarorugu7" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-instagram" aria-hidden="true"></i> Instagram
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/alvruigut" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Cómo construir tu propio sistema Linux">
+    <meta itemprop="description" content="En este artículo, os enseño a crear vuestro propio sistema Linux desde cero, tomando completo control de las cosas que se instalan y arrancando el sistema con PArrotOS.">
+    <meta itemprop="datePublished" content="April 02, 2025">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Cómo construir tu propio sistema Linux
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2025-04-02T00:00:00+02:00">April 02, 2025 </time>&emsp;
+          
+          
+        </p>
+        <h2 id="índice-y-estructura-principal">Índice y Estructura Principal</h2>
 
 <ul>
   <li><a href="#instalación-del-sistema-operativo">Instalación del Sistema Operativo</a>
@@ -1640,155 +1959,123 @@ fi
   </li>
 </ol>
 
-<hr />]]></content><author><name>Álvaro Ruiz Gutiérrez</name></author><category term="Configuración" /><category term="Personalización" /><category term="Linux" /><category term="Personalización" /><summary type="html"><![CDATA[En este artículo, os enseño a crear vuestro propio sistema Linux desde cero, tomando completo control de las cosas que se instalan y arrancando el sistema con PArrotOS.]]></summary></entry><entry><title type="html">WiFi Hacking: Fuerza Bruta y Métodos Adicionales</title><link href="http://localhost:4000/t%C3%A9cnicas-wifi-hacking/" rel="alternate" type="text/html" title="WiFi Hacking: Fuerza Bruta y Métodos Adicionales" /><published>2025-04-02T00:00:00+02:00</published><updated>2025-04-02T00:00:00+02:00</updated><id>http://localhost:4000/t%C3%A9cnicas-wifi-hacking</id><content type="html" xml:base="http://localhost:4000/t%C3%A9cnicas-wifi-hacking/"><![CDATA[<h1 id="hacking-wifi-fuerza-bruta-y-métodos-adicionales">Hacking WiFi: Fuerza Bruta y Métodos Adicionales</h1>
+<hr />
 
-<p>Este artículo detalla los pasos básicos para hackear una red WiFi mediante un ataque de fuerza bruta utilizando <strong>Aircrack-ng</strong> y describe métodos adicionales para obtener la contraseña.</p>
 
-<h2 id="pasos-para-hackear-una-red-wifi">Pasos para hackear una red WiFi</h2>
+        
+      </section>
 
-<ol>
-  <li>
-    <p><strong>Conectar la antena.</strong></p>
-  </li>
-  <li>
-    <p><strong>Instalar Aircrack-ng:</strong></p>
-  </li>
-</ol>
+      <footer class="page__meta">
+        
+        
+  
 
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>sudo apt install aircrack-ng</code></pre>
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#linux" class="page__taxonomy-item" rel="tag">Linux</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#personalizaci%C3%B3n" class="page__taxonomy-item" rel="tag">Personalización</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#configuraci%C3%B3n" class="page__taxonomy-item" rel="tag">Configuración</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#personalizaci%C3%B3n" class="page__taxonomy-item" rel="tag">Personalización</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Fecha:</strong> <time datetime="2025-04-02T00:00:00+02:00">April 02, 2025</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="#" class="pagination--pager disabled">Previous</a>
+    
+    
+      <a href="/t%C3%A9cnicas-wifi-hacking/" class="pagination--pager" title="WiFi Hacking: Fuerza Bruta y Métodos Adicionales
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
 </div>
 
-<ol>
-  <li><strong>Cambiar a usuario root:</strong></li>
-</ol>
+    </div>
 
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>sudo su</code></pre>
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
 </div>
 
-<ol>
-  <li><strong>Verificar y matar procesos que puedan interferir con la antena:</strong></li>
-</ol>
+<div class="page__footer-copyright">&copy; 2025 Álvaro</div>
 
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>airmon-ng check 
-airmon-ng check kill</code></pre>
-</div>
+      </footer>
+    </div>
 
-<ol>
-  <li><strong>Iniciar la antena en modo monitor:</strong><br />
-(Utiliza el nombre de la antena que se muestra con el comando <code class="language-plaintext highlighter-rouge">ifconfig</code>.)</li>
-</ol>
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
 
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>airmon-ng start nombreAntena</code></pre>
-</div>
 
-<ol>
-  <li><strong>Escanear las redes disponibles:</strong></li>
-</ol>
 
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>airodump-ng nombreAntenaModoMonitor</code></pre>
-</div>
 
-<ol>
-  <li>
-    <p><strong>Identificar el BSSID</strong> de la red a la que se quiere acceder.</p>
-  </li>
-  <li>
-    <p><strong>Capturar paquetes para obtener el handshake:</strong></p>
-  </li>
-</ol>
 
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>airodump-ng -c NumeroCanalDeLaRed --bssid bssid -w nombreArchivosCaps nombreAntenaModoMonitor</code></pre>
-</div>
 
-<ol>
-  <li><strong>Enviar paquetes de desautenticación:</strong><br />
-Mantén abierto el terminal y ejecuta:</li>
-</ol>
 
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>sudo aireplay-ng -0 9 -a bssid -c estaciónDesautenticada nombreAntenaModoMonitor</code></pre>
-</div>
 
-<ol>
-  <li><strong>Realizar el ataque de fuerza bruta:</strong></li>
-</ol>
-
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>aircrack-ng -b handshakeObtenido -w rockyou.txt archivo.cap</code></pre>
-</div>
-
-<ol>
-  <li><strong>Detener la antena en modo monitor:</strong></li>
-</ol>
-
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>airmon-ng stop nombreAntena</code></pre>
-</div>
-
-<h2 id="métodos-adicionales-para-obtener-la-contraseña">Métodos adicionales para obtener la contraseña</h2>
-
-<p>Si cuentas con un ordenador con Linux nativo, puedes seguir estos pasos:</p>
-
-<ol>
-  <li><strong>Clonar el repositorio de naive-hashcat:</strong></li>
-</ol>
-
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>git clone https://github.com/brannondorsey/naive-hashcat</code></pre>
-</div>
-
-<ol>
-  <li><strong>Compilar el código en el directorio <code class="language-plaintext highlighter-rouge">src</code>:</strong></li>
-</ol>
-
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>cd naive-hashcat/src
-make</code></pre>
-</div>
-
-<ol>
-  <li><strong>Convertir el archivo <code class="language-plaintext highlighter-rouge">.cap</code> a <code class="language-plaintext highlighter-rouge">.hccapx</code>:</strong></li>
-</ol>
-
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>cap2hccapx.bin archivo.cap archivoHash.hccapx</code></pre>
-</div>
-
-<ol>
-  <li><strong>Descargar el diccionario rockyou:</strong></li>
-</ol>
-
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>curl -LO https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt</code></pre>
-</div>
-
-<ol>
-  <li><strong>Ejecutar naive-hashcat:</strong></li>
-</ol>
-
-<div style="background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>HASH_FILE=archivoHash.hccapx POT_FILE=archivo.pot HASH_TYPE=2500 ./naive-hashcat.sh</code></pre>
-</div>
-
-<h2 id="alternativas-y-recursos">Alternativas y Recursos</h2>
-
-<ul>
-  <li><strong>Alternativas en línea:</strong>
-    <ul>
-      <li><a href="https://www.onlinehashcrack.com/wifi-wpa-rsna-psk-crack.php">Online Hash Crack</a></li>
-      <li><a href="https://gpuhash.me/">GPU Hash</a></li>
-    </ul>
-  </li>
-  <li><strong>Más Información:</strong>
-Consulta el repositorio <a href="https://github.com/brannondorsey/wifi-cracking">wifi-cracking</a> para obtener más detalles y métodos adicionales.</li>
-</ul>
-
-<blockquote>
-  <p><strong>Importante:</strong> Estos conocimientos deben utilizarse de forma ética y legal. Realiza pruebas únicamente en entornos controlados o en redes sobre las que tengas autorización expresa.</p>
-</blockquote>]]></content><author><name>Álvaro Ruiz Gutiérrez</name></author><category term="Seguridad" /><category term="Hacking" /><category term="WiFi" /><category term="Hacking" /><category term="Seguridad" /><category term="Aircrack-ng" /><summary type="html"><![CDATA[En este artículo se explica cómo realizar un ataque de fuerza bruta a una red WiFi utilizando herramientas como Aircrack-ng, y se presentan métodos adicionales para obtener contraseñas.]]></summary></entry></feed>
+  </body>
+</html>

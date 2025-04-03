@@ -12,7 +12,7 @@
 
 # theme                  : "minimal-mistakes-jekyll"
 remote_theme             : "mmistakes/minimal-mistakes@4.15.1"
-minimal_mistakes_skin    : "haxor" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
+minimal_mistakes_skin    :  "neon" #"air", "haxor" , "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # Site Settings
 locale                   : "en-US"
@@ -101,9 +101,9 @@ analytics:
 
 # Site Author
 author:
-  name             : "Álvaro"	
+  name             : "Álvaro Ruiz Gutiérrez"	
   avatar           : "/assets/images/avatar.png"
-  bio              : "Future CyberSecurity Analyst"
+  bio              : "Estudiante de Ingeniería Informática del Software de la Universidad de Sevilla y Futuro Analista de CiberSeguridad"
   uri              :
   home             : # null (default), "absolute or relative url to link to author home"
   bitbucket        :

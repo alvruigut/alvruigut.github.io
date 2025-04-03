@@ -1,31 +1,18 @@
 ---
 layout: single
 title: Cómo construir tu propio sistema Linux
-excerpt: "En este artículo, os enseño a crear vuestro propio sistema Linux desde cero, tomando completo control de las cosas que se instalan y arrancando el sistema como una nueva distribución."
-date: 2020-04-23
+excerpt: "En este artículo, os enseño a crear vuestro propio sistema Linux desde cero, tomando completo control de las cosas que se instalan y arrancando el sistema con PArrotOS."
+date: 2025-04-02
 classes: wide
 header:
-  teaser: /assets/images/s4viOS/s4viOS.png
+  teaser: /assets/images/ruyztz/ruyzIOS.png
   teaser_home_page: true
 categories:
   - Configuración
-  - Linux From Scratch
-  - LFS
+  - Personalización
 tags:
   - Linux
-  - Linux From Scratch
-  - LFS
   - Personalización
----
-
-![Portada OS](https://wallpaperaccess.com/full/981849.png)
-
-Antes que nada, deciros que toda esta guía la tenéis también disponible en mi Gist, desde donde os podéis dirigir directamente a través del índice a la sección que queráis:
-
-* [https://gist.github.com/s4vitar/8a2b18ec1f1b16226e21d4b89cbef270](https://gist.github.com/s4vitar/8a2b18ec1f1b16226e21d4b89cbef270)
-
-Por alguna razón los eventos clickeables del índice desde esta página no son funcionales, así que cualquier cosa os podréis manejar por allí más cómodamente (¡No te olvides de dejar un Fav! :P).
-
 ---
 
 ## Índice y Estructura Principal
@@ -1277,4 +1264,3 @@ Por alguna razón los eventos clickeables del índice desde esta página no son 
 
 ---
 
-*Este post recoge absolutamente todo el contenido de la guía “InstalacionEntorno.pdf”. Debido a su extensión y nivel de detalle, se recomienda revisarlo detenidamente y adaptar los comandos y configuraciones a las necesidades y particularidades de vuestro entorno. ¡Buena suerte con la instalación y configuración de vuestro entorno de trabajo!*
