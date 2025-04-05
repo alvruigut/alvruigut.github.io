@@ -1,6 +1,6 @@
 ---
 layout: single
-title: Writeup HTB - Máquina Beep
+title: WriteUp HTB - Máquina Beep
 excerpt: "En este artículo, resolveremos la máquina Beep de la plataforma HTB."
 date: 2025-04-02
 classes: wide
