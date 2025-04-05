@@ -1,0 +1,791 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>            Writeup HTB - Máquina Beep - RuyzTzt7      Ciberseguridad y Hacking Ético      </title>
+<meta name="description" content="En este artículo, resolveremos la máquina Beep de la plataforma HTB.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="RuyzTzt7 | Ciberseguridad y Hacking Ético">
+<meta property="og:title" content="Writeup HTB - Máquina Beep">
+<meta property="og:url" content="http://localhost:4000/writeup-beep/">
+
+
+  <meta property="og:description" content="En este artículo, resolveremos la máquina Beep de la plataforma HTB.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb/beep/beeplogo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2025-04-02T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/writeup-beep/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Álvaro",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="RuyzTzt7 | Ciberseguridad y Hacking Ético Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Artículos</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categorías</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Etiquetas</a>
+            </li><li class="masthead__menu-item">
+              <a href="/buscador/" >Buscador</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >Contacto</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Writeup HTB - Máquina Beep</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="Álvaro Ruiz Gutiérrez" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Álvaro Ruiz Gutiérrez</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Estudiante de Ingeniería Informática del Software de la Universidad de Sevilla y Futuro Analista de CiberSeguridad
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/alvaro-ruiz-guti%C3%A9rrez-515684314/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+        <li>
+          <a href="https://instagram.com/alvarorugu7" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-instagram" aria-hidden="true"></i> Instagram
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/alvruigut" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Writeup HTB - Máquina Beep">
+    <meta itemprop="description" content="En este artículo, resolveremos la máquina Beep de la plataforma HTB.">
+    <meta itemprop="datePublished" content="April 02, 2025">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Writeup HTB - Máquina Beep
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2025-04-02T00:00:00+02:00">April 02, 2025 </time>&emsp;
+          
+          
+        </p>
+        <p align="center">
+  <img src="/assets/images/htb/beep/beep.png" alt="Beep" width="2200" />
+</p>
+
+<blockquote>
+  <h1 id="ip-beep-1012928115">IP Beep: 10.129.28.115</h1>
+  <h1 id="ip-local-10101617">IP Local: 10.10.16.17</h1>
+</blockquote>
+
+<h2 id="1-enumeración-de-puertos-de-la-máquina">1. Enumeración de Puertos de la Máquina</h2>
+
+<p>Primeramente comprobamos que tenemos acceso a la máquina Beep con una traza ICMP de un paquete. 
+Además la conexión, nos permite identificar por el valor TTL (Time to alive), 
+si nos enfrentamos a una máquina Linux(TTL -&gt; 64) o Windows( -&gt; 128)</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>ping -c 1 10.129.28.115</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>En HTB, se aprecia que el TTL es una unidad menor. Para visualizar la ruta completa de la conexión y comprobar que existe un nodo intermediario entre el atacante y la víctima, se utiliza la flag <strong>-R</strong>:</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>ping -c 1 10.129.28.115 -R</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>A continuación, se crea un directorio de trabajo en el escritorio, nombrándolo según la máquina:</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>mkdir Beep</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>Para organizar el ataque, se utiliza una función personalizada llamada <strong>mkt</strong> (definida en el archivo .zshrc) que crea tres carpetas: <code class="language-plaintext highlighter-rouge">nmap</code>, <code class="language-plaintext highlighter-rouge">content</code> y <code class="language-plaintext highlighter-rouge">exploits</code>.</p>
+
+<ul>
+  <li><strong>Función:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>mkt () {
+mkdir {nmap,content,exploits}
+}</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>Dentro de la carpeta <strong>nmap</strong>, se procede a enumerar los puertos abiertos entre los 65,535 disponibles:</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.28.115 -oG allPorts</code></pre>
+</div>
+
+    <ul>
+      <li><strong>-p-:</strong> Escanea todo el rango de puertos.</li>
+      <li><strong>–open:</strong> Muestra solo los puertos abiertos.</li>
+      <li><strong>-sS:</strong> Realiza un TCP SYN Scan.</li>
+      <li><strong>–min-rate 5000:</strong> Aumenta la velocidad del escaneo (más de 5000 paquetes por segundo).</li>
+      <li><strong>-vvv:</strong> Modo triple verbose para mayor detalle.</li>
+      <li><strong>-n:</strong> Omite la resolución DNS.</li>
+      <li><strong>-Pn:</strong> Asume que el host está activo.</li>
+      <li><strong>-oG:</strong> Exporta los resultados en formato grepeable, facilitando el filtrado posterior.</li>
+    </ul>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/beep/nmap1.png" alt="Nmap" width="800" />
+</p>
+
+<p>Una vez concluido el escaneo de puertos, se utiliza una herramienta personalizada llamada <strong>extractPorts</strong> (definida en el .zshrc) para copiar los puertos relevantes al portapapeles y proceder a la enumeración de servicios.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/beep/extra.png" alt="ExtractPorts" width="900" />
+</p>
+
+<hr />
+
+<h2 id="2-enumeración-de-servicios-de-los-puertos">2. Enumeración de Servicios de los Puertos</h2>
+
+<p>Con la lista de puertos obtenida, se procede a identificar los servicios que corren en ellos. Esto permite conocer las versiones y configuraciones, facilitando la detección de posibles vulnerabilidades.</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>nmap -sCV -p22,25,80,110,111,143,443,857,993,995,3306,4190,4445,4559,5038,10000 -oN targeted</code></pre>
+</div>
+
+    <ul>
+      <li><strong>-sC:</strong> Ejecuta scripts básicos de reconocimiento.</li>
+      <li><strong>-sV:</strong> Detecta versiones y servicios.</li>
+      <li><strong>-oN:</strong> Exporta los resultados en un formato normal.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="3-análisis-de-servicios">3. Análisis de Servicios</h2>
+
+<p>Durante esta etapa se observa que el puerto 80 aloja dos servicios HTTP y otro servicio se ejecuta en el puerto 10000. Se procede a examinar la web mediante un navegador y, utilizando la extensión <strong>Wappalyzer</strong> de Firefox, se identifican las tecnologías empleadas.</p>
+
+<p>Al acceder a la web se produce una redirección al puerto 443 (HTTPS) y se presenta el error “SSL_ERROR_UNSUPPORTED_VERSION”. Para solventarlo, se modifican las configuraciones TLS del navegador.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/beep/tls.png" alt="TLS Error" width="2500" />
+</p>
+
+<p>Finalmente, se revela un panel de login de Elastix:</p>
+
+<p align="center">
+  <img src="/assets/images/htb/beep/loginela.png" alt="Login Elastix" width="700" />
+</p>
+
+<hr />
+
+<h2 id="4-identificación-de-vulnerabilidades">4. Identificación de Vulnerabilidades</h2>
+
+<p>Se prueba inicialmente el acceso al panel utilizando las contraseñas por defecto, sin éxito. A continuación, se emplea la herramienta <strong>searchsploit</strong> (de ExploitDB) para buscar vulnerabilidades relacionadas con Elastix.</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>searchsploit Elastix</code></pre>
+</div>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/beep/exdb.png" alt="ExploitDB Elastix" width="1500" />
+</p>
+
+<p>Se detecta que el sistema puede ser vulnerable tanto a RCE (Remote Code Execution) como a LFI (Local File Inclusion).</p>
+
+<hr />
+
+<h2 id="5-explotación-de-vulnerabilidades">5. Explotación de Vulnerabilidades</h2>
+
+<h3 id="análisis-y-explotación-de-la-vulnerabilidad-lfi">Análisis y Explotación de la Vulnerabilidad LFI</h3>
+
+<p>Se identifica una vulnerabilidad LFI en la URL que permite listar directorios del sistema, revelando archivos críticos (como <code class="language-plaintext highlighter-rouge">passwd</code>, <code class="language-plaintext highlighter-rouge">hosts</code>) y detalles sobre los puertos activos en <code class="language-plaintext highlighter-rouge">/proc/net/tcp</code>.</p>
+
+<ul>
+  <li><strong>Comando para confirmar la vulnerabilidad:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>searchsploit Elastix -x &lt;ID_exploit&gt;</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>Con esta vulnerabilidad, se prueban combinaciones de usuario y contraseña en el login de Elastix, obteniéndose acceso con las credenciales:</p>
+<ul>
+  <li><strong>Usuario:</strong> admin</li>
+  <li><strong>Contraseña:</strong> jEhdIekWmdjE</li>
+</ul>
+
+<h3 id="explotación-de-la-vulnerabilidad-rce">Explotación de la Vulnerabilidad RCE</h3>
+
+<p>También, se investiga una vulnerabilidad RCE, adaptando un exploit encontrado en Exploit-DB para evitar problemas de versión. Antes de lanzar el script, se prepara un listener en netcat:</p>
+
+<ul>
+  <li><strong>Comando para iniciar netcat:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>nc -nlvp 443</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>El exploit se adapta (actualizando librerías y ajustando parámetros) y, al ejecutarlo, se consigue una shell interactiva con el usuario <strong>asterisk</strong>.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/beep/rce.png" alt="Vulnerabilidad RCE" width="5600" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/beep/exploit.png" alt="Exploit Adaptado" width="5300" />
+</p>
+
+<p>Además, se intentó acceder por SSH en el puerto 22 usando fuerza bruta con las credenciales obtenidas en el LFI, pero se recibió el siguiente error:</p>
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">ssh root@10.129.27.99: Unable to negotiate with 10.129.27.99 port 22: no matching key exchange method found. Their offer: diffie-hellman-group-exchange-sha1, diffie-hellman-group14-sha1, diffie-hellman-group1-sha1</code></p>
+</blockquote>
+
+<p>Para solucionarlo, se utiliza el siguiente comando ajustado:</p>
+
+<ul>
+  <li><strong>Comando para SSH:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -oHostKeyAlgorithms=+ssh-rsa,ssh-dss root@10.129.27.99</code></pre>
+</div>
+  </li>
+</ul>
+
+<h2 id="y-sobre-este-se-aplica-la-fuerza-bruta-con-dos-diccionarios-personalizados-uno-para-users-y-otro-para-posibles-passwords">Y sobre este se aplica la fuerza bruta con dos diccionarios personalizados, uno para users y otro para posibles passwords.</h2>
+
+<h2 id="6-post-explotación">6. Post-Explotación</h2>
+
+<p>Tras obtener el acceso con el exploit en python del RCE, se realiza un tratamiento a la consola:</p>
+
+<ul>
+  <li>Iniciar una sesión:
+    <ul>
+      <li><strong>Comando:</strong>
+        <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>script /dev/null -c bash</code></pre>
+</div>
+      </li>
+    </ul>
+  </li>
+  <li>Suspender la shell con <code class="language-plaintext highlighter-rouge">ctrl+z</code>.</li>
+  <li>Reanudar la shell en modo raw:
+    <ul>
+      <li><strong>Comando:</strong>
+        <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>stty raw -echo; fg</code></pre>
+</div>
+      </li>
+    </ul>
+  </li>
+  <li>Restablecer el entorno:
+    <ul>
+      <li><strong>Comando:</strong>
+        <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>reset xterm</code></pre>
+</div>
+      </li>
+    </ul>
+  </li>
+  <li>Configurar las variables de entorno:
+    <ul>
+      <li><strong>Comandos:</strong>
+        <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>export TERM=xterm
+export SHELL=bash</code></pre>
+</div>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>También ajustar la resolución de la terminal para mejorar la visibilidad por si necesitamos hacer algún comando de editor de texto, la resolución sea ajustada:</p>
+
+<ul>
+  <li><strong>Ver dimensiones de nuestra terminal:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>stty -a</code></pre>
+</div>
+  </li>
+  <li><strong>Ajustar filas y columnas (ejemplo):</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>stty rows 24 columns 80</code></pre>
+</div>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="7-escalada-de-privilegios">7. Escalada de Privilegios</h2>
+
+<p>Una vez obtenida una shell interactiva, se procede a investigar posibles vectores de escalada de privilegios. Se comienza verificando qué comandos se pueden ejecutar con privilegios elevados:</p>
+
+<ul>
+  <li><strong>Comando para listar permisos sudo:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>sudo -l</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>En este caso, se detectaron posibilidades para escalar privilegios mediante:</p>
+<ul>
+  <li>El uso de GTFOBins para explotar comandos como <strong>yum</strong>.</li>
+  <li>Otra técnica sobre <strong>nmap</strong> en modo interactivo (en versiones 2.02 a 5.21) con:
+    <ul>
+      <li><strong>Comando interactivo:</strong>
+        <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>sudo nmap --interactive</code></pre>
+</div>
+      </li>
+      <li>Dentro de la consola interactiva, se puede escribir <code class="language-plaintext highlighter-rouge">!sh</code> para obtener una shell con privilegios de root.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="8-otras-formas-de-explotación">8. Otras Formas de Explotación</h2>
+
+<p>Esta fue la forma que encontré para resolver esta máquina, pero hay muchas más. Una de ellas es usadno un shellshock atack por el panel de login que se muestraba en el puerto 100000.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/beep/shock.png" alt="schok" width="1500" />
+</p>
+
+<p>Vemos que al hacer un login erróneo nos redirige a un get de un archivo con extension .cgi
+Desde burpsuite podemos interceptar el método GET de esa página y editar la cabecera de nuestro User Agent (en Referer tambien y en otros campos más) para efectuar el ShellShock atack y mandarnos una consola interactiva por el puerto 444.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/beep/burp.png" alt="burp" width="5100" />
+</p>
+
+<p>Así conseguimos ganar acceso a la máquina y directamente como el usuario root.</p>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#elastix" class="page__taxonomy-item" rel="tag">Elastix</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#ewpt" class="page__taxonomy-item" rel="tag">eWPT</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#file-upload" class="page__taxonomy-item" rel="tag">File Upload</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#f%C3%A1cil" class="page__taxonomy-item" rel="tag">Fácil</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#information-leakage" class="page__taxonomy-item" rel="tag">Information Leakage</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#lfi" class="page__taxonomy-item" rel="tag">LFI</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#linux" class="page__taxonomy-item" rel="tag">Linux</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#rce" class="page__taxonomy-item" rel="tag">RCE</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#shellshock-attack" class="page__taxonomy-item" rel="tag">Shellshock Attack</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#tls" class="page__taxonomy-item" rel="tag">TLS</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#vtiger" class="page__taxonomy-item" rel="tag">Vtiger</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#ewpt" class="page__taxonomy-item" rel="tag">eWPT</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#htb" class="page__taxonomy-item" rel="tag">HTB</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#writeup" class="page__taxonomy-item" rel="tag">WriteUp</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Fecha:</strong> <time datetime="2025-04-02T00:00:00+02:00">April 02, 2025</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/t%C3%A9cnicas-wifi-hacking/" class="pagination--pager" title="WiFi Hacking: Fuerza Bruta y Métodos Adicionales
+">Previous</a>
+    
+    
+      <a href="/compartir-archivos-a-nivel-de-red/" class="pagination--pager" title="Transferencia de Archivos entre Parrot y Windows
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2025 Álvaro</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>
