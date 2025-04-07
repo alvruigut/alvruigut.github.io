@@ -1,4 +1,244 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-04-05T18:03:09+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">RuyzTzt7 | Ciberseguridad y Hacking Ético</title><subtitle>Artículos sobre ciberseguridad, CTFs e investigaciones</subtitle><author><name>Álvaro Ruiz Gutiérrez</name></author><entry><title type="html">Transferencia de Archivos entre Parrot y Windows</title><link href="http://localhost:4000/compartir-archivos-a-nivel-de-red/" rel="alternate" type="text/html" title="Transferencia de Archivos entre Parrot y Windows" /><published>2025-04-03T00:00:00+02:00</published><updated>2025-04-03T00:00:00+02:00</updated><id>http://localhost:4000/compartir-archivos-a-nivel-de-red</id><content type="html" xml:base="http://localhost:4000/compartir-archivos-a-nivel-de-red/"><![CDATA[<h1 id="transferencia-de-archivos-entre-parrot-y-windows">Transferencia de Archivos entre Parrot y Windows</h1>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-04-07T17:42:39+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">RuyzTzt7 | Ciberseguridad y Hacking Ético</title><subtitle>Artículos sobre ciberseguridad, CTFs e investigaciones</subtitle><author><name>Álvaro Ruiz Gutiérrez</name></author><entry><title type="html">WriteUp HTB - Máquina Keeper</title><link href="http://localhost:4000/writeup-keeper/" rel="alternate" type="text/html" title="WriteUp HTB - Máquina Keeper" /><published>2025-04-07T00:00:00+02:00</published><updated>2025-04-07T00:00:00+02:00</updated><id>http://localhost:4000/writeup-keeper</id><content type="html" xml:base="http://localhost:4000/writeup-keeper/"><![CDATA[<p align="center">
+  <img src="/assets/images/htb/keeper/logo2.png" alt="Beep" width="2200" />
+</p>
+
+<blockquote>
+  <h1 id="ip-keeper-1012922941">IP Keeper: 10.129.229.41</h1>
+  <h1 id="ip-local-10101610">IP Local: 10.10.16.10</h1>
+</blockquote>
+
+<h2 id="1-enumeración-de-puertos-de-la-máquina">1. Enumeración de Puertos de la Máquina</h2>
+
+<p>Primeramente comprobamos que tenemos acceso a la máquina Keeper con una traza ICMP de un paquete. 
+Además la conexión, nos permite identificar por el valor TTL (Time to alive), 
+si nos enfrentamos a una máquina Linux(TTL -&gt; 64) o Windows( -&gt; 128)</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>ping -c 1 10.129.229.41</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>En HTB, se aprecia que el TTL es una unidad menor. Para visualizar la ruta completa de la conexión y comprobar que existe un nodo intermediario entre el atacante y la víctima, se utiliza la flag <strong>-R</strong>:</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>ping -c 1 10.129.229.41 -R</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>A continuación, se crea un directorio de trabajo en el escritorio, nombrándolo según la máquina:</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>mkdir Keeper</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>Para organizar el ataque, se utiliza una función personalizada llamada <strong>mkt</strong> (definida en el archivo .zshrc) que crea tres carpetas: <code class="language-plaintext highlighter-rouge">nmap</code>, <code class="language-plaintext highlighter-rouge">content</code> y <code class="language-plaintext highlighter-rouge">exploits</code>.</p>
+
+<ul>
+  <li><strong>Función:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>mkt () {
+mkdir {nmap,content,exploits}
+}</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>Dentro de la carpeta <strong>nmap</strong>, se procede a enumerar los puertos abiertos entre los 65,535 disponibles:</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.229.41 -oG allPorts</code></pre>
+</div>
+
+    <ul>
+      <li><strong>-p-:</strong> Escanea todo el rango de puertos.</li>
+      <li><strong>–open:</strong> Muestra solo los puertos abiertos.</li>
+      <li><strong>-sS:</strong> Realiza un TCP SYN Scan.</li>
+      <li><strong>–min-rate 5000:</strong> Aumenta la velocidad del escaneo (más de 5000 paquetes por segundo).</li>
+      <li><strong>-vvv:</strong> Modo triple verbose para mayor detalle.</li>
+      <li><strong>-n:</strong> Omite la resolución DNS.</li>
+      <li><strong>-Pn:</strong> Asume que el host está activo.</li>
+      <li><strong>-oG:</strong> Exporta los resultados en formato grepeable, facilitando el filtrado posterior.</li>
+    </ul>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/nmap1.png" alt="Nmap" width="800" />
+</p>
+
+<p>Una vez concluido el escaneo de puertos, se utiliza una herramienta personalizada llamada <strong>extractPorts</strong> (definida en el .zshrc) para copiar los puertos relevantes al portapapeles y proceder a la enumeración de servicios.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/target.png" alt="ExtractPorts" width="900" />
+</p>
+
+<hr />
+
+<h2 id="2-enumeración-de-servicios-de-los-puertos">2. Enumeración de Servicios de los Puertos</h2>
+
+<p>Con la lista de puertos obtenida, se procede a identificar los servicios que corren en ellos. Esto permite conocer las versiones y configuraciones, facilitando la detección de posibles vulnerabilidades.</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>nmap -sCV -p22,80 -oN targeted</code></pre>
+</div>
+
+    <ul>
+      <li><strong>-sC:</strong> Ejecuta scripts básicos de reconocimiento.</li>
+      <li><strong>-sV:</strong> Detecta versiones y servicios.</li>
+      <li><strong>-oN:</strong> Exporta los resultados en un formato normal.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="3-análisis-de-servicios">3. Análisis de Servicios</h2>
+
+<p>Durante esta etapa se observa que el puerto 80 y 22 estan expuestos. Se procede a examinar la web mediante un navegador y, utilizando la extensión <strong>Wappalyzer</strong> de Firefox, se identifican las tecnologías empleadas.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/vhost.png" alt="Virtual Hosting" width="2500" />
+</p>
+
+<p>Al acceder a la web se produce un host discovery por lo que tendremos que añadir al /etc/hosts el dominio. Y vemos como al hacer ping al dominio, se nos resuelve el comando.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/hosts.png" alt="Hosts" width="2500" />
+</p>
+
+<p>Finalmente, se revela un panel de login de Request Tracker:</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/login.png" alt="Login" width="2300" />
+</p>
+
+<hr />
+
+<h2 id="4-identificación-de-vulnerabilidades">4. Identificación de Vulnerabilidades</h2>
+
+<p>Se prueba inicialmente el acceso al panel utilizando las contraseñas por defecto, con éxito.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/pass.png" alt="Password 1" width="2500" />
+</p>
+
+<p>Se detecta que hay un leak de información en el apartado de usuario donde vemos un usuario potencial y un comentario de cambio de contraseña con esta expuesta. Por lo que tratamos de conectarnos por ssh y entramos en la máquina víctima con el usuario encontrado.</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>ssh user@10.129.229.41</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>Posteriormente, encontramos un zip que contiene un keepass y un volcado de un dumpeo de la base de datos del keepass.Por lo que para extraerlo y verlo en mi máquina, uso netcat para traerme el ficher.zip.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/ziplon.png" alt="zip" width="2500" />
+</p>
+
+<p>Nota: Usando md5sum podemos spamearlo sobre el fichero que estamos extrayendo para que cuando el contenido sea estático saber que ha concluido la extracción.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/md5.png" alt="md5" width="2500" />
+</p>
+
+<p>A priori, abrimos el keepas con keepassxc y vemos que nos pide la contraseña maestra. Para ello debemos de investigar sobre el dumpeo que se nos proporciona, y en ese binario con extensión .dmp existe una vulnerabilidad registrada como <strong>CVE-2023-32784</strong></p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/keepass.png" alt="Keepass Login" width="2500" />
+</p>
+
+<hr />
+
+<h2 id="5-explotación-de-vulnerabilidades">5. Explotación de Vulnerabilidades</h2>
+
+<h3 id="análisis-y-explotación-de-cve-2023-32784">Análisis y Explotación de CVE-2023-32784</h3>
+
+<p>Se identifica la vulnerabilidad, y tras horas investigando, encontré un script en python para extraer posibles contraseñas almcenadas en el binario.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/exploit.png" alt="Exploit" width="2500" />
+</p>
+
+<p>Tras tener una lista de posibles contraseñas, vemos que se encuentras algunos caracteres codificados, al copiar y pegar en google vemos que son letras noruegas. Probamos dicha contraseña en el gestor de contraseñas y accedemos.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/password.png" alt="Chrome Noruego" width="2500" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/kepasword.png" alt="KeePass PAssword" width="2500" />
+</p>
+
+<p>Dentro del keepass, vemos la contraseña del usuario root, la cual no funcionaba ni el la web ni por ssh. En las notas había una clave privada pero en formato PuTTY <strong>.ppk</strong>.</p>
+<p align="center">
+  <img src="/assets/images/htb/keeper/putty.png" alt="Credenciales root" width="2500" />
+</p>
+
+<p>Nos copiamos el contenido en neustro equipo para trabajar sobre este.</p>
+<p align="center">
+  <img src="/assets/images/htb/keeper/fileppk.png" alt="File .ppk" width="2500" />
+</p>
+
+<p>Usamos la herramiento de puttygen para convertirlo a RSA <strong>.pem</strong> que estamos acostumbrado a usar.</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>sudo apt-get install putty-tools</code></pre>
+</div>
+  </li>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>puttygen key.ppk -O private-openssh -o key.pem
+</code></pre>
+</div>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/id_rsa.png" alt="File .pem" width="2500" />
+</p>
+
+<p>Una vez Obtenido la clave privada, le damos el permiso 600</p>
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>chmod 600 key.pem</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>Y con el parámetro  -i nos conectamos por ssh.</p>
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>ssh -i key.pem root@10.129.229.41</code></pre>
+</div>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/pwnd.png" alt="File .pem" width="2500" />
+</p>
+
+<p>Así conseguimos ganar acceso a la máquina y directamente como el usuario root.</p>]]></content><author><name>Álvaro Ruiz Gutiérrez</name></author><category term="HTB" /><category term="WriteUp" /><category term="eJPT" /><category term="CVE-2023-32784" /><category term="Request Tracker" /><category term="Information Leakage" /><category term="KeePass .kdbx" /><category term="Putty" /><category term="Extensión .ppk" /><category term="Clave Privada" /><category term="RSA" /><category term="Linux" /><category term="Fácil" /><category term="eJPT" /><summary type="html"><![CDATA[En este artículo, resolveremos la máquina Keeper de la plataforma HTB.]]></summary></entry><entry><title type="html">Transferencia de Archivos entre Parrot y Windows</title><link href="http://localhost:4000/compartir-archivos-a-nivel-de-red/" rel="alternate" type="text/html" title="Transferencia de Archivos entre Parrot y Windows" /><published>2025-04-03T00:00:00+02:00</published><updated>2025-04-03T00:00:00+02:00</updated><id>http://localhost:4000/compartir-archivos-a-nivel-de-red</id><content type="html" xml:base="http://localhost:4000/compartir-archivos-a-nivel-de-red/"><![CDATA[<h1 id="transferencia-de-archivos-entre-parrot-y-windows">Transferencia de Archivos entre Parrot y Windows</h1>
 
 <p>Este artículo describe cómo transferir archivos entre <strong>Parrot OS</strong> y <strong>Windows</strong> en una red local utilizando distintos métodos: SMB con <code class="language-plaintext highlighter-rouge">impacket</code>, montaje de carpetas compartidas con <code class="language-plaintext highlighter-rouge">CIFS</code>, y un servidor HTTP básico con <code class="language-plaintext highlighter-rouge">Python</code>.</p>
 
@@ -1983,7 +2223,7 @@ Consulta el repositorio <a href="https://github.com/brannondorsey/wifi-cracking"
 
 <blockquote>
   <p><strong>Importante:</strong> Estos conocimientos deben utilizarse de forma ética y legal. Realiza pruebas únicamente en entornos controlados o en redes sobre las que tengas autorización expresa.</p>
-</blockquote>]]></content><author><name>Álvaro Ruiz Gutiérrez</name></author><category term="Seguridad" /><category term="Hacking" /><category term="WiFi" /><category term="Hacking" /><category term="Seguridad" /><category term="Aircrack-ng" /><summary type="html"><![CDATA[En este artículo se explica cómo realizar un ataque de fuerza bruta a una red WiFi utilizando herramientas como Aircrack-ng, y se presentan métodos adicionales para obtener contraseñas.]]></summary></entry><entry><title type="html">Writeup HTB - Máquina Beep</title><link href="http://localhost:4000/writeup-beep/" rel="alternate" type="text/html" title="Writeup HTB - Máquina Beep" /><published>2025-04-02T00:00:00+02:00</published><updated>2025-04-02T00:00:00+02:00</updated><id>http://localhost:4000/writeup-beep</id><content type="html" xml:base="http://localhost:4000/writeup-beep/"><![CDATA[<p align="center">
+</blockquote>]]></content><author><name>Álvaro Ruiz Gutiérrez</name></author><category term="Seguridad" /><category term="Hacking" /><category term="WiFi" /><category term="Hacking" /><category term="Seguridad" /><category term="Aircrack-ng" /><summary type="html"><![CDATA[En este artículo se explica cómo realizar un ataque de fuerza bruta a una red WiFi utilizando herramientas como Aircrack-ng, y se presentan métodos adicionales para obtener contraseñas.]]></summary></entry><entry><title type="html">WriteUp HTB - Máquina Beep</title><link href="http://localhost:4000/writeup-beep/" rel="alternate" type="text/html" title="WriteUp HTB - Máquina Beep" /><published>2025-04-02T00:00:00+02:00</published><updated>2025-04-02T00:00:00+02:00</updated><id>http://localhost:4000/writeup-beep</id><content type="html" xml:base="http://localhost:4000/writeup-beep/"><![CDATA[<p align="center">
   <img src="/assets/images/htb/beep/beep.png" alt="Beep" width="2200" />
 </p>
 

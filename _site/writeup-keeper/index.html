@@ -9,40 +9,40 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>            WriteUp HTB - Máquina Beep - RuyzTzt7      Ciberseguridad y Hacking Ético      </title>
-<meta name="description" content="En este artículo, resolveremos la máquina Beep de la plataforma HTB.">
+<!-- begin _includes/seo.html --><title>            WriteUp HTB - Máquina Keeper - RuyzTzt7      Ciberseguridad y Hacking Ético      </title>
+<meta name="description" content="En este artículo, resolveremos la máquina Keeper de la plataforma HTB.">
 
 
 
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="RuyzTzt7 | Ciberseguridad y Hacking Ético">
-<meta property="og:title" content="WriteUp HTB - Máquina Beep">
-<meta property="og:url" content="http://localhost:4000/writeup-beep/">
+<meta property="og:title" content="WriteUp HTB - Máquina Keeper">
+<meta property="og:url" content="http://localhost:4000/writeup-keeper/">
 
 
-  <meta property="og:description" content="En este artículo, resolveremos la máquina Beep de la plataforma HTB.">
-
-
-
-  <meta property="og:image" content="http://localhost:4000/assets/images/htb/beep/beeplogo.png">
+  <meta property="og:description" content="En este artículo, resolveremos la máquina Keeper de la plataforma HTB.">
 
 
 
-
-
-  <meta property="article:published_time" content="2025-04-02T00:00:00+02:00">
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb/keeper/logo.png">
 
 
 
 
 
-  
+  <meta property="article:published_time" content="2025-04-07T00:00:00+02:00">
+
+
+
+
 
   
 
+  
 
-<link rel="canonical" href="http://localhost:4000/writeup-beep/">
+
+<link rel="canonical" href="http://localhost:4000/writeup-keeper/">
 
 
 
@@ -166,7 +166,7 @@
         <span class="sep">/</span>
       
       
-        <li class="current">WriteUp HTB - Máquina Beep</li>
+        <li class="current">WriteUp HTB - Máquina Keeper</li>
       
     
   </ol>
@@ -295,15 +295,15 @@
 
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
-    <meta itemprop="headline" content="WriteUp HTB - Máquina Beep">
-    <meta itemprop="description" content="En este artículo, resolveremos la máquina Beep de la plataforma HTB.">
-    <meta itemprop="datePublished" content="April 02, 2025">
+    <meta itemprop="headline" content="WriteUp HTB - Máquina Keeper">
+    <meta itemprop="description" content="En este artículo, resolveremos la máquina Keeper de la plataforma HTB.">
+    <meta itemprop="datePublished" content="April 07, 2025">
     
 
     <div class="page__inner-wrap">
       
         <header>
-          <h1 id="page-title" class="page__title" itemprop="headline">WriteUp HTB - Máquina Beep
+          <h1 id="page-title" class="page__title" itemprop="headline">WriteUp HTB - Máquina Keeper
 </h1>
           
         </header>
@@ -313,29 +313,29 @@
         
         <p class="page__meta">
           
-            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2025-04-02T00:00:00+02:00">April 02, 2025 </time>&emsp;
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2025-04-07T00:00:00+02:00">April 07, 2025 </time>&emsp;
           
           
         </p>
         <p align="center">
-  <img src="/assets/images/htb/beep/beep.png" alt="Beep" width="2200" />
+  <img src="/assets/images/htb/keeper/logo2.png" alt="Beep" width="2200" />
 </p>
 
 <blockquote>
-  <h1 id="ip-beep-1012928115">IP Beep: 10.129.28.115</h1>
-  <h1 id="ip-local-10101617">IP Local: 10.10.16.17</h1>
+  <h1 id="ip-keeper-1012922941">IP Keeper: 10.129.229.41</h1>
+  <h1 id="ip-local-10101610">IP Local: 10.10.16.10</h1>
 </blockquote>
 
 <h2 id="1-enumeración-de-puertos-de-la-máquina">1. Enumeración de Puertos de la Máquina</h2>
 
-<p>Primeramente comprobamos que tenemos acceso a la máquina Beep con una traza ICMP de un paquete. 
+<p>Primeramente comprobamos que tenemos acceso a la máquina Keeper con una traza ICMP de un paquete. 
 Además la conexión, nos permite identificar por el valor TTL (Time to alive), 
 si nos enfrentamos a una máquina Linux(TTL -&gt; 64) o Windows( -&gt; 128)</p>
 
 <ul>
   <li><strong>Comando:</strong>
     <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>ping -c 1 10.129.28.115</code></pre>
+  <pre style="margin: 0;"><code>ping -c 1 10.129.229.41</code></pre>
 </div>
   </li>
 </ul>
@@ -345,7 +345,7 @@ si nos enfrentamos a una máquina Linux(TTL -&gt; 64) o Windows( -&gt; 128)</p>
 <ul>
   <li><strong>Comando:</strong>
     <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>ping -c 1 10.129.28.115 -R</code></pre>
+  <pre style="margin: 0;"><code>ping -c 1 10.129.229.41 -R</code></pre>
 </div>
   </li>
 </ul>
@@ -355,7 +355,7 @@ si nos enfrentamos a una máquina Linux(TTL -&gt; 64) o Windows( -&gt; 128)</p>
 <ul>
   <li><strong>Comando:</strong>
     <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>mkdir Beep</code></pre>
+  <pre style="margin: 0;"><code>mkdir Keeper</code></pre>
 </div>
   </li>
 </ul>
@@ -377,7 +377,7 @@ mkdir {nmap,content,exploits}
 <ul>
   <li><strong>Comando:</strong>
     <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.28.115 -oG allPorts</code></pre>
+  <pre style="margin: 0;"><code>nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.229.41 -oG allPorts</code></pre>
 </div>
 
     <ul>
@@ -394,13 +394,13 @@ mkdir {nmap,content,exploits}
 </ul>
 
 <p align="center">
-  <img src="/assets/images/htb/beep/nmap1.png" alt="Nmap" width="800" />
+  <img src="/assets/images/htb/keeper/nmap1.png" alt="Nmap" width="800" />
 </p>
 
 <p>Una vez concluido el escaneo de puertos, se utiliza una herramienta personalizada llamada <strong>extractPorts</strong> (definida en el .zshrc) para copiar los puertos relevantes al portapapeles y proceder a la enumeración de servicios.</p>
 
 <p align="center">
-  <img src="/assets/images/htb/beep/extra.png" alt="ExtractPorts" width="900" />
+  <img src="/assets/images/htb/keeper/target.png" alt="ExtractPorts" width="900" />
 </p>
 
 <hr />
@@ -412,7 +412,7 @@ mkdir {nmap,content,exploits}
 <ul>
   <li><strong>Comando:</strong>
     <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>nmap -sCV -p22,25,80,110,111,143,443,857,993,995,3306,4190,4445,4559,5038,10000 -oN targeted</code></pre>
+  <pre style="margin: 0;"><code>nmap -sCV -p22,80 -oN targeted</code></pre>
 </div>
 
     <ul>
@@ -427,205 +427,134 @@ mkdir {nmap,content,exploits}
 
 <h2 id="3-análisis-de-servicios">3. Análisis de Servicios</h2>
 
-<p>Durante esta etapa se observa que el puerto 80 aloja dos servicios HTTP y otro servicio se ejecuta en el puerto 10000. Se procede a examinar la web mediante un navegador y, utilizando la extensión <strong>Wappalyzer</strong> de Firefox, se identifican las tecnologías empleadas.</p>
-
-<p>Al acceder a la web se produce una redirección al puerto 443 (HTTPS) y se presenta el error “SSL_ERROR_UNSUPPORTED_VERSION”. Para solventarlo, se modifican las configuraciones TLS del navegador.</p>
+<p>Durante esta etapa se observa que el puerto 80 y 22 estan expuestos. Se procede a examinar la web mediante un navegador y, utilizando la extensión <strong>Wappalyzer</strong> de Firefox, se identifican las tecnologías empleadas.</p>
 
 <p align="center">
-  <img src="/assets/images/htb/beep/tls.png" alt="TLS Error" width="2500" />
+  <img src="/assets/images/htb/keeper/vhost.png" alt="Virtual Hosting" width="2500" />
 </p>
 
-<p>Finalmente, se revela un panel de login de Elastix:</p>
+<p>Al acceder a la web se produce un host discovery por lo que tendremos que añadir al /etc/hosts el dominio. Y vemos como al hacer ping al dominio, se nos resuelve el comando.</p>
 
 <p align="center">
-  <img src="/assets/images/htb/beep/loginela.png" alt="Login Elastix" width="700" />
+  <img src="/assets/images/htb/keeper/hosts.png" alt="Hosts" width="2500" />
+</p>
+
+<p>Finalmente, se revela un panel de login de Request Tracker:</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/login.png" alt="Login" width="2300" />
 </p>
 
 <hr />
 
 <h2 id="4-identificación-de-vulnerabilidades">4. Identificación de Vulnerabilidades</h2>
 
-<p>Se prueba inicialmente el acceso al panel utilizando las contraseñas por defecto, sin éxito. A continuación, se emplea la herramienta <strong>searchsploit</strong> (de ExploitDB) para buscar vulnerabilidades relacionadas con Elastix.</p>
+<p>Se prueba inicialmente el acceso al panel utilizando las contraseñas por defecto, con éxito.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/pass.png" alt="Password 1" width="2500" />
+</p>
+
+<p>Se detecta que hay un leak de información en el apartado de usuario donde vemos un usuario potencial y un comentario de cambio de contraseña con esta expuesta. Por lo que tratamos de conectarnos por ssh y entramos en la máquina víctima con el usuario encontrado.</p>
 
 <ul>
   <li><strong>Comando:</strong>
     <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>searchsploit Elastix</code></pre>
+  <pre style="margin: 0;"><code>ssh user@10.129.229.41</code></pre>
 </div>
   </li>
 </ul>
 
+<p>Posteriormente, encontramos un zip que contiene un keepass y un volcado de un dumpeo de la base de datos del keepass.Por lo que para extraerlo y verlo en mi máquina, uso netcat para traerme el ficher.zip.</p>
+
 <p align="center">
-  <img src="/assets/images/htb/beep/exdb.png" alt="ExploitDB Elastix" width="1500" />
+  <img src="/assets/images/htb/keeper/ziplon.png" alt="zip" width="2500" />
 </p>
 
-<p>Se detecta que el sistema puede ser vulnerable tanto a RCE (Remote Code Execution) como a LFI (Local File Inclusion).</p>
+<p>Nota: Usando md5sum podemos spamearlo sobre el fichero que estamos extrayendo para que cuando el contenido sea estático saber que ha concluido la extracción.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/md5.png" alt="md5" width="2500" />
+</p>
+
+<p>A priori, abrimos el keepas con keepassxc y vemos que nos pide la contraseña maestra. Para ello debemos de investigar sobre el dumpeo que se nos proporciona, y en ese binario con extensión .dmp existe una vulnerabilidad registrada como <strong>CVE-2023-32784</strong></p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/keepass.png" alt="Keepass Login" width="2500" />
+</p>
 
 <hr />
 
 <h2 id="5-explotación-de-vulnerabilidades">5. Explotación de Vulnerabilidades</h2>
 
-<h3 id="análisis-y-explotación-de-la-vulnerabilidad-lfi">Análisis y Explotación de la Vulnerabilidad LFI</h3>
+<h3 id="análisis-y-explotación-de-cve-2023-32784">Análisis y Explotación de CVE-2023-32784</h3>
 
-<p>Se identifica una vulnerabilidad LFI en la URL que permite listar directorios del sistema, revelando archivos críticos (como <code class="language-plaintext highlighter-rouge">passwd</code>, <code class="language-plaintext highlighter-rouge">hosts</code>) y detalles sobre los puertos activos en <code class="language-plaintext highlighter-rouge">/proc/net/tcp</code>.</p>
-
-<ul>
-  <li><strong>Comando para confirmar la vulnerabilidad:</strong>
-    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>searchsploit Elastix -x &lt;ID_exploit&gt;</code></pre>
-</div>
-  </li>
-</ul>
-
-<p>Con esta vulnerabilidad, se prueban combinaciones de usuario y contraseña en el login de Elastix, obteniéndose acceso con las credenciales:</p>
-<ul>
-  <li><strong>Usuario:</strong> admin</li>
-  <li><strong>Contraseña:</strong> jEhdIekWmdjE</li>
-</ul>
-
-<h3 id="explotación-de-la-vulnerabilidad-rce">Explotación de la Vulnerabilidad RCE</h3>
-
-<p>También, se investiga una vulnerabilidad RCE, adaptando un exploit encontrado en Exploit-DB para evitar problemas de versión. Antes de lanzar el script, se prepara un listener en netcat:</p>
-
-<ul>
-  <li><strong>Comando para iniciar netcat:</strong>
-    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>nc -nlvp 443</code></pre>
-</div>
-  </li>
-</ul>
-
-<p>El exploit se adapta (actualizando librerías y ajustando parámetros) y, al ejecutarlo, se consigue una shell interactiva con el usuario <strong>asterisk</strong>.</p>
+<p>Se identifica la vulnerabilidad, y tras horas investigando, encontré un script en python para extraer posibles contraseñas almcenadas en el binario.</p>
 
 <p align="center">
-  <img src="/assets/images/htb/beep/rce.png" alt="Vulnerabilidad RCE" width="5600" />
+  <img src="/assets/images/htb/keeper/exploit.png" alt="Exploit" width="2500" />
+</p>
+
+<p>Tras tener una lista de posibles contraseñas, vemos que se encuentras algunos caracteres codificados, al copiar y pegar en google vemos que son letras noruegas. Probamos dicha contraseña en el gestor de contraseñas y accedemos.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/password.png" alt="Chrome Noruego" width="2500" />
 </p>
 
 <p align="center">
-  <img src="/assets/images/htb/beep/exploit.png" alt="Exploit Adaptado" width="5300" />
+  <img src="/assets/images/htb/keeper/kepasword.png" alt="KeePass PAssword" width="2500" />
 </p>
 
-<p>Además, se intentó acceder por SSH en el puerto 22 usando fuerza bruta con las credenciales obtenidas en el LFI, pero se recibió el siguiente error:</p>
-<blockquote>
-  <p><code class="language-plaintext highlighter-rouge">ssh root@10.129.27.99: Unable to negotiate with 10.129.27.99 port 22: no matching key exchange method found. Their offer: diffie-hellman-group-exchange-sha1, diffie-hellman-group14-sha1, diffie-hellman-group1-sha1</code></p>
-</blockquote>
-
-<p>Para solucionarlo, se utiliza el siguiente comando ajustado:</p>
-
-<ul>
-  <li><strong>Comando para SSH:</strong>
-    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -oHostKeyAlgorithms=+ssh-rsa,ssh-dss root@10.129.27.99</code></pre>
-</div>
-  </li>
-</ul>
-
-<h2 id="y-sobre-este-se-aplica-la-fuerza-bruta-con-dos-diccionarios-personalizados-uno-para-users-y-otro-para-posibles-passwords">Y sobre este se aplica la fuerza bruta con dos diccionarios personalizados, uno para users y otro para posibles passwords.</h2>
-
-<h2 id="6-post-explotación">6. Post-Explotación</h2>
-
-<p>Tras obtener el acceso con el exploit en python del RCE, se realiza un tratamiento a la consola:</p>
-
-<ul>
-  <li>Iniciar una sesión:
-    <ul>
-      <li><strong>Comando:</strong>
-        <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>script /dev/null -c bash</code></pre>
-</div>
-      </li>
-    </ul>
-  </li>
-  <li>Suspender la shell con <code class="language-plaintext highlighter-rouge">ctrl+z</code>.</li>
-  <li>Reanudar la shell en modo raw:
-    <ul>
-      <li><strong>Comando:</strong>
-        <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>stty raw -echo; fg</code></pre>
-</div>
-      </li>
-    </ul>
-  </li>
-  <li>Restablecer el entorno:
-    <ul>
-      <li><strong>Comando:</strong>
-        <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>reset xterm</code></pre>
-</div>
-      </li>
-    </ul>
-  </li>
-  <li>Configurar las variables de entorno:
-    <ul>
-      <li><strong>Comandos:</strong>
-        <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>export TERM=xterm
-export SHELL=bash</code></pre>
-</div>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<p>También ajustar la resolución de la terminal para mejorar la visibilidad por si necesitamos hacer algún comando de editor de texto, la resolución sea ajustada:</p>
-
-<ul>
-  <li><strong>Ver dimensiones de nuestra terminal:</strong>
-    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>stty -a</code></pre>
-</div>
-  </li>
-  <li><strong>Ajustar filas y columnas (ejemplo):</strong>
-    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>stty rows 24 columns 80</code></pre>
-</div>
-  </li>
-</ul>
-
-<hr />
-
-<h2 id="7-escalada-de-privilegios">7. Escalada de Privilegios</h2>
-
-<p>Una vez obtenida una shell interactiva, se procede a investigar posibles vectores de escalada de privilegios. Se comienza verificando qué comandos se pueden ejecutar con privilegios elevados:</p>
-
-<ul>
-  <li><strong>Comando para listar permisos sudo:</strong>
-    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>sudo -l</code></pre>
-</div>
-  </li>
-</ul>
-
-<p>En este caso, se detectaron posibilidades para escalar privilegios mediante:</p>
-<ul>
-  <li>El uso de GTFOBins para explotar comandos como <strong>yum</strong>.</li>
-  <li>Otra técnica sobre <strong>nmap</strong> en modo interactivo (en versiones 2.02 a 5.21) con:
-    <ul>
-      <li><strong>Comando interactivo:</strong>
-        <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
-  <pre style="margin: 0;"><code>sudo nmap --interactive</code></pre>
-</div>
-      </li>
-      <li>Dentro de la consola interactiva, se puede escribir <code class="language-plaintext highlighter-rouge">!sh</code> para obtener una shell con privilegios de root.</li>
-    </ul>
-  </li>
-</ul>
-
-<hr />
-
-<h2 id="8-otras-formas-de-explotación">8. Otras Formas de Explotación</h2>
-
-<p>Esta fue la forma que encontré para resolver esta máquina, pero hay muchas más. Una de ellas es usadno un shellshock atack por el panel de login que se muestraba en el puerto 100000.</p>
-
+<p>Dentro del keepass, vemos la contraseña del usuario root, la cual no funcionaba ni el la web ni por ssh. En las notas había una clave privada pero en formato PuTTY <strong>.ppk</strong>.</p>
 <p align="center">
-  <img src="/assets/images/htb/beep/shock.png" alt="schok" width="1500" />
+  <img src="/assets/images/htb/keeper/putty.png" alt="Credenciales root" width="2500" />
 </p>
 
-<p>Vemos que al hacer un login erróneo nos redirige a un get de un archivo con extension .cgi
-Desde burpsuite podemos interceptar el método GET de esa página y editar la cabecera de nuestro User Agent (en Referer tambien y en otros campos más) para efectuar el ShellShock atack y mandarnos una consola interactiva por el puerto 444.</p>
+<p>Nos copiamos el contenido en neustro equipo para trabajar sobre este.</p>
+<p align="center">
+  <img src="/assets/images/htb/keeper/fileppk.png" alt="File .ppk" width="2500" />
+</p>
+
+<p>Usamos la herramiento de puttygen para convertirlo a RSA <strong>.pem</strong> que estamos acostumbrado a usar.</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>sudo apt-get install putty-tools</code></pre>
+</div>
+  </li>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>puttygen key.ppk -O private-openssh -o key.pem
+</code></pre>
+</div>
+  </li>
+</ul>
 
 <p align="center">
-  <img src="/assets/images/htb/beep/burp.png" alt="burp" width="5100" />
+  <img src="/assets/images/htb/keeper/id_rsa.png" alt="File .pem" width="2500" />
+</p>
+
+<p>Una vez Obtenido la clave privada, le damos el permiso 600</p>
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>chmod 600 key.pem</code></pre>
+</div>
+  </li>
+</ul>
+
+<p>Y con el parámetro  -i nos conectamos por ssh.</p>
+<ul>
+  <li><strong>Comando:</strong>
+    <div style="background-color: rgba(156, 28, 66, 0.49); color: #fff; padding: 6px 10px; border-radius: 5px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px;">
+  <pre style="margin: 0;"><code>ssh -i key.pem root@10.129.229.41</code></pre>
+</div>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/keeper/pwnd.png" alt="File .pem" width="2500" />
 </p>
 
 <p>Así conseguimos ganar acceso a la máquina y directamente como el usuario root.</p>
@@ -650,15 +579,19 @@ Desde burpsuite podemos interceptar el método GET de esa página y editar la ca
     
       
       
-      <a href="/tags/#elastix" class="page__taxonomy-item" rel="tag">Elastix</a><span class="sep">, </span>
+      <a href="/tags/#clave-privada" class="page__taxonomy-item" rel="tag">Clave Privada</a><span class="sep">, </span>
     
       
       
-      <a href="/tags/#ewpt" class="page__taxonomy-item" rel="tag">eWPT</a><span class="sep">, </span>
+      <a href="/tags/#cve-2023-32784" class="page__taxonomy-item" rel="tag">CVE-2023-32784</a><span class="sep">, </span>
     
       
       
-      <a href="/tags/#file-upload" class="page__taxonomy-item" rel="tag">File Upload</a><span class="sep">, </span>
+      <a href="/tags/#ejpt" class="page__taxonomy-item" rel="tag">eJPT</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#extensi%C3%B3n-ppk" class="page__taxonomy-item" rel="tag">Extensión .ppk</a><span class="sep">, </span>
     
       
       
@@ -670,7 +603,7 @@ Desde burpsuite podemos interceptar el método GET de esa página y editar la ca
     
       
       
-      <a href="/tags/#lfi" class="page__taxonomy-item" rel="tag">LFI</a><span class="sep">, </span>
+      <a href="/tags/#keepass-kdbx" class="page__taxonomy-item" rel="tag">KeePass .kdbx</a><span class="sep">, </span>
     
       
       
@@ -678,19 +611,15 @@ Desde burpsuite podemos interceptar el método GET de esa página y editar la ca
     
       
       
-      <a href="/tags/#rce" class="page__taxonomy-item" rel="tag">RCE</a><span class="sep">, </span>
+      <a href="/tags/#putty" class="page__taxonomy-item" rel="tag">Putty</a><span class="sep">, </span>
     
       
       
-      <a href="/tags/#shellshock-attack" class="page__taxonomy-item" rel="tag">Shellshock Attack</a><span class="sep">, </span>
+      <a href="/tags/#request-tracker" class="page__taxonomy-item" rel="tag">Request Tracker</a><span class="sep">, </span>
     
       
       
-      <a href="/tags/#tls" class="page__taxonomy-item" rel="tag">TLS</a><span class="sep">, </span>
-    
-      
-      
-      <a href="/tags/#vtiger" class="page__taxonomy-item" rel="tag">Vtiger</a>
+      <a href="/tags/#rsa" class="page__taxonomy-item" rel="tag">RSA</a>
     
     </span>
   </p>
@@ -711,7 +640,7 @@ Desde burpsuite podemos interceptar el método GET de esa página y editar la ca
     
       
       
-      <a href="/categories/#ewpt" class="page__taxonomy-item" rel="tag">eWPT</a><span class="sep">, </span>
+      <a href="/categories/#ejpt" class="page__taxonomy-item" rel="tag">eJPT</a><span class="sep">, </span>
     
       
       
@@ -726,7 +655,7 @@ Desde burpsuite podemos interceptar el método GET de esa página y editar la ca
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Fecha:</strong> <time datetime="2025-04-02T00:00:00+02:00">April 02, 2025</time></p>
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Fecha:</strong> <time datetime="2025-04-07T00:00:00+02:00">April 07, 2025</time></p>
         
       </footer>
 
@@ -735,12 +664,11 @@ Desde burpsuite podemos interceptar el método GET de esa página y editar la ca
       
   <nav class="pagination">
     
-      <a href="/t%C3%A9cnicas-wifi-hacking/" class="pagination--pager" title="WiFi Hacking: Fuerza Bruta y Métodos Adicionales
+      <a href="/compartir-archivos-a-nivel-de-red/" class="pagination--pager" title="Transferencia de Archivos entre Parrot y Windows
 ">Previous</a>
     
     
-      <a href="/compartir-archivos-a-nivel-de-red/" class="pagination--pager" title="Transferencia de Archivos entre Parrot y Windows
-">Next</a>
+      <a href="#" class="pagination--pager disabled">Next</a>
     
   </nav>
 
