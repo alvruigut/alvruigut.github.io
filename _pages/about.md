@@ -19,9 +19,9 @@ Mi enfoque principal es el desarrollo, pero mi **pasión está en la ciberseguri
 
 Estas son las certificaciones que forman parte de mis próximos retos en el ámbito del pentesting:
 
-- 🛡️ **eJPT** – *eLearnSecurity Junior Penetration Tester*  
-- 🔐 **eCPPTv2** – *eLearnSecurity Certified Professional Penetration Tester*  
-- 🎯 **OSCP** – *Offensive Security Certified Professional*
+- 🛡️ **eJPTv2**   
+- 🔐 **eCPPT**   
+- 🎯 **OSCP** 
 
 ---
 
