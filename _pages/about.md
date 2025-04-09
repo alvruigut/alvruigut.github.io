@@ -83,7 +83,7 @@ Estas son las certificaciones que forman parte de mis próximos retos en el ámb
 
 ---
 
-## 📚 Cursos y certificaciones adicionales
+## 📚 Cursos
 
 ### 🔸 Curso online de ciberseguridad – *hack4u.io*
 
