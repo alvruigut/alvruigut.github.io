@@ -1,6 +1,6 @@
 ---
 layout: single
-title: WriteUp HTB - Máquina validation
+title: WriteUp HTB - Máquina Validation
 excerpt: "En este artículo, resolveremos la máquina Validation de la plataforma HTB."
 date: 2025-04-12
 classes: wide
