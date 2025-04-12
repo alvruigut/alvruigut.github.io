@@ -20,7 +20,7 @@ tags:
 
 ---
 <p align="center">
-  <img src="/assets/images/htb/validation/burp.png" alt="Validation" width="2200">
+  <img src="/assets/images/htb/validation/logo1.png" alt="Validation" width="2200">
 </p>
 
 
