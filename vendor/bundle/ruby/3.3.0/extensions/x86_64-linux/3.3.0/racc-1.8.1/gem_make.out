@@ -1,0 +1,18 @@
+current directory: /home/alvarorugu7/Desktop/ruyztz7/MyWeb/alvruigut.github.io/vendor/bundle/ruby/3.3.0/gems/racc-1.8.1/ext/racc/cparse
+/home/alvarorugu7/.rbenv/versions/3.3.0/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/alvarorugu7/Desktop/ruyztz7/MyWeb/alvruigut.github.io/vendor/bundle/ruby/3.3.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250412-170393-sbq4ra sitelibdir\=./.gem.20250412-170393-sbq4ra clean
+
+current directory: /home/alvarorugu7/Desktop/ruyztz7/MyWeb/alvruigut.github.io/vendor/bundle/ruby/3.3.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250412-170393-sbq4ra sitelibdir\=./.gem.20250412-170393-sbq4ra
+compiling cparse.c
+linking shared-object racc/cparse.so
+
+current directory: /home/alvarorugu7/Desktop/ruyztz7/MyWeb/alvruigut.github.io/vendor/bundle/ruby/3.3.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250412-170393-sbq4ra sitelibdir\=./.gem.20250412-170393-sbq4ra install
+/usr/bin/install -c -m 0755 cparse.so ./.gem.20250412-170393-sbq4ra/racc
+
+current directory: /home/alvarorugu7/Desktop/ruyztz7/MyWeb/alvruigut.github.io/vendor/bundle/ruby/3.3.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250412-170393-sbq4ra sitelibdir\=./.gem.20250412-170393-sbq4ra clean

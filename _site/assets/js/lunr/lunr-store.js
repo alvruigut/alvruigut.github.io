@@ -23,4 +23,9 @@ var store = [{
         "excerpt":"IP Keeper: 10.129.229.41 IP Local: 10.10.16.10 1. Enumeración de Puertos de la Máquina Primeramente comprobamos que tenemos acceso a la máquina Keeper con una traza ICMP de un paquete. Además la conexión, nos permite identificar por el valor TTL (Time to alive), si nos enfrentamos a una máquina Linux(TTL -&gt;...","categories": ["HTB","WriteUp","eJPT"],
         "tags": ["CVE-2023-32784","Request Tracker","Information Leakage","KeePass .kdbx","Putty","Extensión .ppk","Clave Privada","RSA","Linux","Fácil","eJPT"],
         "url": "http://localhost:4000/writeup-keeper/",
-        "teaser":"http://localhost:4000/assets/images/htb/keeper/logo.png"}]
+        "teaser":"http://localhost:4000/assets/images/htb/keeper/logo.png"},{
+        "title": "WriteUp HTB - Máquina validation",
+        "excerpt":"Explotación SQLI. Vemos en primer lugar que nos enfrentamos ante un panel donde no se acontece ningun login. Solo un post donde te creas un usuario al acceder. Probamos a alterar el campo de país con Burpsuite para ver si se acontece algún fallo en la web. Como falla, podemos...","categories": ["HTB","WriteUp","eJPT"],
+        "tags": ["SQLI","Linux","Fácil","eJPT","MySQL"],
+        "url": "http://localhost:4000/writeup-validation/",
+        "teaser":"http://localhost:4000/assets/images/htb/validation/logo.png"}]

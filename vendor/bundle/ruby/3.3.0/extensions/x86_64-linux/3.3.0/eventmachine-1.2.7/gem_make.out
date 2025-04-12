@@ -1,0 +1,19 @@
+current directory: /home/alvarorugu7/Desktop/ruyztz7/MyWeb/alvruigut.github.io/vendor/bundle/ruby/3.3.0/gems/eventmachine-1.2.7/ext/fastfilereader
+/home/alvarorugu7/.rbenv/versions/3.3.0/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/alvarorugu7/Desktop/ruyztz7/MyWeb/alvruigut.github.io/vendor/bundle/ruby/3.3.0/gems/eventmachine-1.2.7/ext/fastfilereader
+make DESTDIR\= sitearchdir\=./.gem.20250412-170393-rvjbpl sitelibdir\=./.gem.20250412-170393-rvjbpl clean
+
+current directory: /home/alvarorugu7/Desktop/ruyztz7/MyWeb/alvruigut.github.io/vendor/bundle/ruby/3.3.0/gems/eventmachine-1.2.7/ext/fastfilereader
+make DESTDIR\= sitearchdir\=./.gem.20250412-170393-rvjbpl sitelibdir\=./.gem.20250412-170393-rvjbpl
+compiling mapper.cpp
+compiling rubymain.cpp
+linking shared-object fastfilereaderext.so
+
+current directory: /home/alvarorugu7/Desktop/ruyztz7/MyWeb/alvruigut.github.io/vendor/bundle/ruby/3.3.0/gems/eventmachine-1.2.7/ext/fastfilereader
+make DESTDIR\= sitearchdir\=./.gem.20250412-170393-rvjbpl sitelibdir\=./.gem.20250412-170393-rvjbpl install
+/usr/bin/install -c -m 0755 fastfilereaderext.so ./.gem.20250412-170393-rvjbpl
+
+current directory: /home/alvarorugu7/Desktop/ruyztz7/MyWeb/alvruigut.github.io/vendor/bundle/ruby/3.3.0/gems/eventmachine-1.2.7/ext/fastfilereader
+make DESTDIR\= sitearchdir\=./.gem.20250412-170393-rvjbpl sitelibdir\=./.gem.20250412-170393-rvjbpl clean

