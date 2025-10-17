@@ -14,7 +14,7 @@ tags:
 
 ---
 <p align="center">
-  <img src="/assets/images/amazon.png" alt="Beep" width="2200">
+  <img src="/assets/images/amazon.png" alt="ama" width="2200">
 </p>
 
 
