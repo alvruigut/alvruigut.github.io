@@ -1,13 +1,18 @@
 ---
 layout: single
 title: Afiliado
+excerpt: "Link Amazons"
+date: 2025-10-07
+classes: wide
 header:
   teaser: /assets/images/amazon.png
   teaser_home_page: true
 categories:
-  - Amazon
----
+  - Links
+tags:
+  - amazon
 
+---
 <p align="center">
   <img src="/assets/images/amazon.png" alt="Beep" width="2200">
 </p>
@@ -35,7 +40,6 @@ Puedes alojarlo en GitHub Pages, Render, Netlify o cualquier hosting estático g
 
 Guarda el siguiente contenido como `index.html`:
 
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
