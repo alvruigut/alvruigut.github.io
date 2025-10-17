@@ -1,3 +1,7 @@
+# Generador de Enlaces Afiliados Amazon
+
+Aquí tienes el generador 👇
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -32,41 +36,30 @@
 
 <script>
 const AFFILIATE_TAG = "alvarorugu70c-21";
-
 function extraerUrlAmazon(texto) {
   const patron = /(https?:\/\/(?:www\.)?(?:amazon\.[a-z.]{2,6}|amzn\.eu)[^\s]+)/i;
   const match = texto.match(patron);
   return match ? match[1] : null;
 }
-
 function generarLinkAfiliado(texto) {
   const urlOriginal = extraerUrlAmazon(texto);
   if (!urlOriginal) return "❌ No se encontró un enlace de Amazon válido.";
-
   try {
     const u = new URL(urlOriginal);
     const params = new URLSearchParams(u.search);
-
-    // eliminar posibles tags previos
     ["tag", "linkCode", "linkId", "ref_"].forEach(k => params.delete(k));
-
-    // agregar tus parámetros de afiliado
     params.set("linkCode", "ll1");
     params.set("tag", AFFILIATE_TAG);
     params.set("linkId", crypto.randomUUID());
     params.set("language", "es_ES");
     params.set("ref_", "as_li_ss_tl");
-
-    // limpiar /ref=... del path
     u.pathname = u.pathname.replace(/\/ref=[^/?]+/, "");
-
     u.search = params.toString();
     return u.toString();
   } catch (err) {
     return "⚠️ Error procesando la URL.";
   }
 }
-
 function generar() {
   const texto = document.getElementById("inputTexto").value.trim();
   const resultado = document.getElementById("resultado");
