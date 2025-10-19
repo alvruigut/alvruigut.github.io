@@ -1,12 +1,11 @@
 <div class="amazon-box">
   <h2>🔗 Generador de Enlace Amazon</h2>
-  <p>Pega el enlace de Amazon aqui abajo.</p>
+  <p>Pega el enlace de Amazon aquí abajo.</p>
 
   <textarea id="inputTexto" placeholder="Pon aqui tu enlace:"></textarea>
   <button onclick="generar()">Generar enlace afiliado</button>
 
   <div class="result" id="resultado"></div>
-  
 </div>
 
 <div class="amazon-box">
@@ -52,6 +51,17 @@
   font-size: 1rem;
   background: #111;
   color: #fff;
+  resize: vertical;
+  outline: none;
+  caret-color: #ff9900;
+}
+.amazon-box textarea::selection {
+  background: #ff9900;
+  color: #fff;
+}
+.amazon-box textarea:focus {
+  border-color: #ff9900;
+  box-shadow: 0 0 5px rgba(255,153,0,0.6);
 }
 .amazon-box button {
   background: #ff9900;
@@ -115,6 +125,24 @@
 <script>
 const AFFILIATE_TAG = "alvarorugu70c-21";
 
+// 🔸 Permitir seleccionar fácilmente el texto con un clic
+document.addEventListener("DOMContentLoaded", () => {
+  const textarea = document.getElementById("inputTexto");
+
+  // Selecciona todo el contenido cuando se hace clic
+  textarea.addEventListener("click", () => {
+    textarea.select();
+  });
+
+  // Permitir borrar con una sola tecla (por ejemplo, si se pulsa "Supr" o "Backspace" estando todo seleccionado)
+  textarea.addEventListener("keydown", (e) => {
+    if ((e.key === "Delete" || e.key === "Backspace") && textarea.selectionStart === 0 && textarea.selectionEnd === textarea.value.length) {
+      textarea.value = "";
+      e.preventDefault();
+    }
+  });
+});
+
 function extraerUrlAmazon(texto) {
   const patron = /(https?:\/\/(?:www\.)?(?:amazon\.[a-z.]{2,6}|amzn\.eu)[^\s]+)/i;
   const match = texto.match(patron);
@@ -133,7 +161,6 @@ async function generarLinkAfiliado(texto) {
   if (!urlOriginal) return "❌ No se encontró un enlace de Amazon válido.";
   try {
     if (urlOriginal.includes("amzn.eu")) {
-      // 🔸 Enlaces cortos no se pueden resolver sin backend
       return "⚠️ Los enlaces cortos de Amazon (amzn.eu) no se pueden procesar directamente. Ábrelo en tu navegador y copia el enlace completo del producto (amazon.es/dp/XXXXXXX).";
     } else {
       return generarLinkAfiliadoDesdeUrl(urlOriginal);
