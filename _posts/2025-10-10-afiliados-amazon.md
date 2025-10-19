@@ -1,21 +1,20 @@
 <div class="amazon-box">
-  <h2>🔗 Generador de Enlace Amazon</h2>
+  <marquee>🔗 Generador de Enlace Amazon</marquee>
   <p>Pega un texto o enlace de Amazon y genera tu enlace de afiliado automáticamente.</p>
 
   <textarea id="inputTexto" placeholder="Pon aqui tu enlace:"></textarea>
   <button onclick="generar()">Generar enlace afiliado</button>
 
   <div class="result" id="resultado"></div>
-
   <div class="guia" id="guia">
     <h3>📸 Guía: Cómo copiar el enlace correcto de Amazon</h3>
     <p>Si aparece un error, sigue estos pasos para obtener el enlace completo del producto:</p>
-    <img src="assets/images/1.jpeg" alt="Paso 1 - Abrir el producto en Amazon">
-    <img src="assets/images/2.jpeg" alt="Paso 2">
-    <img src="assets/images/3.jpeg" alt="Paso 3">
-    <img src="assets/images/4.jpeg" alt="Paso 4">
-    <img src="assets/images/5.jpeg" alt="Paso 5">
-    <img src="assets/images/6.jpeg" alt="Paso 6">
+    <img src="/assets/images/1.jpeg" alt="Paso 1 - Abrir el producto en Amazon">
+    <img src="/assets/images/2.jpeg" alt="Paso 2">
+    <img src="/assets/images/3.jpeg" alt="Paso 3">
+    <img src="/assets/images/4.jpeg" alt="Paso 4">
+    <img src="/assets/images/5.jpeg" alt="Paso 5">
+    <img src="/assets/images/6.jpeg" alt="Paso 6">
   </div>
 </div>
 
