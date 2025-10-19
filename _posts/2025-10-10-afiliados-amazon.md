@@ -1,5 +1,5 @@
 <div class="amazon-box">
-  <h1>🔗 Generador de Enlace Amazon</h1>
+  <h2>🔗 Generador de Enlace Amazon</h2>
   <p>Pega el enlace de Amazon aqui abajo.</p>
 
   <textarea id="inputTexto" placeholder="Pon aqui tu enlace:"></textarea>
