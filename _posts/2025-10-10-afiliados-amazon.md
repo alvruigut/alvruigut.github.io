@@ -6,6 +6,17 @@
   <button onclick="generar()">Generar enlace afiliado</button>
 
   <div class="result" id="resultado"></div>
+
+  <div class="guia" id="guia">
+    <h3>📸 Guía: Cómo copiar el enlace correcto de Amazon</h3>
+    <p>Si aparece un error, sigue estos pasos para obtener el enlace completo del producto:</p>
+    <img src="assets/images/1.jpeg" alt="Paso 1 - Abrir el producto en Amazon">
+    <img src="assets/images/2.jpeg" alt="Paso 2">
+    <img src="assets/images/3.jpeg" alt="Paso 3">
+    <img src="assets/images/4.jpeg" alt="Paso 4">
+    <img src="assets/images/5.jpeg" alt="Paso 5">
+    <img src="assets/images/6.jpeg" alt="Paso 6">
+  </div>
 </div>
 
 <style>
@@ -56,12 +67,18 @@
 }
 .amazon-box .result {
   background: #fff8e6;
-  border: 1px solid #ffe0a3;
+  border: 2px solid #ffcc80;
   padding: 12px;
   border-radius: 8px;
   margin-top: 15px;
   word-wrap: break-word;
   text-align: left;
+  font-weight: 500;
+}
+.amazon-box .result.error {
+  background: #ffe6e6;
+  border-color: #ff4d4d;
+  color: #b30000;
 }
 .amazon-box a {
   color: #0066c0;
@@ -69,6 +86,21 @@
 }
 .amazon-box a:hover {
   text-decoration: underline;
+}
+.guia {
+  margin-top: 40px;
+  text-align: center;
+}
+.guia h3 {
+  color: #333;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+.guia img {
+  max-width: 100%;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 @media (min-width: 1024px) {
   .amazon-box {
@@ -98,8 +130,8 @@ async function generarLinkAfiliado(texto) {
   if (!urlOriginal) return "❌ No se encontró un enlace de Amazon válido.";
   try {
     if (urlOriginal.includes("amzn.eu")) {
-      const resp = await fetch(urlOriginal, { redirect: "follow" });
-      return generarLinkAfiliadoDesdeUrl(resp.url);
+      // 🔸 Enlaces cortos no se pueden resolver sin backend
+      return "⚠️ Los enlaces cortos de Amazon (amzn.eu) no se pueden procesar directamente. Ábrelo en tu navegador y copia el enlace completo del producto (amazon.es/dp/XXXXXXX).";
     } else {
       return generarLinkAfiliadoDesdeUrl(urlOriginal);
     }
@@ -114,14 +146,17 @@ async function generar() {
   const resultado = document.getElementById("resultado");
   if (!texto) {
     resultado.textContent = "⚠️ Escribe o pega algo.";
+    resultado.classList.add("error");
     return;
   }
   resultado.textContent = "⏳ Procesando...";
+  resultado.classList.remove("error");
   const enlace = await generarLinkAfiliado(texto);
   if (enlace.startsWith("http")) {
     resultado.innerHTML = `✅ Enlace afiliado:<br><a href="${enlace}" target="_blank">${enlace}</a>`;
   } else {
     resultado.textContent = enlace;
+    resultado.classList.add("error");
   }
 }
 </script>
