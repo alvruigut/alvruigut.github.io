@@ -2,7 +2,7 @@
   <h2>🔗 Generador de Enlace Amazon</h2>
   <p>Pega un texto o enlace de Amazon y genera tu enlace de afiliado automáticamente.</p>
 
-  <textarea id="inputTexto" placeholder="Ejemplo: https://amzn.eu/d/a7913ZJ"></textarea>
+  <textarea id="inputTexto" placeholder="Pon aqui tu enlace:"></textarea>
   <button onclick="generar()">Generar enlace afiliado</button>
 
   <div class="result" id="resultado"></div>
