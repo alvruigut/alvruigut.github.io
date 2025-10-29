@@ -7,22 +7,26 @@ date: 2025-04-03
 
 # Álvaro Ruiz Gutiérrez
 
-Estudiante de último año del **Grado en Ingeniería Informática del Software** en la *Escuela Técnica Superior de Ingeniería Informática de Sevilla*.
+ **Ingeniero Informático del Software** en la *Escuela Técnica Superior de Ingeniería Informática de Sevilla*.
 
-A lo largo de mi formación he desarrollado habilidades clave en análisis y diseño de software, programación en múltiples lenguajes, gestión de bases de datos, metodologías ágiles y redes informáticas.
-
-Mi enfoque principal es el desarrollo, pero mi **pasión está en la ciberseguridad**: descubrir vulnerabilidades, entender cómo piensan los atacantes y trabajar como pentester o hacker ético.
+A lo largo de mi formación he desarrollado habilidades clave en análisis y diseño de software, programación en múltiples lenguajes, gestión de bases de datos, metodologías ágiles y redes informáticas, pero mi verdadera pasión es el pentesting. En mi Trabajo Fin de Grado diseñé una metodología de auditoría de ciberseguridad, calificada con un 10/10, que tuve la oportunidad de aplicar en una empresa real, donde logré detectar y comprometer algunos activos, proponiendo posteriormente planes de mitigación y mejora.
 
 ---
 
 ## 🎯 Objetivos profesionales
 
-Estas son las certificaciones que forman parte de mis próximos retos en el ámbito del pentesting:
-
-- 🛡️ **eJPTv2**   
-- 🔐 **eCPPT**   
 - 🎯 **OSCP** 
 
+---
+
+## 📚 Certificaciones 
+
+- 📚 EJPT
+- 📚 CCST Cybersecurity
+- 📚 IT Specialist - Cybersecurity
+
+ 🔗 **Credly** [https://credly.com](https://www.credly.com/users/alvaro-ruiz.7f8aa611/edit#credly)
+ 
 ---
 
 ## 💼 Experiencia y habilidades
@@ -83,37 +87,11 @@ Estas son las certificaciones que forman parte de mis próximos retos en el ámb
 
 ---
 
-## 📚 Cursos
-
-### 🔸 Curso online de ciberseguridad – *hack4u.io*
-
-**Duración:** 100 horas  
-**Finalización:** 28/08/2024
-
-**Contenido:**
-- Configuración de sistemas Linux orientados al pentesting  
-- Introducción al hacking  
-- Desarrollo de scripts ofensivos en Python y Bash  
-- Evaluación mediante examen final y asistencia
-
----
-
-## ➕ Información adicional
-
--  Permiso de conducir: **Tipo B**  
--  Vehículo propio  
--  Total disponibilidad para desplazamientos laborales
-
----
-
 ## 📬 Contacto
 
 ¿Quieres ponerte en contacto conmigo?  
 Puedes escribirme a:  
 📧 **[alvarorugu7@gmail.com](mailto:alvarorugu7@gmail.com)**
-
-📍 **La Puebla del Río, Sevilla**  
-📞 **+34 640 62 54 68**
 
 ---
 
