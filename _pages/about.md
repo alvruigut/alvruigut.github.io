@@ -25,7 +25,7 @@ A lo largo de mi formación he desarrollado habilidades clave en análisis y dis
 - 📚 CCST Cybersecurity
 - 📚 IT Specialist - Cybersecurity
 
- 🔗 **Credly** [https://credly.com](https://www.credly.com/users/alvaro-ruiz.7f8aa611/edit#credly)
+ 🔗 **Credly** [https://credly.com](https://www.credly.com/users/alvaro-ruiz.7f8aa611)
  
 ---
 
