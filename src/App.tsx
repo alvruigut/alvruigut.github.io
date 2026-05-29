@@ -1,103 +1,56 @@
 import { useEffect, useState } from 'react'
-import type { FormEvent } from 'react'
 import './App.css'
 
-type CommandKey =
-  | 'whoami'
-  | 'skills'
-  | 'certs'
-  | 'projects'
-  | 'writeups'
-  | 'notebook'
-  | 'contact'
-  | 'clear'
-  | 'cd proyectos'
-  | 'cd writeups'
-  | 'cd notebook'
-  | 'cd certs'
-  | 'sudo hire me'
+const whoamiCommand = 'whoami'
 
-const commandOutput: Record<Exclude<CommandKey, 'clear'>, string[]> = {
-  whoami: [
-    'Ingeniero de Software con enfoque ofensivo. Me interesa la seguridad aplicada a sistemas reales, la automatización y la documentación técnica clara.',
-    'He desarrollado una auditoría de ciberseguridad para pymes en entornos IT/OT como TFG, obteniendo una calificación de 10/10.',
-    'Actualmente busco una primera oportunidad como Pentester Junior o perfil Red Team Junior.',
-  ],
-  skills: [
-    '[+] Languages loaded: C# · Python · Java · JavaScript · Bash',
-    '[+] Backend loaded: .NET · Spring Boot · REST APIs · JWT',
-    '[+] Offensive tools loaded: Nmap · Burp Suite · Metasploit · Wireshark',
-    '[+] Cloud stack loaded: Docker · Terraform · AWS · GitHub Actions',
-  ],
-  certs: ['OSCP', 'OSCP+', 'eCPPT', 'eJPT', 'CCST Cybersecurity', 'IT Specialist - Cybersecurity'],
-  projects: [
-    'AOVE360 -> Aplicación web para gestión integral del sector oleícola.',
-    'PodRun -> Generador de podcast desde URLs de YouTube/Wikipedia.',
-    'GitHub -> /proyectos.html',
-  ],
-  writeups: [
-    '[INFO] Writeups de máquinas estilo CTF.',
-    '[HIGH] Enumeración, explotación y escalada documentadas.',
-    '[TODO] Añadir máquinas destacadas conforme se publiquen.',
-  ],
-  notebook: [
-    '[+] Notebook loaded.',
-    'Apuntes personales, comandos útiles, metodología de enumeración y referencias técnicas.',
-    'Ruta: /notebook.html',
-  ],
-  contact: [
-    'LinkedIn -> linkedin.com/in/álvaro-ruiz-gutiérrez-515684314',
-    'GitHub   -> github.com/alvruigut',
-  ],
-  'cd proyectos': ['changing directory: /proyectos', 'open /proyectos.html in a new tab to inspect highlighted GitHub projects.'],
-  'cd writeups': ['changing directory: /writeups', 'open /writeups.html in a new tab to inspect CTF-style machine notes.'],
-  'cd notebook': ['changing directory: /notebook', 'open /notebook.html in a new tab to inspect notes, commands and methodology.'],
-  'cd certs': ['changing directory: /certs', ...['OSCP', 'OSCP+', 'eCPPT', 'eJPT', 'CCST Cybersecurity', 'IT Specialist - Cybersecurity']],
-  'sudo hire me': ['Permission granted.', 'Opening professional contact channels: LinkedIn | GitHub'],
-}
-
-const suggestedCommands: CommandKey[] = ['cd proyectos', 'cd writeups', 'cd notebook', 'cd certs']
-
-const services = [
-  { service: 'proyectos', status: '●', command: 'cd proyectos' },
-  { service: 'writeups', status: '●', command: 'cd writeups' },
-  { service: 'notebook', status: '●', command: 'cd notebook' },
+const whoamiOutput = [
+  'Mi nombre es Álvaro Ruiz Gutiérrez. Soy Ingeniero del Software por la Universidad de Sevilla y estudié en la Escuela Técnica Superior de Ingeniería Informática.',
+  'Desde mi tercer año del grado empecé a enfocarme en la ciberseguridad ofensiva, culminando esa etapa con un TFG en el que creé mi propia metodología de auditoría, basada en marcos reconocidos como NIST y aplicada en un entorno real.',
+  'Tengo una buena base de programación y entiendo cómo se construyen proyectos, aplicaciones y código desde dentro. Mis principales áreas son Active Directory, hacking web, hacking WiFi y técnicas ofensivas aplicadas.',
+  'No busco mirar el sector desde fuera, quiero entrar, romper, aprender y aportar. Mi objetivo es trabajar como Pentester Junior o Red Team Junior mientras sigo subiendo nivel en bug bounty.',
 ]
 
-const badges = ['OSCP', 'OSCP+', 'eCPPT', 'eJPT', 'Red Team Jr', 'C#/.NET', 'Linux']
+const sectionLinks = [
+  { label: './proyectos', href: '/proyectos.html' },
+  { label: './writeups', href: '/writeups.html' },
+  { label: './notebook', href: '/notebook.html' },
+  { label: './certificaciones', href: '/certificaciones.html' },
+  { label: './contacto', href: '/contacto.html' },
+]
 
 function App() {
   const [booting, setBooting] = useState(true)
-  const [input, setInput] = useState('')
-  const [history, setHistory] = useState<string[]>(commandOutput.whoami)
+  const [typedCommand, setTypedCommand] = useState('')
+  const [showOutput, setShowOutput] = useState(false)
 
   useEffect(() => {
     const timer = window.setTimeout(() => setBooting(false), 1150)
     return () => window.clearTimeout(timer)
   }, [])
 
-  const runCommand = (command: string) => {
-    const normalized = command.trim().toLowerCase() as CommandKey
-
-    if (normalized === 'clear') {
-      setHistory([])
-      setInput('')
+  useEffect(() => {
+    if (booting) {
       return
     }
 
-    if (normalized in commandOutput) {
-      setHistory([`> ${normalized}`, ...commandOutput[normalized as Exclude<CommandKey, 'clear'>]])
-    } else {
-      setHistory([`> ${command}`, `command not found: ${command}`, 'try: whoami, skills, certs, projects, writeups, contact'])
-    }
+    setTypedCommand('')
+    setShowOutput(false)
 
-    setInput('')
-  }
+    const startDelay = window.setTimeout(() => {
+      let cursor = 0
+      const typing = window.setInterval(() => {
+        cursor += 1
+        setTypedCommand(whoamiCommand.slice(0, cursor))
 
-  const submitCommand = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    runCommand(input)
-  }
+        if (cursor === whoamiCommand.length) {
+          window.clearInterval(typing)
+          window.setTimeout(() => setShowOutput(true), 260)
+        }
+      }, 105)
+    }, 260)
+
+    return () => window.clearTimeout(startDelay)
+  }, [booting])
 
   return (
     <main className="portfolio-shell">
@@ -115,13 +68,7 @@ function App() {
       <section className="profile-hero" aria-label="Perfil">
         <img className="profile-orb" src="/nft.png" alt="Avatar de Álvaro" />
         <h1>Álvaro Ruiz Gutiérrez</h1>
-        <p className="profile-role">Junior Pentester / Software Engineer</p>
-        <p className="profile-claim">Construyo, rompo y documento sistemas con mentalidad ofensiva.</p>
-        <div className="badge-row" aria-label="Certificaciones y stack">
-          {badges.map((badge) => (
-            <span key={badge}>[ {badge} ]</span>
-          ))}
-        </div>
+        <p className="profile-role">Pentester Junior | Ingeniero del Software | OSCP | OSCP+ | eCPPT | eJPT</p>
         <div className="profile-links" aria-label="Links profesionales">
           <a href="https://www.linkedin.com/in/%C3%A1lvaro-ruiz-guti%C3%A9rrez-515684314/">LinkedIn</a>
           <a href="https://github.com/alvruigut">GitHub</a>
@@ -129,18 +76,6 @@ function App() {
       </section>
 
       <div className="console-layout">
-        <aside className="section-sidebar" aria-label="Servicios del portfolio">
-          <p className="sidebar-label">~/secciones</p>
-          <nav>
-            {services.map((item) => (
-              <button className="service-row" key={item.service} type="button" onClick={() => runCommand(item.command)}>
-                <strong>{item.status}</strong>
-                <span>{item.service}</span>
-              </button>
-            ))}
-          </nav>
-        </aside>
-
         <section className="terminal-stage" aria-label="Terminal interactiva">
           <div className="terminal-frame">
             <div className="terminal-titlebar">
@@ -149,37 +84,29 @@ function App() {
             </div>
 
             <div className="terminal-body">
-              <form className="zsh-line" onSubmit={submitCommand}>
-                <span className="prompt-block prompt-user">RuyzTz7</span>
-                <span className="prompt-block prompt-dir">home</span>
+              <div className="zsh-line" aria-label="Comando whoami">
+                <span className="prompt-block prompt-user">RuyzTz7@Kali</span>
+                <span className="prompt-block prompt-dir">/home</span>
                 <span className="zsh-symbol">❯</span>
-                <input
-                  aria-label="Comando de terminal"
-                  autoComplete="off"
-                  spellCheck="false"
-                  value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder="whoami"
-                />
-              </form>
-
-              <div className="terminal-output">
-                {history.length === 0 ? (
-                  <p className="muted-line">terminal cleared. try: whoami</p>
-                ) : (
-                  history.map((line, index) => <p key={`${line}-${index}`}>{line}</p>)
-                )}
+                <span className="typed-command">
+                  {typedCommand}
+                  <span className="terminal-cursor" aria-hidden="true" />
+                </span>
               </div>
 
-              <div className="command-dock" aria-label="Comandos sugeridos">
-                {suggestedCommands.map((command) => (
-                  <button key={command} type="button" onClick={() => runCommand(command)}>
-                    {command}
-                  </button>
-                ))}
+              <div className={`terminal-output ${showOutput ? 'is-visible' : ''}`} aria-live="polite">
+                {showOutput && whoamiOutput.map((line) => <p key={line}>{line}</p>)}
               </div>
             </div>
           </div>
+
+          <nav className="section-links" aria-label="Secciones del portfolio">
+            {sectionLinks.map((link) => (
+              <a key={link.label} href={link.href}>
+                {link.label}
+              </a>
+            ))}
+          </nav>
         </section>
       </div>
     </main>

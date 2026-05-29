@@ -1,24 +1,24 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { copyFileSync, rmSync } from 'node:fs'
-import { resolve } from 'node:path'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     {
-      name: 'rename-dev-index',
-      apply: 'build',
-      closeBundle() {
-        copyFileSync(resolve(__dirname, 'dist/index.dev.html'), resolve(__dirname, 'dist/index.html'))
-        rmSync(resolve(__dirname, 'dist/index.dev.html'))
+      name: 'remove-old-dev-index-route',
+      apply: 'serve',
+      configureServer(server) {
+        server.middlewares.use((request, response, next) => {
+          if (request.url?.split('?')[0] === '/index.dev.html') {
+            response.statusCode = 404
+            response.end('Not found')
+            return
+          }
+
+          next()
+        })
       },
     },
   ],
-  build: {
-    rollupOptions: {
-      input: resolve(__dirname, 'index.dev.html'),
-    },
-  },
 })
