@@ -1,0 +1,45 @@
+:root {
+  --bright: #effff5;
+  --text: #d9ffe9;
+  --soft: #a5c7b7;
+  --muted: #6f9985;
+  --green: #35ff9f;
+  --cyan: #00baff;
+  --line: rgba(79, 255, 176, 0.24);
+  font-family: 'IBM Plex Mono', 'Fira Code', Consolas, 'Liberation Mono', monospace;
+  color: var(--text);
+  background: #050807;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100svh;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+a,
+button {
+  font: inherit;
+}
+
+a {
+  text-underline-offset: 4px;
+}
+
+::selection {
+  color: #04120b;
+  background: var(--green);
+}
