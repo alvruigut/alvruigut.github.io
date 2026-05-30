@@ -35,13 +35,13 @@ jobs:
           rm -rf assets
           cp -r dist/assets assets
           cp dist/index.html index.html
-          cp dist/favicon.svg dist/nft.png dist/certificaciones.html dist/contacto.html dist/notebook.html dist/proyectos.html dist/section.css dist/writeups.html .
+          cp dist/favicon.svg dist/favicon-monkey.png dist/nft.png dist/certificaciones.html dist/contacto.html dist/notebook.html dist/proyectos.html dist/section.css dist/writeups.html .
 
       - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A index.html assets favicon.svg nft.png certificaciones.html contacto.html notebook.html proyectos.html section.css writeups.html
+          git add -A index.html assets favicon.svg favicon-monkey.png nft.png certificaciones.html contacto.html notebook.html proyectos.html section.css writeups.html
           if git diff --cached --quiet; then
             echo "No generated changes to commit."
           else
