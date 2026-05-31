@@ -7,17 +7,47 @@
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
-    <main class="section-shell">
+    <main class="section-shell certs-shell">
       <a class="back-link" href="/">~/home</a>
-      <section class="section-panel">
-        <p class="eyebrow">portfolio / certificaciones</p>
-        <h1>Certificaciones</h1>
-        <div class="link-list">
-          <a>OSCP</a>
-          <a>OSCP+</a>
-          <a>eCPPT</a>
-          <a>eJPT</a>
+
+      <section class="terminal-panel certs-terminal" aria-label="Listado de certificaciones">
+        <div class="terminal-titlebar">
+          <span class="terminal-tab">zsh</span>
+          <span class="terminal-path">~/certificaciones</span>
         </div>
+
+        <div class="terminal-body">
+          <p class="terminal-line">
+            <span class="prompt-user">RuyzTz7@Kali</span>
+            <span class="prompt-dir">~/certificaciones</span>
+            <span class="zsh-symbol">❯</span>
+            <span>ls certificaciones</span>
+          </p>
+
+          <div class="cat-output">
+            <p>OSCP / OSCP+ | eCPPT | eJPT</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cert-cover-grid" aria-label="Certificaciones disponibles">
+        <a class="cert-cover" href="/certificaciones/oscp/">
+          <img src="/cert-assets/oscp.png" alt="Diploma OSCP" />
+          <span class="cover-provider">OffSec</span>
+          <strong>OSCP / OSCP+</strong>
+        </a>
+
+        <a class="cert-cover" href="/certificaciones/ecppt/">
+          <img src="/cert-assets/ecppt.png" alt="Diploma eCPPT" />
+          <span class="cover-provider">INE</span>
+          <strong>eCPPTv3</strong>
+        </a>
+
+        <a class="cert-cover" href="/certificaciones/ejpt/">
+          <img src="/cert-assets/ejpt.png" alt="Diploma eJPT" />
+          <span class="cover-provider">INE</span>
+          <strong>eJPTv2</strong>
+        </a>
       </section>
     </main>
   </body>

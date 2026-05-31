@@ -4,10 +4,10 @@ import './App.css'
 const whoamiCommand = 'whoami'
 
 const whoamiOutput = [
-  'Mi nombre es Álvaro Ruiz Gutiérrez. Soy Ingeniero del Software por la Universidad de Sevilla y estudié en la Escuela Técnica Superior de Ingeniería Informática.',
-  'Desde mi tercer año del grado empecé a enfocarme en la ciberseguridad ofensiva, culminando esa etapa con un TFG en el que creé mi propia metodología de auditoría, basada en marcos reconocidos como NIST y aplicada en un entorno real.',
-  'Tengo una buena base de programación y entiendo cómo se construyen proyectos, aplicaciones y código desde dentro. Mis principales áreas son Active Directory, hacking web, hacking WiFi y técnicas ofensivas aplicadas.',
-  'No busco mirar el sector desde fuera, quiero entrar, romper, aprender y aportar. Mi objetivo es trabajar como Pentester Junior o Red Team Junior mientras sigo subiendo nivel en bug bounty.',
+  'Soy Álvaro Ruiz Gutiérrez, Ingeniero del Software por la Universidad de Sevilla y Pentester Junior.',
+  'Aquí encontrarás mis proyectos de GitHub, writeups de Hack The Box que he ido resolviendo mientras me preparo y sigo subiendo nivel en certificaciones como OSCP, eJPT y eCPPT.',
+  'También comparto mis apuntes, recursos que me han servido y la forma en la que voy organizando mi aprendizaje en ciberseguridad ofensiva.',
+  'En la sección de certificaciones cuento mi experiencia con cada una: preparación, examen, recomendaciones y mi opinión personal.',
 ]
 
 const sectionLinks = [
@@ -15,7 +15,6 @@ const sectionLinks = [
   { label: './writeups', href: '/writeups.html' },
   { label: './notebook', href: '/notebook.html' },
   { label: './certificaciones', href: '/certificaciones.html' },
-  { label: './contacto', href: '/contacto.html' },
 ]
 
 function App() {
@@ -60,7 +59,7 @@ function App() {
           <p>[OK] whoami</p>
           <p>[OK] projects</p>
           <p>[OK] writeups</p>
-          <p>[OK] contact</p>
+          <p>[OK] certs</p>
           <strong>Access granted.</strong>
         </div>
       )}
@@ -68,11 +67,7 @@ function App() {
       <section className="profile-hero" aria-label="Perfil">
         <img className="profile-orb" src="/nft.png" alt="Avatar de Álvaro" />
         <h1>Álvaro Ruiz Gutiérrez</h1>
-        <p className="profile-role">Pentester Junior | Ingeniero del Software | OSCP | OSCP+ | eCPPT | eJPT</p>
-        <div className="profile-links" aria-label="Links profesionales">
-          <a href="https://www.linkedin.com/in/%C3%A1lvaro-ruiz-guti%C3%A9rrez-515684314/">LinkedIn</a>
-          <a href="https://github.com/alvruigut">GitHub</a>
-        </div>
+        <p className="profile-role">Pentester Junior | Ingeniero del Software | OSCP | OSCP+ | eCPPTv3 | eJPTv2</p>
       </section>
 
       <div className="console-layout">
@@ -109,6 +104,18 @@ function App() {
           </nav>
         </section>
       </div>
+
+      <footer className="site-footer">
+        <section className="footer-actions" aria-label="Links profesionales">
+          <a href="https://www.linkedin.com/in/%C3%A1lvaro-ruiz-guti%C3%A9rrez-515684314/">LinkedIn</a>
+          <a href="https://github.com/alvruigut">GitHub</a>
+          <a href="mailto:alvarorugu7@gmail.com">Contacto</a>
+        </section>
+
+        <div className="footer-legal">
+          <p>Copyright 2026 - Portafolio RuyzTz7</p>
+        </div>
+      </footer>
     </main>
   )
 }
