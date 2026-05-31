@@ -59,6 +59,7 @@ function App() {
           <p>[OK] whoami</p>
           <p>[OK] projects</p>
           <p>[OK] writeups</p>
+          <p>[OK] notebook</p>
           <p>[OK] certs</p>
           <strong>Access granted.</strong>
         </div>
