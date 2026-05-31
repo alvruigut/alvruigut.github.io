@@ -65,7 +65,9 @@ function App() {
       )}
 
       <section className="profile-hero" aria-label="Perfil">
-        <img className="profile-orb" src="/nft.png" alt="Avatar de Álvaro" />
+        <span className="profile-orb-frame">
+          <img className="profile-orb" src="/nft.png" alt="Avatar de Álvaro" />
+        </span>
         <h1>Álvaro Ruiz Gutiérrez</h1>
         <p className="profile-role">Pentester Junior | Ingeniero del Software | OSCP | OSCP+ | eCPPTv3 | eJPTv2</p>
       </section>

