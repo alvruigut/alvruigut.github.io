@@ -23,6 +23,16 @@
               <a class="vault-file is-active" href="/notebook/pivoting/metasploit.html">Metasploit</a>
               <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
             </details>
+            <details class="vault-folder" open>
+              <summary>Escalada de Privilegios</summary>
+              <details class="vault-folder vault-subfolder" open>
+                <summary>Linux</summary>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+              </details>
+              <details class="vault-folder vault-subfolder">
+                <summary>Windows</summary>
+              </details>
+            </details>
           </nav>
         </aside>
 
@@ -46,104 +56,114 @@
 
             <img class="note-image" src="/notebook-assets/pivoting/metasploit.png" alt="Metasploit pivoting" />
 
-            <h2>1. Ver Interfaces de Red</h2>
+            <h2>1. Ver interfaces de red</h2>
             <section class="code-card">
-              <h3>Meterpreter: Ver Interfaces de red</h3>
+              <h3>Meterpreter: ver interfaces de red</h3>
               <pre><code>ipconfig</code></pre>
             </section>
 
             <h2>2. Autoroute</h2>
             <section class="code-card">
               <h3>Meterpreter</h3>
-              <pre><code>run autoroute -s &lt;ip_victima_final&gt;/24</code></pre>
+              <pre><code>run autoroute -s &lt;red_interna&gt;/24
+run autoroute -p</code></pre>
             </section>
 
             <section class="code-card">
               <h3>Metasploit</h3>
-              <pre><code>route add &lt;ip_victima_final&gt; &lt;mascara_subred&gt; &lt;session_id_meterpreter&gt;
-route print # Vemos rutas activas</code></pre>
+              <pre><code>route add &lt;red_interna&gt; &lt;mascara_subred&gt; &lt;session_id_meterpreter&gt;
+route print # Vemos las rutas activas</code></pre>
             </section>
 
-            <h2>3. Escanear Red Interna</h2>
+            <h2>3. Escanear red interna</h2>
             <section class="code-card">
-              <h3>Enumerar Hosts: One Liner</h3>
+              <h3>Enumerar hosts: one-liner</h3>
               <pre><code># Bash
 for i in {1..254}; do (ping -c 1 -W 1 10.10.10.$i | grep "64 bytes" &amp;) 2&gt;/dev/null; done
-for i in {1..254}; do (ping -c 1 -W 1 10.10.10.$i | grep "bytes from" &amp;) ;done
+for i in {1..254}; do (ping -c 1 -W 1 10.10.10.$i | grep "bytes from" &amp;); done
 
 # CMD
-for /L %i in (1,1,256) do @ping -n 1 -w 200 192.168.0.%i &gt; nul &amp;&amp; echo 192.168.0.%i is up.</code></pre>
+for /L %i in (1,1,254) do @ping -n 1 -w 200 192.168.0.%i &gt; nul &amp;&amp; echo 192.168.0.%i is up.</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Metasploit: Enumerar Puertos</h3>
+              <h3>Metasploit: enumerar puertos</h3>
               <pre><code>use scanner/portscan/tcp
 set RHOSTS &lt;ip_victima_final&gt;
 run</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Proxychains: Escaneo nmap</h3>
+              <h3>Proxychains: preparar escaneo con Nmap</h3>
               <pre><code># Kali
 cat /etc/proxychains4.conf
-# Descomentar: dynamic  Comentar: strict
+
+# Recomendado:
+# Descomentar: dynamic_chain
+# Comentar: strict_chain
+# Añadir al final:
 # socks4 127.0.0.1 9050</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Metasploit</h3>
+              <h3>Metasploit: levantar proxy SOCKS</h3>
               <pre><code>use auxiliary/server/socks_proxy
 set SRVPORT 9050
 set VERSION 4a
-exploit
+exploit -j
 jobs</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Kali</h3>
+              <h3>Kali: escaneo a través del pivote</h3>
               <pre><code>proxychains nmap &lt;ip_victima_final&gt; -sT -Pn -sV -p 445</code></pre>
             </section>
 
-            <h2>4. Port-Forwarding</h2>
+            <h2>4. Port-forwarding</h2>
             <section class="code-card">
               <h3>Meterpreter</h3>
-              <pre><code># -l &lt;local_port&gt; -p &lt;puerto_objetivo_victima_final&gt; -r &lt;ip_victima_final&gt;
+              <pre><code># -l &lt;puerto_local&gt; -p &lt;puerto_objetivo_victima_final&gt; -r &lt;ip_victima_final&gt;
 portfwd add -l 5000 -p 80 -r 10.10.10.5
-portfwd list # Listar portsforwarding activos
+portfwd list # Listar port-forwardings activos
 
-# Nos habremos traido a nuestra maquina atacante kali el puerto 80 de la victima.
-# Desde navegador veremos en localhost:5000 la web de la victima final en el puerto 80</code></pre>
+# Nos hemos traído a nuestra máquina atacante Kali el puerto 80 de la víctima final.
+# Desde el navegador veremos en localhost:5000 la web de la víctima final en el puerto 80.</code></pre>
             </section>
 
             <aside class="callout warning">
-              <p>Una vez que Metasploit tiene una ruta/pivote a esa red mediante <code>autoroute</code> o <code>route add</code>, los modulos pueden abrir conexiones TCP directamente a la IP interna y puerto objetivo a traves de la sesion comprometida.</p>
-              <p>El port-forward sirve para traer un servicio concreto al localhost. No es necesario para que Metasploit alcance SSH si ya puede enrutar trafico TCP a traves del pivote.</p>
+              <p>Una vez que Metasploit tiene una ruta hacia esa red mediante <code>autoroute</code> o <code>route add</code>, los módulos pueden abrir conexiones TCP directamente contra la IP interna y el puerto objetivo a través de la sesión comprometida.</p>
+              <p>El port-forwarding sirve para traer un servicio concreto al localhost de la máquina atacante. No es necesario para que Metasploit alcance SSH si ya puede enrutar tráfico TCP a través del pivote.</p>
             </aside>
 
             <aside class="callout danger">
-              <p>Si nos queremos conectar desde Kali por SSH a la maquina victima final, si haria falta port-forwarding. Si no, con proxychains va que chuta.</p>
-              <p>Ojo con los payloads porque deben ser <code>bind</code>.</p>
+              <p>Si queremos conectarnos desde Kali por SSH a la máquina víctima final, sí haría falta port-forwarding o usar Proxychains.</p>
+              <p>Ojo con los payloads: en escenarios de pivoting suele ser más práctico usar payloads de tipo <code>bind</code>, porque la víctima final normalmente no tiene conectividad directa de vuelta hacia la máquina atacante.</p>
             </aside>
 
-            <h2>Montar Escenario de Prueba</h2>
+            <h2>5. Montar escenario de prueba</h2>
             <ul>
-              <li><span class="lab-red">Maquina Linux Atacante</span></li>
-              <li><span class="lab-blue">Maquina Windows 7 vulnerable Intermedia</span></li>
-              <li><span class="lab-yellow">Maquina Windows 7 vulnerable Final</span></li>
+              <li><span class="lab-red">Máquina Linux atacante</span></li>
+              <li><span class="lab-blue">Máquina Windows 7 vulnerable intermedia</span></li>
+              <li><span class="lab-yellow">Máquina Windows 7 vulnerable final</span></li>
             </ul>
 
             <img class="note-image" src="/notebook-assets/pivoting/escenario-prueba.png" alt="Escenario de prueba para pivoting" />
 
-            <p>Desde <code>VMWare</code> montamos los 3 sistemas operativos y configuramos las redes de forma que podamos montar el escenario de prueba.</p>
-            <p><span class="lab-red">Maquina Linux Atacante:</span> ponemos la red en modo <code>Bridge</code> con esa sola interfaz.</p>
-            <p><span class="lab-blue">Maquina Windows 7 vulnerable Intermedia:</span> ponemos una interfaz en modo <code>Bridge</code> y otra en <code>NAT</code>, creando una red NAT propia con <code>IP de Red</code>, por ejemplo <code>10.10.10.0/24</code>.</p>
-            <p><span class="lab-yellow">Maquina Windows 7 vulnerable Final:</span> conectamos una sola interfaz a la misma <code>NAT</code> que la maquina intermedia.</p>
-            <p>Finalmente comprobamos que mediante ping la maquina <span class="lab-red">Linux</span> tenga accesibilidad con la maquina <span class="lab-blue">intermedia</span>, pero no con la maquina <span class="lab-yellow">final</span>. La maquina <span class="lab-blue">intermedia</span> debe tener conectividad con ambas mediante <code>ping</code>.</p>
+            <p>Desde <code>VMware</code> montamos los tres sistemas operativos y configuramos las redes para crear el escenario de prueba.</p>
+            <p><span class="lab-red">Máquina Linux atacante:</span> ponemos la red en modo <code>Bridged</code> con una sola interfaz.</p>
+            <p><span class="lab-blue">Máquina Windows 7 vulnerable intermedia:</span> ponemos una interfaz en modo <code>Bridged</code> y otra en <code>NAT</code>, creando una red NAT propia con una <code>IP de red</code>, por ejemplo <code>10.10.10.0/24</code>.</p>
+            <p><span class="lab-yellow">Máquina Windows 7 vulnerable final:</span> conectamos una sola interfaz a la misma red <code>NAT</code> que la máquina intermedia.</p>
+            <p>Finalmente comprobamos que mediante <code>ping</code> la máquina <span class="lab-red">Linux</span> tenga accesibilidad con la máquina <span class="lab-blue">intermedia</span>, pero no con la máquina <span class="lab-yellow">final</span>. La máquina <span class="lab-blue">intermedia</span> debe tener conectividad con ambas mediante <code>ping</code>.</p>
+
             <h2>Tags</h2>
             <div class="tag-list">
               <span>pivoting</span>
-              <span>portforwarding</span>
               <span>metasploit</span>
+              <span>meterpreter</span>
+              <span>autoroute</span>
+              <span>port-forwarding</span>
+              <span>proxychains</span>
+              <span>socks</span>
             </div>
           </div>
         </article>

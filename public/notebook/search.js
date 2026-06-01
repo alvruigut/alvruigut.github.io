@@ -17,6 +17,12 @@ const notebookNotes = [
     path: '~/notebook/Pivoting',
     tags: ['pivoting', 'portforwarding', 'chisel', 'socat', 'proxychains', 'socks', 'reverse shell', 'tuneles', 'multi-hop'],
   },
+  {
+    title: 'Sudoers',
+    href: '/notebook/escalada-privilegios/linux/sudoers.html',
+    path: '~/notebook/Escalada de Privilegios/Linux',
+    tags: ['escalada_privilegios', 'sudoers', 'sudo', 'linux', 'gtfobins', 'privesc', 'misconfigurations', 'mcedit', 'bashed', 'nibbles', 'dog'],
+  },
 ]
 
 function normalizeNotebookSearch(value) {

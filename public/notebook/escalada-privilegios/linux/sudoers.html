@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Sudoers | Notebook</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
+          <h1>Notebook</h1>
+
+          <nav class="vault-tree" aria-label="Ficheros">
+            <a class="vault-file" href="/notebook.html">Inicio</a>
+            <details class="vault-folder" open>
+              <summary>Pivoting</summary>
+              <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
+              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
+              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
+            </details>
+            <details class="vault-folder" open>
+              <summary>Escalada de Privilegios</summary>
+              <details class="vault-folder vault-subfolder" open>
+                <summary>Linux</summary>
+                <a class="vault-file is-active" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+              </details>
+              <details class="vault-folder vault-subfolder">
+                <summary>Windows</summary>
+              </details>
+            </details>
+          </nav>
+        </aside>
+
+        <article class="note-panel is-active" id="sudoers">
+          <div class="note-tabbar">
+            <span>Sudoers</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Linux</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / linux / sudoers</p>
+            <h2>Sudoers</h2>
+
+            <p><code>/etc/sudoers</code> es el archivo de configuración que define quién puede usar <code>sudo</code> y qué comandos puede ejecutar como otro usuario, normalmente <code>root</code>.</p>
+
+            <section class="code-card">
+              <h3>Listar comandos que podemos ejecutar como otro usuario</h3>
+              <pre><code>sudo -l
+
+# Output
+student ALL=(root) NOPASSWD: /usr/bin/man</code></pre>
+            </section>
+
+            <p><a href="https://gtfobins.github.io/#+sudo">GTFOBins SUDO</a></p>
+
+            <section class="code-card">
+              <h3>Ejecutar binarios permitidos como otro usuario</h3>
+              <pre><code># Para usuario pepe
+sudo -u pepe git -p help config
+
+# Para root
+sudo git -p help config</code></pre>
+            </section>
+
+            <h2>Binarios No Contemplados en GTFOBins</h2>
+
+            <section class="code-card">
+              <h3>mcedit</h3>
+              <pre><code>sudo mcedit
+
+# Comandos
+F+9
+
+# Ruta
+File -&gt; User menu -&gt; Invoke 'shell'</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>escalada_privilegios</span>
+              <span>sudoers</span>
+              <span>sudo</span>
+              <span>linux</span>
+              <span>gtfobins</span>
+              <span>privesc</span>
+              <span>misconfigurations</span>
+              <span>mcedit</span>
+            </div>
+
+            <h2>Máquinas Relacionadas</h2>
+            <div class="tag-list">
+              <span>Bashed</span>
+              <span>Nibbles</span>
+              <span>dog</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>
