@@ -10,6 +10,45 @@
   <body>
     <main class="section-shell writeups-shell">
       <a class="back-link" href="/">~/home</a>
+
+      <section class="writeup-search-panel" aria-label="Buscador de máquinas">
+        <div class="writeup-search-row">
+          <label class="writeup-search-field">
+            <span>Buscar máquina</span>
+            <input id="writeup-search" type="search" placeholder="Nombre, tag, dificultad, AD, Linux..." autocomplete="off" />
+          </label>
+
+          <label class="writeup-select-field">
+            <span>Plataforma</span>
+            <select id="platform-filter">
+              <option value="all">Todas</option>
+              <option value="linux">Linux</option>
+              <option value="windows">Windows</option>
+              <option value="ad">Active Directory</option>
+            </select>
+          </label>
+
+          <label class="writeup-select-field">
+            <span>Dificultad</span>
+            <select id="difficulty-filter">
+              <option value="all">Todas</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+              <option value="insane">Insane</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="writeup-filter-bar" aria-label="Filtros rápidos">
+          <button class="writeup-filter is-active" type="button" data-filter="all">Todas</button>
+          <button class="writeup-filter" type="button" data-filter="linux">Linux</button>
+          <button class="writeup-filter" type="button" data-filter="windows">Windows</button>
+          <button class="writeup-filter" type="button" data-filter="ad">AD</button>
+          <button class="writeup-filter" type="button" data-filter="easy">Easy</button>
+        </div>
+      </section>
+
       <section class="writeup-grid" aria-label="Categorías de máquinas HTB">
         <a class="writeup-card writeup-card-linux" href="/writeups/linux.html">
           <span class="writeup-kicker">HTB / machines</span>
@@ -27,6 +66,160 @@
           <span class="writeup-count">1 máquina resuelta</span>
         </a>
       </section>
+
+      <section class="writeup-results-header" aria-live="polite">
+        <h1>Máquinas</h1>
+        <span id="writeup-result-count">4 resultados</span>
+      </section>
+
+      <section class="machine-grid writeup-search-results" aria-label="Máquinas filtrables">
+        <a
+          class="machine-card"
+          href="/writeups/linux/analytics.html"
+          data-name="analytics"
+          data-platform="linux"
+          data-difficulty="easy"
+          data-tags="kernel metabase vhosts env web contenedor ssh linux easy"
+        >
+          <img class="machine-logo" src="/writeups/assets/analytical/logo.png" alt="Máquina Analytics de Hack The Box" />
+          <div class="machine-card-body">
+            <span class="writeup-kicker">HTB / Linux</span>
+            <h2>Analytics</h2>
+            <span class="machine-meta">
+              <span>Linux</span>
+              <span>Easy</span>
+              <span>metabase</span>
+              <span>kernel</span>
+            </span>
+          </div>
+        </a>
+
+        <a
+          class="machine-card"
+          href="/writeups/linux/backdoor.html"
+          data-name="backdoor"
+          data-platform="linux"
+          data-difficulty="easy"
+          data-tags="screen wordpress procesos lfi gdbserver web linux easy"
+        >
+          <img class="machine-logo" src="/writeups/assets/backdoor/logo.png" alt="Máquina Backdoor de Hack The Box" />
+          <div class="machine-card-body">
+            <span class="writeup-kicker">HTB / Linux</span>
+            <h2>Backdoor</h2>
+            <span class="machine-meta">
+              <span>Linux</span>
+              <span>Easy</span>
+              <span>LFI</span>
+              <span>GDBServer</span>
+            </span>
+          </div>
+        </a>
+
+        <a
+          class="machine-card"
+          href="/writeups/windows/access.html"
+          data-name="access"
+          data-platform="windows"
+          data-difficulty="easy"
+          data-tags="mdb pst telnet ftp anonimo credential manager windows easy"
+        >
+          <img class="machine-logo" src="/writeups/assets/access/logo.png" alt="Máquina Access de Hack The Box" />
+          <div class="machine-card-body">
+            <span class="writeup-kicker">HTB / Windows</span>
+            <h2>Access</h2>
+            <span class="machine-meta">
+              <span>Windows</span>
+              <span>Easy</span>
+              <span>ftp</span>
+              <span>telnet</span>
+            </span>
+          </div>
+        </a>
+
+        <a
+          class="machine-card"
+          href="/writeups/active-directory/active.html"
+          data-name="active"
+          data-platform="windows ad"
+          data-difficulty="easy"
+          data-tags="active directory ad kerberoasting cpassword groups_xml sysvol smb windows easy"
+        >
+          <img class="machine-logo" src="/writeups/assets/active/logo.png" alt="Máquina Active de Hack The Box" />
+          <div class="machine-card-body">
+            <span class="writeup-kicker">HTB / Active Directory</span>
+            <h2>Active</h2>
+            <span class="machine-meta">
+              <span>Windows</span>
+              <span>Easy</span>
+              <span>AD</span>
+              <span>kerberoasting</span>
+            </span>
+          </div>
+        </a>
+      </section>
+
+      <p class="writeup-empty" id="writeup-empty" hidden>No hay máquinas que coincidan con la búsqueda.</p>
     </main>
+
+    <script>
+      const searchInput = document.querySelector('#writeup-search')
+      const platformFilter = document.querySelector('#platform-filter')
+      const difficultyFilter = document.querySelector('#difficulty-filter')
+      const quickFilters = [...document.querySelectorAll('.writeup-filter')]
+      const cards = [...document.querySelectorAll('.writeup-search-results .machine-card')]
+      const resultCount = document.querySelector('#writeup-result-count')
+      const emptyState = document.querySelector('#writeup-empty')
+
+      function normalize(value) {
+        return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      }
+
+      function cardText(card) {
+        return normalize([
+          card.dataset.name,
+          card.dataset.platform,
+          card.dataset.difficulty,
+          card.dataset.tags,
+          card.textContent,
+        ].join(' '))
+      }
+
+      function updateResults() {
+        const query = normalize(searchInput.value.trim())
+        const platform = platformFilter.value
+        const difficulty = difficultyFilter.value
+        let visible = 0
+
+        cards.forEach((card) => {
+          const matchesSearch = !query || cardText(card).includes(query)
+          const matchesPlatform = platform === 'all' || normalize(card.dataset.platform).includes(platform)
+          const matchesDifficulty = difficulty === 'all' || card.dataset.difficulty === difficulty
+          const show = matchesSearch && matchesPlatform && matchesDifficulty
+
+          card.hidden = !show
+          visible += show ? 1 : 0
+        })
+
+        resultCount.textContent = `${visible} ${visible === 1 ? 'resultado' : 'resultados'}`
+        emptyState.hidden = visible !== 0
+      }
+
+      quickFilters.forEach((button) => {
+        button.addEventListener('click', () => {
+          quickFilters.forEach((item) => item.classList.remove('is-active'))
+          button.classList.add('is-active')
+
+          const filter = button.dataset.filter
+          platformFilter.value = ['linux', 'windows', 'ad'].includes(filter) ? filter : 'all'
+          difficultyFilter.value = ['easy', 'medium', 'hard', 'insane'].includes(filter) ? filter : 'all'
+
+          updateResults()
+        })
+      })
+
+      searchInput.addEventListener('input', updateResults)
+      platformFilter.addEventListener('change', updateResults)
+      difficultyFilter.addEventListener('change', updateResults)
+    </script>
   </body>
 </html>
