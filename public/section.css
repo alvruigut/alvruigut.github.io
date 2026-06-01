@@ -841,17 +841,22 @@ p {
 }
 
 .notebook-tag-search {
-  display: grid;
-  gap: 10px;
-  padding: 10px 0;
-  border-block: 1px solid rgba(83, 255, 159, 0.1);
+  position: relative;
+  display: inline-grid;
+  justify-self: center;
+  min-width: min(100%, 210px);
 }
 
 .notebook-tag-search summary {
+  min-height: 28px;
+  padding: 6px 10px;
+  border: 1px solid rgba(83, 255, 159, 0.18);
+  border-radius: 7px;
   cursor: pointer;
   list-style: none;
-  color: #f1fff7;
-  font-size: 0.9rem;
+  color: rgba(214, 255, 232, 0.82);
+  background: rgba(83, 255, 159, 0.055);
+  font-size: 0.78rem;
   font-weight: 800;
 }
 
@@ -869,12 +874,23 @@ p {
 }
 
 .notebook-tag-search label {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  z-index: 5;
   display: grid;
   gap: 7px;
+  width: min(72vw, 300px);
+  padding: 12px;
+  border: 1px solid rgba(83, 255, 159, 0.18);
+  border-radius: 8px 8px 0 0;
   color: rgba(214, 255, 232, 0.68);
+  background: rgba(5, 8, 10, 0.98);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.38);
   font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
+  transform: translateX(-50%);
 }
 
 .notebook-tag-search input {
@@ -898,8 +914,22 @@ p {
 }
 
 .notebook-search-results {
+  position: absolute;
+  top: calc(100% + 86px);
+  left: 50%;
+  z-index: 5;
   display: grid;
   gap: 8px;
+  width: min(72vw, 300px);
+  max-height: 260px;
+  overflow: auto;
+  padding: 0 12px 12px;
+  border: 1px solid rgba(83, 255, 159, 0.18);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  background: rgba(5, 8, 10, 0.98);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.38);
+  transform: translateX(-50%);
 }
 
 .notebook-search-result {
@@ -1005,7 +1035,9 @@ p {
 }
 
 .note-tabbar {
+  position: relative;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: 11px 16px;
