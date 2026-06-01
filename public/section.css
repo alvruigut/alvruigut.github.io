@@ -42,6 +42,13 @@ html {
   width: min(100% - 32px, 1180px);
 }
 
+.projects-title {
+  margin: 0;
+  color: #f1fff7;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  text-align: center;
+}
+
 .writeups-shell {
   align-content: start;
   width: min(100% - 32px, 1080px);
@@ -139,6 +146,16 @@ p {
   gap: 18px;
 }
 
+.project-card-wrap {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1020px);
+}
+
+.project-card-wrap .project-card {
+  width: 100%;
+}
+
 .project-card {
   display: grid;
   grid-template-columns: 320px minmax(0, 640px);
@@ -211,6 +228,86 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.project-actions a {
+  width: fit-content;
+  padding: 10px 14px;
+  border: 1px solid rgba(83, 255, 159, 0.5);
+  border-radius: 8px;
+  color: #06120b;
+  background: #53ff9f;
+  box-shadow: 0 12px 28px rgba(83, 255, 159, 0.18);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.project-actions a + a {
+  color: #d6ffe8;
+  background: rgba(83, 255, 159, 0.08);
+  box-shadow: none;
+}
+
+.project-actions a:hover,
+.project-actions a:focus-visible {
+  border-color: rgba(214, 255, 232, 0.72);
+  color: #06120b;
+  background: #d6ffe8;
+  box-shadow: 0 16px 34px rgba(83, 255, 159, 0.24);
+  transform: translateY(-2px);
+}
+
+.project-actions a + a:hover,
+.project-actions a + a:focus-visible {
+  color: #f1fff7;
+  background: rgba(83, 255, 159, 0.16);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
+}
+
+.project-floating-action {
+  position: absolute;
+  right: clamp(18px, 4vw, 38px);
+  bottom: clamp(18px, 4vw, 34px);
+  z-index: 2;
+  width: fit-content;
+  padding: 10px 14px;
+  border: 1px solid rgba(83, 255, 159, 0.5);
+  border-radius: 8px;
+  color: #06120b;
+  background: #53ff9f;
+  box-shadow: 0 12px 28px rgba(83, 255, 159, 0.18);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.project-floating-action:hover,
+.project-floating-action:focus-visible {
+  border-color: rgba(214, 255, 232, 0.72);
+  color: #06120b;
+  background: #d6ffe8;
+  box-shadow: 0 16px 34px rgba(83, 255, 159, 0.24);
+  transform: translateY(-2px);
 }
 
 .project-meta span {
@@ -626,6 +723,11 @@ p {
   padding: clamp(18px, 3vw, 30px);
 }
 
+.terminal-body > p {
+  max-width: none;
+  overflow-wrap: anywhere;
+}
+
 .terminal-line {
   display: flex;
   flex-wrap: wrap;
@@ -702,49 +804,51 @@ p {
 .cert-cover {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(140px, 0.65fr);
-  align-items: start;
-  gap: clamp(14px, 2.5vw, 24px);
-  min-height: clamp(220px, 24vw, 300px);
+  align-content: end;
+  min-height: clamp(260px, 27vw, 340px);
   overflow: hidden;
   padding: clamp(18px, 3vw, 28px);
   border: 1px solid rgba(83, 255, 159, 0.16);
   border-radius: 8px;
   color: #f1fff7;
-  background:
-    linear-gradient(135deg, rgba(83, 255, 159, 0.08), transparent 54%),
-    rgba(6, 9, 11, 0.96);
+  background: #06090b;
   text-decoration: none;
+  isolation: isolate;
   transition:
     border-color 180ms ease,
-    background 180ms ease,
     transform 180ms ease,
     box-shadow 180ms ease;
 }
 
 .cert-cover img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
   width: 100%;
-  max-height: 240px;
-  justify-self: end;
-  object-fit: contain;
-  object-position: top right;
-  border: 1px solid rgba(214, 255, 232, 0.12);
-  border-radius: 7px;
-  background: rgba(4, 7, 9, 0.9);
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
   filter: saturate(0.98) contrast(1.06);
-  opacity: 0.9;
+  opacity: 0.84;
   transition:
     filter 180ms ease,
     opacity 180ms ease,
     transform 220ms ease;
 }
 
+.cert-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(4, 7, 9, 0) 0%, rgba(4, 7, 9, 0.18) 34%, rgba(4, 7, 9, 0.72) 72%, rgba(4, 7, 9, 0.98) 100%),
+    linear-gradient(90deg, rgba(83, 255, 159, 0.08), transparent 46%);
+}
+
 .cert-cover:hover,
 .cert-cover:focus-visible {
   border-color: rgba(83, 255, 159, 0.56);
-  background:
-    linear-gradient(135deg, rgba(83, 255, 159, 0.12), transparent 54%),
-    rgba(8, 12, 14, 0.98);
   box-shadow: 0 22px 70px rgba(0, 0, 0, 0.42);
   transform: translateY(-4px);
 }
@@ -756,22 +860,16 @@ p {
   transform: scale(1.035);
 }
 
-.cert-cover-copy {
-  display: grid;
-  align-content: start;
-  justify-items: start;
-  gap: 10px;
-}
-
 .cover-provider {
   color: rgba(214, 255, 232, 0.72);
   font-size: 0.78rem;
 }
 
 .cert-cover strong {
+  margin-top: 8px;
   color: #f1fff7;
-  font-size: clamp(1.65rem, 3.2vw, 2.55rem);
-  line-height: 1;
+  font-size: clamp(2.1rem, 4vw, 3.45rem);
+  line-height: 0.95;
   text-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
 }
 
@@ -783,7 +881,7 @@ p {
 .cert-detail-hero {
   display: grid;
   grid-template-columns: minmax(190px, 0.52fr) minmax(0, 1fr);
-  align-items: end;
+  align-items: center;
   gap: clamp(20px, 4vw, 40px);
   padding: clamp(18px, 3vw, 30px);
   border: 1px solid rgba(83, 255, 159, 0.18);
@@ -791,6 +889,11 @@ p {
   background:
     linear-gradient(120deg, rgba(83, 255, 159, 0.08), transparent 44%),
     rgba(8, 12, 14, 0.72);
+}
+
+.cert-detail-hero > div {
+  display: grid;
+  gap: 6px;
 }
 
 .cert-detail-hero img {
@@ -803,6 +906,12 @@ p {
 
 .cert-detail-hero h1 {
   margin-bottom: 0;
+  font-size: clamp(1.35rem, 2.4vw, 1.95rem);
+  line-height: 1;
+}
+
+.cert-detail-hero .eyebrow {
+  font-size: 0.78rem;
 }
 
 .terminal-stack {
@@ -1355,6 +1464,18 @@ ul {
   .cert-detail-hero {
     grid-template-columns: 1fr;
   }
+
+  .project-floating-action {
+    position: static;
+    display: inline-flex;
+    margin: 0 0 0 clamp(22px, 4vw, 38px);
+    transform: translateY(-18px);
+  }
+
+  .project-floating-action:hover,
+  .project-floating-action:focus-visible {
+    transform: translateY(-20px);
+  }
 }
 
 @media (max-width: 560px) {
@@ -1365,10 +1486,6 @@ ul {
 
   .cert-grid,
   .cert-cover-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .cert-cover {
     grid-template-columns: 1fr;
   }
 
