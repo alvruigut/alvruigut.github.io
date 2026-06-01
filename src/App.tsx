@@ -32,9 +32,6 @@ function App() {
       return
     }
 
-    setTypedCommand('')
-    setShowOutput(false)
-
     const startDelay = window.setTimeout(() => {
       let cursor = 0
       const typing = window.setInterval(() => {

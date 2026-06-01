@@ -818,6 +818,7 @@ p {
     rgba(8, 12, 14, 0.42);
 }
 
+.note-panel.is-active,
 .note-panel:target,
 .notebook-workspace:not(:has(.note-panel:target)) #notebook-cover {
   display: block;
