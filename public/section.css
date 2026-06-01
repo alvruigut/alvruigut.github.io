@@ -200,6 +200,30 @@ p {
   background: #f4f4f0;
 }
 
+.project-card img[src*="sin-fondo"] {
+  background: transparent;
+}
+
+.project-card img.project-image-gastrostock {
+  box-sizing: border-box;
+  padding: 24px;
+}
+
+.project-card img.project-image-uvlhub {
+  box-sizing: border-box;
+  padding: 24px;
+}
+
+.project-card img.project-image-juego-robot {
+  box-sizing: border-box;
+  padding: 18px;
+}
+
+.project-card img.project-image-dobble {
+  box-sizing: border-box;
+  padding: 18px;
+}
+
 .project-card-body {
   display: grid;
   align-content: center;
@@ -1174,6 +1198,13 @@ p {
   font-size: clamp(1.8rem, 4vw, 3rem);
 }
 
+.vulnerable-group-title {
+  margin: 28px 0 14px;
+  color: #53ff9f;
+  font-size: clamp(1.22rem, 2.2vw, 1.6rem);
+  line-height: 1.15;
+}
+
 .notebook-cover {
   min-height: min(620px, calc(100svh - 220px));
   place-content: center;
@@ -1431,6 +1462,22 @@ ul {
     height: 220px;
     border-right: 0;
     border-bottom: 1px solid rgba(83, 255, 159, 0.12);
+  }
+
+  .project-card img.project-image-gastrostock {
+    padding: 22px;
+  }
+
+  .project-card img.project-image-uvlhub {
+    padding: 22px;
+  }
+
+  .project-card img.project-image-juego-robot {
+    padding: 18px;
+  }
+
+  .project-card img.project-image-dobble {
+    padding: 18px;
   }
 
   .notebook-workspace {

