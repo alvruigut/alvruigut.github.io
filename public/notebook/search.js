@@ -23,6 +23,12 @@ const notebookNotes = [
     path: '~/notebook/Escalada de Privilegios/Linux',
     tags: ['escalada_privilegios', 'sudoers', 'sudo', 'linux', 'gtfobins', 'privesc', 'misconfigurations', 'mcedit', 'bashed', 'nibbles', 'dog'],
   },
+  {
+    title: 'SUID',
+    href: '/notebook/escalada-privilegios/linux/suid.html',
+    path: '~/notebook/Escalada de Privilegios/Linux',
+    tags: ['suid', 'sgid', 'linux', 'gtfobins', 'privesc', 'escalada_privilegios', 'find', 'permisos'],
+  },
 ]
 
 function normalizeNotebookSearch(value) {
