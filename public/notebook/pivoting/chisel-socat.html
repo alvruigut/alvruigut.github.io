@@ -15,6 +15,15 @@
         <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
           <h1>Notebook</h1>
 
+          <details class="notebook-tag-search">
+            <summary>Buscar tags</summary>
+            <label>
+              <span>Tags de apuntes</span>
+              <input class="notebook-search-input" type="search" placeholder="pivoting, chisel, metasploit..." autocomplete="off" />
+            </label>
+            <div class="notebook-search-results" aria-live="polite"></div>
+          </details>
+
           <nav class="vault-tree" aria-label="Ficheros">
             <a class="vault-file" href="/notebook.html">Inicio</a>
             <details class="vault-folder" open>
@@ -144,5 +153,6 @@ socat tcp-l:1111,fork,reuseaddr tcp:10.10.10.12:443</code></pre>
         </article>
       </section>
     </main>
+    <script src="/notebook/search.js"></script>
   </body>
 </html>
