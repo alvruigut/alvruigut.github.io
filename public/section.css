@@ -702,51 +702,49 @@ p {
 .cert-cover {
   position: relative;
   display: grid;
-  align-content: end;
-  min-height: clamp(260px, 27vw, 340px);
+  grid-template-columns: minmax(0, 0.85fr) minmax(140px, 0.65fr);
+  align-items: start;
+  gap: clamp(14px, 2.5vw, 24px);
+  min-height: clamp(220px, 24vw, 300px);
   overflow: hidden;
   padding: clamp(18px, 3vw, 28px);
   border: 1px solid rgba(83, 255, 159, 0.16);
   border-radius: 8px;
   color: #f1fff7;
-  background: #06090b;
+  background:
+    linear-gradient(135deg, rgba(83, 255, 159, 0.08), transparent 54%),
+    rgba(6, 9, 11, 0.96);
   text-decoration: none;
-  isolation: isolate;
   transition:
     border-color 180ms ease,
+    background 180ms ease,
     transform 180ms ease,
     box-shadow 180ms ease;
 }
 
 .cert-cover img {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 18%;
+  max-height: 240px;
+  justify-self: end;
+  object-fit: contain;
+  object-position: top right;
+  border: 1px solid rgba(214, 255, 232, 0.12);
+  border-radius: 7px;
+  background: rgba(4, 7, 9, 0.9);
   filter: saturate(0.98) contrast(1.06);
-  opacity: 0.84;
+  opacity: 0.9;
   transition:
     filter 180ms ease,
     opacity 180ms ease,
     transform 220ms ease;
 }
 
-.cert-cover::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    linear-gradient(180deg, rgba(4, 7, 9, 0) 0%, rgba(4, 7, 9, 0.18) 34%, rgba(4, 7, 9, 0.72) 72%, rgba(4, 7, 9, 0.98) 100%),
-    linear-gradient(90deg, rgba(83, 255, 159, 0.08), transparent 46%);
-}
-
 .cert-cover:hover,
 .cert-cover:focus-visible {
   border-color: rgba(83, 255, 159, 0.56);
+  background:
+    linear-gradient(135deg, rgba(83, 255, 159, 0.12), transparent 54%),
+    rgba(8, 12, 14, 0.98);
   box-shadow: 0 22px 70px rgba(0, 0, 0, 0.42);
   transform: translateY(-4px);
 }
@@ -758,16 +756,22 @@ p {
   transform: scale(1.035);
 }
 
+.cert-cover-copy {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 10px;
+}
+
 .cover-provider {
   color: rgba(214, 255, 232, 0.72);
   font-size: 0.78rem;
 }
 
 .cert-cover strong {
-  margin-top: 8px;
   color: #f1fff7;
-  font-size: clamp(2.1rem, 4vw, 3.45rem);
-  line-height: 0.95;
+  font-size: clamp(1.65rem, 3.2vw, 2.55rem);
+  line-height: 1;
   text-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
 }
 
@@ -1361,6 +1365,10 @@ ul {
 
   .cert-grid,
   .cert-cover-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cert-cover {
     grid-template-columns: 1fr;
   }
 
