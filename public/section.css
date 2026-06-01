@@ -865,12 +865,12 @@ p {
 }
 
 .notebook-tag-search summary::before {
-  content: '▸ ';
+  content: '⌕ ';
   color: #53ff9f;
 }
 
 .notebook-tag-search[open] summary::before {
-  content: '▾ ';
+  content: '⌕ ';
 }
 
 .notebook-tag-search label {
