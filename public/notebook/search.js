@@ -29,6 +29,12 @@ const notebookNotes = [
     path: '~/notebook/Escalada de Privilegios/Linux',
     tags: ['suid', 'sgid', 'linux', 'gtfobins', 'privesc', 'escalada_privilegios', 'find', 'permisos'],
   },
+  {
+    title: 'Grupos Vulnerables',
+    href: '/notebook/escalada-privilegios/linux/grupos-vulnerables.html',
+    path: '~/notebook/Escalada de Privilegios/Linux',
+    tags: ['grupos_linux', 'sudo', 'admin', 'wheel', 'lxd', 'lxc', 'staff', 'disk', 'docker', 'adm', 'internal', 'linux', 'privesc'],
+  },
 ]
 
 function normalizeNotebookSearch(value) {
