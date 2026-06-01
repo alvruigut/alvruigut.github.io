@@ -40,13 +40,6 @@
           </label>
         </div>
 
-        <div class="writeup-filter-bar" aria-label="Filtros rápidos">
-          <button class="writeup-filter is-active" type="button" data-filter="all">Todas</button>
-          <button class="writeup-filter" type="button" data-filter="linux">Linux</button>
-          <button class="writeup-filter" type="button" data-filter="windows">Windows</button>
-          <button class="writeup-filter" type="button" data-filter="ad">AD</button>
-          <button class="writeup-filter" type="button" data-filter="easy">Easy</button>
-        </div>
       </section>
 
       <section class="writeup-results-header" aria-live="polite">
@@ -139,7 +132,6 @@
       const searchInput = document.querySelector('#writeup-search')
       const platformFilter = document.querySelector('#platform-filter')
       const difficultyFilter = document.querySelector('#difficulty-filter')
-      const quickFilters = [...document.querySelectorAll('.writeup-filter')]
       const cards = [...document.querySelectorAll('.writeup-search-results .machine-card')]
       const resultCount = document.querySelector('#writeup-result-count')
       const emptyState = document.querySelector('#writeup-empty')
@@ -177,19 +169,6 @@
         resultCount.textContent = `${visible} ${visible === 1 ? 'resultado' : 'resultados'}`
         emptyState.hidden = visible !== 0
       }
-
-      quickFilters.forEach((button) => {
-        button.addEventListener('click', () => {
-          quickFilters.forEach((item) => item.classList.remove('is-active'))
-          button.classList.add('is-active')
-
-          const filter = button.dataset.filter
-          platformFilter.value = ['linux', 'windows', 'ad'].includes(filter) ? filter : 'all'
-          difficultyFilter.value = ['easy', 'medium', 'hard', 'insane'].includes(filter) ? filter : 'all'
-
-          updateResults()
-        })
-      })
 
       searchInput.addEventListener('input', updateResults)
       platformFilter.addEventListener('change', updateResults)
