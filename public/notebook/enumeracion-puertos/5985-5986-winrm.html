@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Sudoers | Notebook</title>
+    <title>5985,5986 - WinRM | Notebook</title>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -49,13 +49,13 @@
               <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
+              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
             </details>
             <details class="vault-folder" open>
               <summary>Escalada de Privilegios</summary>
               <details class="vault-folder vault-subfolder" open>
                 <summary>Linux</summary>
-                <a class="vault-file is-active" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
               </details>
@@ -66,9 +66,9 @@
           </nav>
         </aside>
 
-        <article class="note-panel is-active" id="sudoers">
+        <article class="note-panel is-active" id="5985-5986-winrm">
           <div class="note-tabbar">
-            <span>Sudoers</span>
+            <span>5985,5986 - WinRM</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -77,64 +77,36 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Linux</span>
+            <span>~/notebook/Enumeración de Puertos</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / linux / sudoers</p>
-            <h2>Sudoers</h2>
-
-            <p><code>/etc/sudoers</code> es el archivo de configuración que define quién puede usar <code>sudo</code> y qué comandos puede ejecutar como otro usuario, normalmente <code>root</code>.</p>
+            <p class="eyebrow">enumeración de puertos / winrm</p>
+            <h2>5985,5986 - WinRM</h2>
 
             <section class="code-card">
-              <h3>Listar comandos que podemos ejecutar como otro usuario</h3>
-              <pre><code>sudo -l
+              <h3>Acceso con evil-winrm si el usuario pertenece al grupo de un AD Remote Management Users</h3>
+              <pre><code># Conexión con credenciales
+evil-winrm -i &lt;ip_victima&gt; -u &lt;username&gt; -p &lt;password&gt;
 
-# Output
-student ALL=(root) NOPASSWD: /usr/bin/man</code></pre>
+# Conexión con hash NT
+evil-winrm -i &lt;ip_victima&gt; -u &lt;username&gt; -H &lt;NT-hash&gt;
+
+# Conexión SSL
+evil-winrm -i &lt;ip_victima&gt; -u &lt;username&gt; -p &lt;password&gt; -S</code></pre>
             </section>
 
-            <p><a href="https://gtfobins.github.io/#+sudo">GTFOBins SUDO</a></p>
-
             <section class="code-card">
-              <h3>Ejecutar binarios permitidos como otro usuario</h3>
-              <pre><code># Para usuario pepe
-sudo -u pepe git -p help config
-
-# Para root
-sudo git -p help config</code></pre>
-            </section>
-
-            <h2>Binarios No Contemplados en GTFOBins</h2>
-
-            <section class="code-card">
-              <h3>mcedit</h3>
-              <pre><code>sudo mcedit
-
-# Comandos
-F+9
-
-# Ruta
-File -&gt; User menu -&gt; Invoke 'shell'</code></pre>
+              <h3>Fuerza Bruta y Validar usuarios</h3>
+              <pre><code>crackmapexec winrm &lt;ip_victima&gt; -u &lt;user&gt; -p &lt;password_wordlists.txt&gt;</code></pre>
             </section>
 
             <h2>Tags</h2>
             <div class="tag-list">
-              <span>escalada_privilegios</span>
-              <span>sudoers</span>
-              <span>sudo</span>
-              <span>linux</span>
-              <span>gtfobins</span>
-              <span>privesc</span>
-              <span>misconfigurations</span>
-              <span>mcedit</span>
-            </div>
-
-            <h2>Máquinas Relacionadas</h2>
-            <div class="tag-list">
-              <span>Bashed</span>
-              <span>Nibbles</span>
-              <span>dog</span>
+              <span>ports</span>
+              <span>winrm</span>
+              <span>p5985</span>
+              <span>p5986</span>
             </div>
           </div>
         </article>

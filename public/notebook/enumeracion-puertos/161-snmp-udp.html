@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Sudoers | Notebook</title>
+    <title>161 - SNMP (UDP) | Notebook</title>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -40,7 +40,7 @@
               <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
+              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
@@ -55,7 +55,7 @@
               <summary>Escalada de Privilegios</summary>
               <details class="vault-folder vault-subfolder" open>
                 <summary>Linux</summary>
-                <a class="vault-file is-active" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
               </details>
@@ -66,9 +66,9 @@
           </nav>
         </aside>
 
-        <article class="note-panel is-active" id="sudoers">
+        <article class="note-panel is-active" id="161-snmp-udp">
           <div class="note-tabbar">
-            <span>Sudoers</span>
+            <span>161 - SNMP (UDP)</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -77,64 +77,82 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Linux</span>
+            <span>~/notebook/Enumeración de Puertos</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / linux / sudoers</p>
-            <h2>Sudoers</h2>
+            <p class="eyebrow">enumeración de puertos / snmp (udp)</p>
+            <h2>161 - SNMP (UDP)</h2>
 
-            <p><code>/etc/sudoers</code> es el archivo de configuración que define quién puede usar <code>sudo</code> y qué comandos puede ejecutar como otro usuario, normalmente <code>root</code>.</p>
+            <p>Simple Network Management Protocol: Protocolo que monitoriza y administra equipos en una red (servidores, routers, switches, impresoras, etc.).</p>
+
+            <p>Para leer información normalmente necesitas una <code>community string</code> (contraseña). La típica es <code>public</code> (solo lectura) y <code>private</code> (a veces escritura)</p>
 
             <section class="code-card">
-              <h3>Listar comandos que podemos ejecutar como otro usuario</h3>
-              <pre><code>sudo -l
-
-# Output
-student ALL=(root) NOPASSWD: /usr/bin/man</code></pre>
+              <h3>Recorrido por SNMP</h3>
+              <pre><code># Enumerar UDP
+nmap -sU --top-ports 100 --open -vvv -n 10.129.230.96 
+# Enumerar versión
+nmap -sU -sCV -p161 10.129.230.96
+# Fuerza Bruta CommunityString. Suele ser public
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/common-snmp-community-strings.txt 10.129.230.96
+# Enumerar SNMP
+snmpwalk -v1 -c public 10.129.230.96 
+snmpbulkwalk -v2c -c public  10.129.230.96 # TOP (Enumera todo)</code></pre>
             </section>
 
-            <p><a href="https://gtfobins.github.io/#+sudo">GTFOBins SUDO</a></p>
-
             <section class="code-card">
-              <h3>Ejecutar binarios permitidos como otro usuario</h3>
-              <pre><code># Para usuario pepe
-sudo -u pepe git -p help config
-
-# Para root
-sudo git -p help config</code></pre>
+              <h3>Comandos útiles</h3>
+              <pre><code># Exportar output mientras lo vemos por pantalla
+snmpbulkwalk -v2c -c public  10.129.230.96 | tee snmp_scan
+# Usar MIBS (Se puede enuemrar con Números o Strings)
+snmpbulkwalk -v2c -c public  10.129.230.96 1.3.6.1.2.1.1.1.0
+snmpbulkwalk -v2c -c public  10.129.230.96 SNMPv2-MIB::sysDescr
+# Excluir output
+snmpbulkwalk -v2c -c public  10.129.230.96 1.3.6.1.2.1.25.4.2.1.5 | grep -v &#x27;&quot;&quot;&#x27;
+# Modos diferentes
+snmpwalk -v 1 -c public &lt;ip_target&gt;  NET-SNMP-EXTEND-MIB::nsExtendOutputFull
+snmpbulkwalk -v2c -c public  &lt;ip_target&gt; NET-SNMP-EXTEND-MIB::nsExtendObjects</code></pre>
             </section>
 
-            <h2>Binarios No Contemplados en GTFOBins</h2>
+            <section class="code-card">
+              <h3>Ramas: MIB</h3>
+              <pre><code># Sistema
+1.3.6.1.2.1.1.1.0 Versión SO # SNMPv2-MIB::sysDescr
+1.3.6.1.2.1.1.5.0 Hostname # SNMPv2-MIB::sysName
+1.3.6.1.2.1.1.4.0 Mails # SNMPv2-MIB::sysContact
+
+# Red
+1.3.6.1.2.1.2.2.1.2 Interfaces
+1.3.6.1.2.1.4.20.1.1 Direcciones IPs
+1.3.6.1.2.1.6.13.1.3 TCP Puertos abiertos
+1.3.6.1.2.1.6.13.1.1 TCP Puertos estado
+1.3.6.1.2.1.7.5.1.2 UDP Puertos abiertos
+# Usuarios
+1.3.6.1.4.1.77.1.2.25 Usuarios Sistema
+1.3.6.1.4.1.77.1.2.3.1.1 Cuentas activas
+
+# Procesos
+1.3.6.1.2.1.25.4.2.1.2 Nombres de procesos en ejecución # HOST-RESOURCES-MIB::hrSWRunName
+1.3.6.1.2.1.25.4.2.1.4 Rutas # HOST-RESOURCES-MIB::hrSWRunPath
+1.3.6.1.2.1.25.4.2.1.5 Parámetros  # HOST-RESOURCES-MIB::hrSWRunParameters
+
+# Aplicaciones
+1.3.6.1.2.1.25.6.3.1.2 Aplicaciones instaladas # HOST-RESOURCES-MIB::hrSWInstalledName</code></pre>
+            </section>
 
             <section class="code-card">
-              <h3>mcedit</h3>
-              <pre><code>sudo mcedit
-
-# Comandos
-F+9
-
-# Ruta
-File -&gt; User menu -&gt; Invoke 'shell'</code></pre>
+              <h3>Enumeración UDP SNMP</h3>
+              <pre><code></code></pre>
             </section>
 
             <h2>Tags</h2>
             <div class="tag-list">
-              <span>escalada_privilegios</span>
-              <span>sudoers</span>
-              <span>sudo</span>
-              <span>linux</span>
-              <span>gtfobins</span>
-              <span>privesc</span>
-              <span>misconfigurations</span>
-              <span>mcedit</span>
-            </div>
-
-            <h2>Máquinas Relacionadas</h2>
-            <div class="tag-list">
-              <span>Bashed</span>
-              <span>Nibbles</span>
-              <span>dog</span>
+              <span>ports</span>
+              <span>p161_udp</span>
+              <span>p161</span>
+              <span>snmp</span>
+              <span>UDP</span>
             </div>
           </div>
         </article>

