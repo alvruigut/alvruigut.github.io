@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>GOBUSTER | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="gobuster">
+          <div class="note-tabbar">
+            <span>GOBUSTER</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Fuzzing</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">fuzzing</p>
+            <h2>GOBUSTER</h2>
+
+            <section class="code-card">
+              <h3>gobuster</h3>
+              <pre><code># Escaneo simple
+gobuster dir -u http://target -w /ruta/wordlist.txt
+
+# Escaneo con extensiones
+gobuster dir -u http://target -w /ruta/wordlist.txt -x php,html,txt
+
+# Modo `dir` (Enumeración de Directorios y Archivos)
+gobuster dir -u &lt;url&gt; -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t &lt;hilos&gt;
+
+# Modo `vhost` (Descubrimiento de Virtual Hosts)
+gobuster vhost -u https://&lt;IP&gt; -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 --domain &lt;domain&gt; --append-domain</code></pre>
+            </section>
+            <ul>
+              <li><code>dir</code> modo directorios</li>
+              <li><code>-u</code> URL</li>
+              <li><code>-w</code> wordlist</li>
+              <li><code>-k</code> omitir verificación SSL</li>
+              <li><code>-b</code> ocultar códigos de estado</li>
+              <li><code>-t</code> threads</li>
+              <li><code>-x</code> extensiones a probar (separadas por coma)</li>
+              <li><code>-s</code> status codes a mostrar</li>
+              <li><code>-e</code> mostrar resultados “expandido” (show full URL)</li>
+              <li><code>-r</code> recursión</li>
+              <li><code>-o</code>  exportar los resultados a un archivo.</li>
+            </ul>
+            <p><a href="/writeups/windows/streamio.html">StreamIO HTB</a></p>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>gobuster</span>
+              <span>fuzzing</span>
+              <span>fuzzing</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

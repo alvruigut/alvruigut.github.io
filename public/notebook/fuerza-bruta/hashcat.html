@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Hashcat | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="hashcat">
+          <div class="note-tabbar">
+            <span>Hashcat</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Fuerza Bruta</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">fuerza bruta</p>
+            <h2>Hashcat</h2>
+
+            <section class="code-card">
+              <h3>Hashcat</h3>
+              <pre><code># Usage
+hashcat -m &lt;id_mode&gt; hash /usr/share/wordlists/rockyou.txt
+# Sugerir modo de crackear
+hashcat hash /usr/share/wordlists/rockyou.txt</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Hash Type</h3>
+              <pre><code># 10 -&gt; MD5
+# 1000 -&gt; NTLM
+# 1420 -&gt; salt.sha265
+# 1410 -&gt; sha265.salt
+# 13100 -&gt; Ticket Kerberoasting
+# 18200 -&gt; Ticket ASREP Roasting</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Ejemplo de Hash con Salt</h3>
+              <pre><code># User: alvaro
+# Hash: 067f746faca44f170c6cd9d7c4bdac6bc342c608687733f80ff784242b0b0c03
+# Salt:/aACFhikmNopqrRTVz2489
+
+# Hash con Salt:
+# 067f746faca44f170c6cd9d7c4bdac6bc342c608687733f80ff784242b0b0c03:/aACFhikmNopqrRTVz2489</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>hashcat</span>
+              <span>salt</span>
+              <span>fuerza_bruta</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

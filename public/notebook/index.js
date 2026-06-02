@@ -4,17 +4,44 @@ const notebookIndex = [
     href: '/notebook.html',
   },
   {
-    title: 'Pivoting',
+    title: 'Enumeración Inicial',
     children: [
-      { title: 'Ligolo', href: '/notebook/pivoting/ligolo.html' },
-      { title: 'Metasploit', href: '/notebook/pivoting/metasploit.html' },
-      { title: 'Chisel y Socat', href: '/notebook/pivoting/chisel-socat.html' },
-    ],
-  },
-  {
-    title: 'Hacking Wifi',
-    children: [
-      { title: 'Captura WPA/WPA2', href: '/notebook/hacking-wifi/captura-wpa-wpa2.html' },
+      {
+        title: 'Descubrimiento',
+        children: [
+          { title: 'Hosts Discovery', href: '/notebook/enumeracion-inicial/nmap/hosts-discovery.html' },
+        ],
+      },
+      {
+        title: 'Escaneo de Puertos',
+        children: [
+          { title: 'Ports Scan', href: '/notebook/enumeracion-inicial/nmap/ports-scan.html' },
+        ],
+      },
+      {
+        title: 'Escaneo de Servicios',
+        children: [
+          { title: 'Services Scan', href: '/notebook/enumeracion-inicial/nmap/services-scan.html' },
+        ],
+      },
+      {
+        title: 'Nmap NSE',
+        children: [
+          { title: 'Scripts Nmap (NSE)', href: '/notebook/enumeracion-inicial/nmap/scripts-nmap-nse.html' },
+        ],
+      },
+      {
+        title: 'Evasión',
+        children: [
+          { title: 'Evadir Firewalls', href: '/notebook/enumeracion-inicial/nmap/evadir-firewalls.html' },
+        ],
+      },
+      {
+        title: 'RustScan',
+        children: [
+          { title: 'RustScan', href: '/notebook/enumeracion-inicial/rustscan/rustscan.html' },
+        ],
+      },
     ],
   },
   {
@@ -41,6 +68,86 @@ const notebookIndex = [
       { title: '3389 - RDP', href: '/notebook/enumeracion-puertos/3389-rdp.html' },
       { title: '5432,5437 - PostgreSQL', href: '/notebook/enumeracion-puertos/5432-5437-postgresql.html' },
       { title: '5985,5986 - WinRM', href: '/notebook/enumeracion-puertos/5985-5986-winrm.html' },
+    ],
+  },
+  {
+    title: 'Fuzzing',
+    children: [
+      { title: 'Feroxbuster', href: '/notebook/fuzzing/feroxbuster.html' },
+      { title: 'GOBUSTER', href: '/notebook/fuzzing/gobuster.html' },
+      { title: 'WFUZZ', href: '/notebook/fuzzing/wfuzz.html' },
+      { title: 'FFUF', href: '/notebook/fuzzing/ffuf.html' },
+      { title: 'Tips', href: '/notebook/fuzzing/tips.html' },
+    ],
+  },
+  {
+    title: 'Fuerza Bruta',
+    children: [
+      { title: 'Hashcat', href: '/notebook/fuerza-bruta/hashcat.html' },
+      { title: 'Hydra', href: '/notebook/fuerza-bruta/hydra.html' },
+      { title: 'JohnTheRipper', href: '/notebook/fuerza-bruta/johntheripper.html' },
+    ],
+  },
+  {
+    title: 'Exploits',
+    children: [
+      {
+        title: 'Búsqueda de Exploits',
+        children: [
+          { title: 'Searchsploit', href: '/notebook/exploits/searchsploit.html' },
+          { title: 'Google Dork', href: '/notebook/exploits/google-dork.html' },
+        ],
+      },
+      {
+        title: 'Adaptación de Exploits',
+        children: [
+          { title: 'Python2 a Python3', href: '/notebook/exploits/python2-a-python3.html' },
+          { title: 'Compilar Exploits C', href: '/notebook/exploits/compilar-exploits-c.html' },
+          { title: 'Compilar Exploits Windows', href: '/notebook/exploits/compilar-exploits-windows.html' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Shells',
+    children: [
+      { title: 'Netcat', href: '/notebook/shells/netcat.html' },
+      { title: 'PeneLope', href: '/notebook/shells/penelope.html' },
+      { title: 'PentestMonkey', href: '/notebook/shells/pentestmonkey.html' },
+      { title: 'RCE a Shell', href: '/notebook/shells/rce-a-shell.html' },
+      { title: 'Reverse vs Bind', href: '/notebook/shells/reverse-vs-bind.html' },
+      { title: 'Shell a Meterpreter', href: '/notebook/shells/shell-a-meterpreter.html' },
+      { title: 'TTY', href: '/notebook/shells/tty.html' },
+    ],
+  },
+  {
+    title: 'Transferencia de Archivos',
+    children: [
+      { title: 'Linux -> Windows', href: '/notebook/transferencia-archivos/linux-windows.html' },
+      { title: 'Windows -> Linux', href: '/notebook/transferencia-archivos/windows-linux.html' },
+      { title: 'Linux -> Linux', href: '/notebook/transferencia-archivos/linux-linux.html' },
+      { title: 'Herramientas Automatizadas', href: '/notebook/transferencia-archivos/herramientas-automatizadas.html' },
+    ],
+  },
+  {
+    title: 'Metasploit',
+    children: [
+      { title: 'Metasploit', href: '/notebook/metasploit/metasploit.html' },
+    ],
+  },
+  {
+    title: 'MSFVenom',
+    children: [
+      { title: 'MSFVenom', href: '/notebook/msfvenom/msfvenom.html' },
+    ],
+  },
+  {
+    title: 'Pivoting',
+    children: [
+      { title: 'Ligolo', href: '/notebook/pivoting/ligolo.html' },
+      { title: 'Metasploit', href: '/notebook/pivoting/metasploit.html' },
+      { title: 'Chisel y Socat', href: '/notebook/pivoting/chisel-socat.html' },
+      { title: 'SSH', href: '/notebook/pivoting/ssh.html' },
     ],
   },
   {
@@ -154,6 +261,18 @@ const notebookIndex = [
           },
         ],
       },
+    ],
+  },
+  {
+    title: 'Diccionarios',
+    children: [
+      { title: 'Diccionarios', href: '/notebook/diccionarios/diccionarios.html' },
+    ],
+  },
+  {
+    title: 'Hacking Wifi',
+    children: [
+      { title: 'Captura WPA/WPA2', href: '/notebook/hacking-wifi/captura-wpa-wpa2.html' },
     ],
   },
 ]

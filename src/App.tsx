@@ -11,7 +11,7 @@ const whoamiCommand = 'whoami'
 
 const whoamiOutput = [
   'Soy Álvaro Ruiz Gutiérrez, Ingeniero del Software por la Universidad de Sevilla y Pentester Junior.',
-  'Aquí encontrarás mis proyectos de GitHub, writeups de Hack The Box que he ido resolviendo mientras me preparo y sigo subiendo nivel en certificaciones como OSCP, eJPT y eCPPT.',
+  'Aquí encontrarás mis proyectos de GitHub, writeups de Hack The Box que he ido resolviendo mientras me preparaba para certificaciones como OSCP, eJPT y eCPPT.',
   'También comparto mis apuntes, recursos que me han servido y la forma en la que voy organizando mi aprendizaje en ciberseguridad ofensiva.',
   'En la sección de certificaciones cuento mi experiencia con cada una: preparación, examen, recomendaciones y mi opinión personal.',
 ]

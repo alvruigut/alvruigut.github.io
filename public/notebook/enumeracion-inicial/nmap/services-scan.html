@@ -4,20 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>RuyzTz7 | Notebook</title>
+    <title>Services Scan | Notebook</title>
     <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
     <main class="section-shell notebook-shell">
-      <a class="back-link" href="/">~/home</a>
+      <a class="back-link" href="/notebook.html">~/notebook</a>
 
       <section class="notebook-workspace" aria-label="Notebook">
         <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
-        <article class="note-panel is-active" id="notebook-cover">
+        <article class="note-panel is-active" id="services-scan">
           <div class="note-tabbar">
-            <span>Inicio</span>
+            <span>Services Scan</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -26,11 +26,31 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook</span>
+            <span>~/notebook/Enumeración Inicial/Escaneo de Servicios</span>
           </div>
 
-          <div class="note-content notebook-cover">
-            <img class="notebook-cover-monkey" data-theme-monkey src="/favicon-monkey.png?v=20260601" alt="Mono de perfil de RuyzTz7" />
+          <div class="note-content">
+            <p class="eyebrow">enumeración inicial / nmap</p>
+            <h2>Services Scan</h2>
+
+            <section class="code-card">
+              <h3>NMAP Service Scan</h3>
+              <pre><code>nmap -sCV -p22,25,80,110,111,143,4559,5038,10000 &lt;ip_target&gt; -oN targeted</code></pre>
+            </section>
+            <div class="note-kv">
+              <p><code>-sC</code> Ejecuta scripts básicos de reconocimiento.</p>
+              <p><code>-sV</code> Detecta versiones y servicios.</p>
+              <p><code>-oN</code> Exporta los resultados en formato normal.</p>
+            </div>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>nmap</span>
+              <span>services</span>
+              <span>versions</span>
+              <span>sC</span>
+              <span>sV</span>
+              <span>targeted</span>
+            </div>
           </div>
         </article>
       </section>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Evadir Firewalls | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="evadir-firewalls">
+          <div class="note-tabbar">
+            <span>Evadir Firewalls</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Enumeración Inicial/Evasión</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">enumeración inicial / nmap</p>
+            <h2>Evadir Firewalls</h2>
+
+            <section class="code-card">
+              <h3>Técnicas de evasión de Firewalls</h3>
+              <pre><code># Fragmentación de paquetes — enviar paquetes fragmentados para intentar evadir filtros/IDS.
+nmap -p22 &lt;target&gt; -f
+
+# Filtrar paquetes fragmentados en Wireshark — muestra fragmentos con el flag MF (more fragments).
+ip.flags.mf == 1
+
+# Alterar el MTU para probar bloqueos por tamaño de paquete (debe ser múltiplo de 8).
+nmap -p22 &lt;target&gt; --mtu 8
+
+# Usar “decoys” para que el escaneo parezca venir de varias IPs y confundir firewalls/IDS.
+nmap -p22 &lt;target&gt; -D &lt;ip1&gt;,&lt;ip2&gt;,&lt;ip3&gt;,&lt;ip4&gt;
+
+# Decoys masivo + top ports + verbose (ejemplo con muchas IPs).
+nmap --top-ports 100 &lt;target&gt; -D &lt;ip1&gt;,&lt;ip2&gt;,...,&lt;ip100&gt; -v -n
+
+# Cambiar el puerto de origen para parecer tráfico desde un puerto permitido.
+nmap -p22 &lt;target&gt; --open -v -n --source-port 53
+
+# Añadir bytes de datos a cada paquete para eludir reglas basadas en tamaño.
+nmap -p22 &lt;target&gt; --data-length 24
+
+# Falsificar la dirección MAC para parecer un fabricante/dispositivo concreto.
+nmap -p22 &lt;target&gt; --spoof-mac Del</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>nmap</span>
+              <span>firewall</span>
+              <span>evasion</span>
+              <span>fragmentation</span>
+              <span>decoy</span>
+              <span>spoof-mac</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

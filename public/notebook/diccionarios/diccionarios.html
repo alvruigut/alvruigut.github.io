@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Diccionarios | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="diccionarios">
+          <div class="note-tabbar">
+            <span>Diccionarios</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Diccionarios</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">diccionarios</p>
+            <h2>Diccionarios</h2>
+
+            <h2>GENERAL</h2>
+            <section class="code-card">
+              <h3>General</h3>
+              <pre><code>/usr/share/wordlists/rockyou.txt</code></pre>
+            </section>
+            <h2>FUZZING WEB</h2>
+            <p><code> DIRECTORIOS Y ARCHIVOS</code></p>
+            <section class="code-card">
+              <h3>Fuzzing Web Directorios</h3>
+              <pre><code>/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+/usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-words.txt</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Fuzzing Web Archivos</h3>
+              <pre><code>/usr/share/wordlists/dirb/common.txt</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Fuzzing Web Subdominios</h3>
+              <pre><code>/usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Plugins Wordpress</h3>
+              <pre><code>/usr/share/wordlists/SecLists/Discovery/Web-Content/CMS/wp-plugins.fuzz.txt</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Extensiones</h3>
+              <pre><code>cat /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-small-extensions-lowercase.txt | grep . | sponge extensions.txt</code></pre>
+            </section>
+            <h2>USUARIOS</h2>
+            <section class="code-card">
+              <h3>Usuarios</h3>
+              <pre><code>/usr/share/metasploit-framework/data/wordlists/unix_users.txt
+
+/usr/share/wordlists/seclists/Usernames/xato-net-10-million-usernames.txt # TOP
+
+/usr/share/wordlist/seclists/usernames/top-usernames-shortlist.txt</code></pre>
+            </section>
+            <h2>CONTRASEÑAS</h2>
+            <section class="code-card">
+              <h3>Contraseñas</h3>
+              <pre><code>/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt
+
+/usr/share/wordlists/100-common-passwords.txt</code></pre>
+            </section>
+            <h2>Personalizados</h2>
+            <section class="code-card">
+              <h3>Personaliza diccionarios de contraseñas</h3>
+              <pre><code># CUPP
+cupp -i
+# USERNAME-ANARCHY
+username-anarchy fergus smith</code></pre>
+            </section>
+            <p><a href="https://github.com/initstring/linkedin2username">Linkedin Usernames Personalizados</a></p>
+            <aside class="callout">
+              <p>Probar como diccionario de contraseñas una lista de los mismos usuarios encontrados.</p>
+            </aside>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>diccionarios</span>
+              <span>dicc</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

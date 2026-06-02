@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>JohnTheRipper | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="johntheripper">
+          <div class="note-tabbar">
+            <span>JohnTheRipper</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Fuerza Bruta</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">fuerza bruta</p>
+            <h2>JohnTheRipper</h2>
+
+            <h3>Descifrar Hashes de Contraseñas</h3>
+            <section class="code-card">
+              <h3>Uso normal</h3>
+              <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt &lt;hash.txt&gt;
+john --show hashes.txt</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Probar todas las combinaciones posibles de caracteres hasta encontrar la contraseña</h3>
+              <pre><code>john --incremental hashes.txt</code></pre>
+            </section>
+            <h3>Crackear de Hashes</h3>
+            <p><code>MD5:</code></p>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>john --format=raw-md5 --wordlist=/usr/share/wordlists/rockyou.txt &lt;hash.txt&gt;.txt</code></pre>
+            </section>
+            <p><code>SHA-256:</code></p>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>john --format=raw-sha256 --wordlist=/usr/share/wordlists/rockyou.txt &lt;hash.txt&gt;</code></pre>
+            </section>
+            <p><code>NTLM (Windows):</code></p>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>john --format=nt --wordlist=/usr/share/wordlists/rockyou.txt &lt;hash.txt&gt;</code></pre>
+            </section>
+            <h3>Identificar Tipo de Hash</h3>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>hashid &lt;hash&gt; # Tratar de identificar un hash
+hash-identifier # Cuando inicie, proporcionarle un hash</code></pre>
+            </section>
+            <p><a href="https://github.com/bee-san/Name-That-Hash">Name_That_Hash Github</a> <a href="https://hashes.com/en/tools/hash_identifier">Hash Identifier Online</a></p>
+            <h3>Crack de contraseñas en Web</h3>
+            <p><a href="https://crackstation.net/">CrackStation</a> <a href="https://md5hashing.net/">toolkitMD5Hashing</a> <a href="https://gchq.github.io/CyberChef/">CyberChef</a></p>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>brute_force</span>
+              <span>john</span>
+              <span>hash_crack</span>
+              <span>johntheripper</span>
+              <span>hash</span>
+              <span>fuerza_bruta</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

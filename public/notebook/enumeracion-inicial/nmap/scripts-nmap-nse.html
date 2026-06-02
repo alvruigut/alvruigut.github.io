@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Scripts Nmap (NSE) | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="scripts-nmap-nse">
+          <div class="note-tabbar">
+            <span>Scripts Nmap (NSE)</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Enumeración Inicial/Nmap NSE</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">enumeración inicial / nmap</p>
+            <h2>Scripts Nmap (NSE)</h2>
+
+            <div class="note-table-wrap">
+              <table class="note-table">
+                <thead>
+                  <tr><th><strong>Puerto</strong></th><th><strong>Servicio</strong></th><th><strong>Scripts NSE</strong></th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>21</code></td><td>FTP (File Transfer Protocol)</td><td>ftp-anon, ftp-bounce, ftp-brute, ftp-syst, ftp-proftpd-backdoor</td></tr>
+                  <tr><td><code>22</code></td><td>SSH (Secure Shell)</td><td>ssh-brute, ssh-auth-methods, ssh-hostkey, ssh-run, sshv1</td></tr>
+                  <tr><td><code>23</code></td><td>Telnet</td><td>telnet-brute, telnet-encryption, telnet-ntlm-info, telnet-robot</td></tr>
+                  <tr><td><code>25</code><br></td><td>SMTP (Simple Mail Transfer Protocol)</td><td>smtp-brute, smtp-open-relay, smtp-enum-users, smtp-ntlm-info, smtp-strangeport</td></tr>
+                  <tr><td><code>53</code></td><td>DNS (Domain Name System)</td><td>dns-nsid, dns-recursion, dns-zone-transfer, dns-service-discovery, dns-random-srcport</td></tr>
+                  <tr><td><code>80</code></td><td>HTTP (Servidor Web No Cifrado)</td><td>http-title, http-enum, http-methods, http-robots.txt, http-shellshock, http-sql-injection, http-php-version</td></tr>
+                  <tr><td><code>139</code>, <code>445</code></td><td>SMB (Server Message Block)</td><td>smb-enum-shares, smb-enum-users, smb-os-discovery, smb-brute, smb-vuln-ms17-010, smb-vuln-ms08-067</td></tr>
+                  <tr><td><code>143</code></td><td>IMAP (Internet Message Access Protocol)</td><td>imap-brute, imap-capabilities, imap-ntlm-info</td></tr>
+                  <tr><td><code>443</code></td><td>HTTPS (Servidor Web Seguro)</td><td>ssl-enum-ciphers, ssl-cert, ssl-ccs-injection, ssl-heartbleed, ssl-poodle</td></tr>
+                  <tr><td><code>3306</code></td><td>MySQL</td><td>mysql-brute, mysql-databases, mysql-empty-password, mysql-users, mysql-vuln-cve2016-6662</td></tr>
+                  <tr><td><code>3389</code></td><td>RDP (Remote Desktop Protocol)</td><td>rdp-brute, rdp-enum-encryption, rdp-vuln-ms12-020</td></tr>
+                  <tr><td><code>1521</code></td><td>Oracle Database</td><td>oracle-brute, oracle-enum-users, oracle-tns-version, oracle-vuln-cve2012-3137</td></tr>
+                  <tr><td><code>5900</code></td><td>VNC (Virtual Network Computing)</td><td>vnc-brute, vnc-info, vnc-title, realvnc-auth-bypass</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <h3>Modo de empleo</h3>
+            <section class="code-card">
+              <h3>NMAP scripts NSE</h3>
+              <pre><code># Utilizar script específico
+nmap  -p 21 &lt;ip_objetivo&gt;  --script=ftp-anon
+
+# Utilizar categorías
+nmap -p22 192.168.1.1 --script=&quot;vuln&quot;
+nmap -p22 192.168.1.1 --script=&quot;vuln and/or safe&quot;
+
+# Utilizar todos los scripts relacionados con el serivicio ftp
+nmap --script &quot;ftp-*&quot; -p 21 &lt;ip_objetivo&gt;</code></pre>
+            </section>
+            <aside class="callout">
+              <p>Se puede localizar todos los scripts con el siguiente comando: <code>locate .nse</code></p>
+            </aside>
+            <aside class="callout">
+              <p>El parámetro <code>-sC</code> ya lanza algunos scripts básicos</p>
+            </aside>
+            <h2>Categorías:</h2>
+            <ul>
+              <li><code>auth</code></li>
+              <li><code>vuln</code></li>
+              <li><code>dos</code></li>
+              <li><code>broadcast</code></li>
+              <li><code>brute</code></li>
+              <li><code>default</code></li>
+              <li><code>discovery</code></li>
+              <li><code>exploit</code></li>
+              <li><code>external</code></li>
+              <li><code>fuzzer</code></li>
+              <li><code>intrusive</code></li>
+              <li><code>malware</code></li>
+              <li><code>safe</code></li>
+              <li><code>version</code></li>
+            </ul>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>nmap</span>
+              <span>nse</span>
+              <span>scripts</span>
+              <span>vuln</span>
+              <span>brute</span>
+              <span>default</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

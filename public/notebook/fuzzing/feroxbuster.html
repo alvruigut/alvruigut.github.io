@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Feroxbuster | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="feroxbuster">
+          <div class="note-tabbar">
+            <span>Feroxbuster</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Fuzzing</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">fuzzing</p>
+            <h2>Feroxbuster</h2>
+
+            <section class="code-card">
+              <h3>Fuerza Bruta de directorios y extensiones php</h3>
+              <pre><code>feroxbuster -u http://10.10.11.116 -x php</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># -f: Añade / al final de cada palabra Ej. /admin /admin/
+# -n: No recursivo Ej. /admin 200 OK. No sigue probando con /admin/Fuzz
+# -A: Usa Agents diferentes
+# -C &lt;404&gt;: Oculta códigos de estado
+# -e: Muestra en Output la URL entera
+# -b: Busca backups
+# --auto-tune: Optimiza el scan automáticamente en velocidad, hilos y rendimiento
+# -S 0: Muestra todas las respuestas y evita que se use un filtrado por tamaño</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ferox</span>
+              <span>feroxbuster</span>
+              <span>fuzzing</span>
+              <span>fuzzing</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

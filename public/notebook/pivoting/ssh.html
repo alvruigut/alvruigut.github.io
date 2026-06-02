@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>SSH | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="ssh">
+          <div class="note-tabbar">
+            <span>SSH</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Pivoting</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">pivoting / ssh / socks</p>
+            <h2>SSH</h2>
+
+            <h2>Escenario</h2>
+            <div class="note-kv">
+              <p><code>Kali:</code> <span class="lab-red">192.168.10.10</span></p>
+              <p><code>Máquina 1:</code> <span class="lab-red">192.168.10.20</span> / <span class="lab-blue">192.168.20.10</span></p>
+              <p><code>Máquina 2:</code> <span class="lab-blue">192.168.20.20</span> / <span class="ip-green">192.168.30.10</span></p>
+              <p><code>Máquina 3:</code> <span class="ip-green">192.168.30.20</span></p>
+            </div>
+
+            <h2>Dynamic Port Forwarding</h2>
+            <section class="code-card">
+              <h3>Kali: abrir un SOCKS hacia Máquina 1</h3>
+              <pre><code>ssh -D 8080 usuario@192.168.10.20</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Configurar Proxychains</h3>
+              <pre><code>nano /etc/proxychains4.conf
+
+socks5  127.0.0.1 8080</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: comprobar visibilidad con la red azul</h3>
+              <pre><code>proxychains nmap -sT 192.168.20.20</code></pre>
+            </section>
+
+            <h2>Segundo pivote</h2>
+            <section class="code-card">
+              <h3>Crear un segundo puente hacia Máquina 2</h3>
+              <pre><code>ssh -D 9090 -f -N usuario@192.168.20.20</code></pre>
+            </section>
+
+            <div class="note-kv">
+              <p><code>-D 9090</code> crea un proxy SOCKS dinámico en Kali en el puerto <code>9090</code>.</p>
+              <p><code>-f</code> manda el proceso a segundo plano.</p>
+              <p><code>-N</code> no abre shell interactiva; solo crea el túnel.</p>
+            </div>
+
+            <section class="code-card">
+              <h3>Configurar cadena de proxies</h3>
+              <pre><code>nano /etc/proxychains4.conf
+
+socks5  127.0.0.1 9090
+socks5  127.0.0.1 8080</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: comprobar visibilidad con la red verde</h3>
+              <pre><code>proxychains firefox
+proxychains nmap -sT 192.168.30.20</code></pre>
+            </section>
+
+            <h2>Local Port Forwarding</h2>
+            <section class="code-card">
+              <h3>Exponer en Kali un servicio local del objetivo</h3>
+              <pre><code>ssh -L &lt;kali_port&gt;:127.0.0.1:&lt;target_port&gt; user@ip</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>pivoting</span>
+              <span>pivoting_ssh</span>
+              <span>portforwarding</span>
+              <span>ssh</span>
+              <span>proxychains</span>
+              <span>socks</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

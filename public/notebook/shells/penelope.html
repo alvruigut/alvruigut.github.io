@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>PeneLope | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="penelope">
+          <div class="note-tabbar">
+            <span>PeneLope</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Shells</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">shells</p>
+            <h2>PeneLope</h2>
+
+            <section class="code-card">
+              <h3>Instalación</h3>
+              <pre><code>pipx install git+https://github.com/brightio/penelope</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Listener</h3>
+              <pre><code>penelope -p 443
+
+# OSCP Mode
+penelope -p 443 -O</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Módulos y Comandos</h3>
+              <pre><code>sessions &lt;id&gt; # Sesiones
+F12 / Ctrl+D  # Salir de la terminal
+help run      # Listar módulos</code></pre>
+            </section>
+            <p><a href="https://www.youtube.com/watch?v=gYu2XbaQEOc">Video PeneLope</a> <a href="https://github.com/brightio/penelope">GitHub PeneLope</a></p>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>penelope</span>
+              <span>listener</span>
+              <span>netcat</span>
+              <span>shells</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

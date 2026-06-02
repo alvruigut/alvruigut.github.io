@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Ports Scan | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="ports-scan">
+          <div class="note-tabbar">
+            <span>Ports Scan</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Enumeración Inicial/Escaneo de Puertos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">enumeración inicial / nmap</p>
+            <h2>Ports Scan</h2>
+
+            <section class="code-card">
+              <h3>NMAP</h3>
+              <pre><code># Escaneo completo
+nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.28.115 -oG allPorts
+
+# OneLiner ExtractPorts
+grep &quot;^[0-9]&quot; scan | cut -d&#x27;/&#x27; -f1 | xargs | tr &#x27; &#x27; &#x27;,&#x27;
+cat scan | cut -d / -f1 | xargs | tr &quot; &quot; &quot;,&quot;
+
+# Sin min-rate
+nmap -p- --open -sS -T5 -vvv -n -Pn 10.129.28.115 -oG allPorts</code></pre>
+            </section>
+            <aside class="callout warning">
+              <p><strong>Fallo al usar <code>--min-rate 5000</code>:</strong> <code>adjust_timeouts2: packet supposedly had rtt of</code></p>
+              <p>Solución: usar <code>-T5</code>. También puede deberse a bloqueo de <code>trazas icmp</code>; en ese caso, probar <a href="https://github.com/cloverstd/tcping">tcping</a>.</p>
+            </aside>
+            <section class="code-card">
+              <h3>NMAP Port Scan</h3>
+              <pre><code># Un puerto
+nmap -p80 192.168.1.1
+
+# Más de un puerto
+nmap -p80,443 192.168.1.1
+
+# Un rango
+nmap -p1-900 192.168.1.1
+
+# Los 500 puertos más comunes
+nmap  --top-ports 500 192.168.1.1</code></pre>
+            </section>
+            <div class="note-kv">
+              <p><code>-p-</code> Escanea todo el rango de puertos.</p>
+              <p><code>--open</code> Muestra solo los puertos abiertos.</p>
+              <p><code>-sS</code> Realiza un TCP SYN Scan sigiloso.</p>
+              <p><code>-sT</code> Realiza un TCP Connect Scan con el flujo completo del three-way handshake.</p>
+              <p><code>-sU</code> Realiza un UDP Scan.</p>
+              <p><code>--min-rate 5000</code> Aumenta la velocidad del escaneo. Para eJPT puede ser suficiente <code>--min-rate 2000</code>.</p>
+              <p><code>-T5</code> Ajusta la velocidad de escaneo. <code>T4 &lt; T3 &lt; T2 &lt; T1</code>: a menor velocidad, más sigiloso.</p>
+              <p><code>-vvv</code> Modo triple verbose para mayor detalle.</p>
+              <p><code>-n</code> Omite la resolución DNS.</p>
+              <p><code>-Pn</code> Asume que el host está activo, evitando el ping de descubrimiento.</p>
+              <p><code>-oG</code> Exporta resultados en formato grepeable.</p>
+              <p><code>-oN</code> Exporta resultados en formato normal.</p>
+            </div>
+            <section class="code-card">
+              <h3>portscan.sh</h3>
+              <pre><code>#!/bin/bash
+
+function ctrl_c() {
+    echo -e &quot;\n\n[!] Exiting...\n&quot;
+    tput cnorm
+    pkill -P $$ &gt;/dev/null 2&gt;&amp;1 || true
+    exit 1
+
+}
+
+trap ctrl_c INT
+
+declare -a ports=( $(seq 1 65535) )
+
+function scan_port() {
+    local host=&quot;$1&quot;
+    local port=&quot;$2&quot;
+    # Abrir socket TCP; redirigir errores a /dev/null
+    (exec 3&lt;&gt;/dev/tcp/&quot;$host&quot;/&quot;$port&quot;) 2&gt;/dev/null
+    if [ $? -eq 0 ]; then
+        echo -e &quot;\n[+] Host: $host - Port: $port (OPEN)&quot;
+    fi
+    # Cerrar descriptor
+    exec 3&gt;&amp;-
+    exec 3&lt;&amp;-
+}
+
+tput civis
+
+# Comprobar argumento
+if [ -n &quot;${1-}&quot; ]; then
+    target=&quot;$1&quot;
+    for port in &quot;${ports[@]}&quot;; do
+        printf &#x27;\rScanning %s:%s&#x27; &quot;$target&quot; &quot;$port&quot; &gt;&amp;2 || true
+
+        scan_port &quot;$target&quot; &quot;$port&quot; &amp;
+    done
+
+
+else
+    echo -e &quot;\n[!] Uso: $0 &lt;ip-address&gt;\n&quot;
+    tput cnorm
+    exit 1
+fi
+
+wait
+printf &#x27;\n&#x27; &gt;&amp;2 || true
+tput cnorm</code></pre>
+            </section>
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>nmap</span>
+              <span>ports</span>
+              <span>port scan</span>
+              <span>tcp syn</span>
+              <span>udp</span>
+              <span>script_sh</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>
