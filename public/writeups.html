@@ -56,7 +56,7 @@
           data-difficulty="easy"
           data-tags="kernel metabase vhosts env web contenedor ssh linux easy"
         >
-          <img class="machine-logo" src="/writeups/assets/analytical/logo.png" alt="Máquina Analytics de Hack The Box" />
+          <img class="machine-logo" src="/writeups/assets/analytical/card-logo.png" alt="Máquina Analytics de Hack The Box" />
           <div class="machine-card-body">
             <span class="writeup-kicker">HTB / Linux</span>
             <h2>Analytics</h2>
@@ -1522,6 +1522,63 @@
       const cards = [...document.querySelectorAll('.writeup-search-results .machine-card')]
       const resultCount = document.querySelector('#writeup-result-count')
       const emptyState = document.querySelector('#writeup-empty')
+      const hiddenTagValues = new Set(['linux', 'windows', 'active', 'directory', 'ad', 'cs', 'easy', 'medium', 'hard', 'insane'])
+      const tagLabels = {
+        'acl': 'ACL',
+        'ad_cs': 'AD CS',
+        'as-rep': 'AS-REP',
+        'activemq': 'ActiveMQ',
+        'apache': 'Apache',
+        'buffer_overflow': 'Buffer Overflow',
+        'bloodhound': 'BloodHound',
+        'bypass_espacios_ifs': 'IFS Bypass',
+        'cpassword': 'cPassword',
+        'cms': 'CMS',
+        'cve': 'CVE',
+        'dcsync': 'DCSync',
+        'dockerfile': 'Dockerfile',
+        'dotpeek': 'dnSpy/dotPeek',
+        'env': 'ENV',
+        'follina': 'Follina',
+        'git-dumper': 'Git Dumper',
+        'gmsa': 'gMSA',
+        'id_rsa': 'id_rsa',
+        'iis': 'IIS',
+        'impersonate': 'Impersonate',
+        'kerberos': 'Kerberos',
+        'laps': 'LAPS',
+        'ldap': 'LDAP',
+        'lfi': 'LFI',
+        'ms17-010': 'MS17-010',
+        'mssql': 'MSSQL',
+        'mysql': 'MySQL',
+        'ndsudo': 'NDSudo',
+        'nginx': 'nginx',
+        'ntds': 'NTDS',
+        'ntlmv2': 'NTLMv2',
+        'path_hijacking': 'Path Hijacking',
+        'pfx': 'PFX',
+        'phpbash': 'phpbash',
+        'phpmyadmin': 'phpMyAdmin',
+        'printspoofer': 'PrintSpoofer',
+        'rbcd': 'RBCD',
+        'rce': 'RCE',
+        'sqlite': 'SQLite',
+        'smb': 'SMB',
+        'sqli': 'SQLi',
+        'sqli_mssql': 'MSSQL SQLi',
+        'ssh': 'SSH',
+        'ssrf': 'SSRF',
+        'suid': 'SUID',
+        'sysvol': 'SYSVOL',
+        'vhosts': 'vHosts',
+        'vm2': 'vm2',
+        'winrm': 'WinRM',
+        'wordpress': 'WordPress',
+        'wsl': 'WSL',
+        'xss': 'XSS',
+        'xwiki': 'XWiki',
+      }
 
       function normalize(value) {
         return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -1535,6 +1592,43 @@
           card.dataset.tags,
           card.textContent,
         ].join(' '))
+      }
+
+      function formatTag(tag) {
+        const cleanTag = tag.trim()
+        const lowerTag = cleanTag.toLowerCase()
+        if (tagLabels[lowerTag]) return tagLabels[lowerTag]
+
+        return cleanTag
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, (letter) => letter.toUpperCase())
+      }
+
+      function renderTagChips() {
+        cards.forEach((card) => {
+          const meta = card.querySelector('.machine-meta')
+          if (!meta) return
+
+          const visibleTags = []
+          const seenTags = new Set()
+          const machineName = normalize(card.dataset.name || '')
+
+          ;(card.dataset.tags || '').split(/\s+/).forEach((tag) => {
+            const normalizedTag = normalize(tag)
+            if (!tag || hiddenTagValues.has(normalizedTag) || normalizedTag === machineName || seenTags.has(normalizedTag)) return
+
+            seenTags.add(normalizedTag)
+            visibleTags.push(formatTag(tag))
+          })
+
+          meta.replaceChildren(
+            ...visibleTags.slice(0, 4).map((tag) => {
+              const chip = document.createElement('span')
+              chip.textContent = tag
+              return chip
+            }),
+          )
+        })
       }
 
       function updateResults() {
@@ -1560,6 +1654,8 @@
       searchInput.addEventListener('input', updateResults)
       platformFilter.addEventListener('change', updateResults)
       difficultyFilter.addEventListener('change', updateResults)
+      renderTagChips()
+      updateResults()
     </script>
   </body>
 </html>

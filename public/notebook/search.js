@@ -18,6 +18,12 @@ const notebookNotes = [
     tags: ['pivoting', 'portforwarding', 'chisel', 'socat', 'proxychains', 'socks', 'reverse shell', 'tuneles', 'multi-hop'],
   },
   {
+    title: 'Captura WPA/WPA2',
+    href: '/notebook/hacking-wifi/captura-wpa-wpa2.html',
+    path: '~/notebook/Hacking Wifi',
+    tags: ['wifi', 'wpa', 'wpa2', 'aircrack-ng', 'airodump-ng', 'aireplay-ng', 'handshake', 'modo monitor', 'desautenticacion', 'diccionario', 'rockyou', 'tp-link', 'archer t3u plus', 'wlan0', 'bssid', 'station'],
+  },
+  {
     title: 'Sudoers',
     href: '/notebook/escalada-privilegios/linux/sudoers.html',
     path: '~/notebook/Escalada de Privilegios/Linux',

