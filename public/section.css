@@ -1490,6 +1490,25 @@ ul {
     grid-template-columns: 1fr;
   }
 
+  .project-card-wrap {
+    overflow: hidden;
+    border: 1px solid rgba(83, 255, 159, 0.16);
+    border-radius: 8px;
+    background:
+      linear-gradient(140deg, rgba(83, 255, 159, 0.07), transparent 44%),
+      rgba(8, 12, 14, 0.72);
+    box-shadow:
+      0 24px 74px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .project-card-wrap .project-card {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
   .project-card img {
     width: min(100%, 360px);
     height: 220px;
@@ -1567,13 +1586,13 @@ ul {
   .project-floating-action {
     position: static;
     display: inline-flex;
-    margin: 0 0 0 clamp(22px, 4vw, 38px);
-    transform: translateY(-18px);
+    margin: 0 0 clamp(18px, 4vw, 34px) clamp(22px, 4vw, 38px);
+    transform: none;
   }
 
   .project-floating-action:hover,
   .project-floating-action:focus-visible {
-    transform: translateY(-20px);
+    transform: translateY(-2px);
   }
 }
 
@@ -1581,6 +1600,12 @@ ul {
   .section-shell {
     width: min(100% - 28px, 920px);
     padding-block: 28px;
+  }
+
+  .project-card img.project-image-gastrostock {
+    width: min(100%, 260px);
+    height: 190px;
+    padding: 18px;
   }
 
   .writeup-detail-hero--image-right > img {
