@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
     <title>88 - Kerberos | Notebook</title>
+    <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -12,59 +13,7 @@
       <a class="back-link" href="/notebook.html">~/notebook</a>
 
       <section class="notebook-workspace" aria-label="Notebook">
-        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
-          <h1>Notebook</h1>
-
-          <nav class="vault-tree" aria-label="Ficheros">
-            <a class="vault-file" href="/notebook.html">Inicio</a>
-            <details class="vault-folder">
-              <summary>Pivoting</summary>
-              <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
-              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
-              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Hacking Wifi</summary>
-              <a class="vault-file" href="/notebook/hacking-wifi/captura-wpa-wpa2.html">Captura WPA/WPA2</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Enumeración de Puertos</summary>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/21-ftp.html">21 - FTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/22-ssh.html">22 - SSH</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/23-telnet.html">23 - Telnet</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/25-smtp.html">25 - SMTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
-              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Escalada de Privilegios</summary>
-              <details class="vault-folder vault-subfolder" open>
-                <summary>Linux</summary>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
-              </details>
-              <details class="vault-folder vault-subfolder">
-                <summary>Windows</summary>
-              </details>
-            </details>
-          </nav>
-        </aside>
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
         <article class="note-panel is-active" id="88-kerberos">
           <div class="note-tabbar">
@@ -84,7 +33,7 @@
             <p class="eyebrow">enumeración de puertos / kerberos</p>
             <h2>88 - Kerberos</h2>
 
-            <h3>Sincronizar Reloj</h3>
+            <h3>Sincronizar reloj</h3>
 
             <section class="code-card">
               <h3>Sincronizar reloj</h3>
@@ -92,18 +41,18 @@
 ntpdate &lt;ip_dc&gt;</code></pre>
             </section>
 
-            <h3>Enumeración de usuarios del Dominio</h3>
+            <h3>Enumeración de usuarios del dominio</h3>
 
             <section class="code-card">
               <h3>Enumerar usuarios del dominio.</h3>
-              <pre><code># Podemos usar un wordlist a modo fuerza bruta intentar enumerar usuarios del dominio o llevar una lista preparada.
-# Si aparece el hash de ASREP-Roasting, desconfía que se pueda crackear. (Saca el hash con impacket)
+              <pre><code># Podemos usar una wordlist para enumerar usuarios del dominio o llevar una lista preparada.
+# Si aparece un hash de AS-REP Roasting, no asumas que se podrá crackear: dependerá de la robustez de la contraseña.
 kerbrute userenum --dc &lt;dc_ip&gt; -d &lt;dominio&gt; /usr/share/wordlists/SecLists/Usernames/Names/names.txt</code></pre>
             </section>
 
-            <h3>AS-REP ROASTING</h3>
+            <h3>AS-REP Roasting</h3>
 
-            <p>Recuperar hashes Kerberos AS-REP para usuarios que tienen deshabilitada la pre-autenticación Kerberos para crackear de forma offline (No sirven para PassTheHash)</p>
+            <p>AS-REP Roasting consiste en solicitar respuestas AS-REP para usuarios que tienen deshabilitada la preautenticación Kerberos. El material obtenido se intenta crackear offline. No es equivalente a Pass-the-Hash.</p>
 
             <section class="code-card">
               <h3>AS-REP Roasting: Con una lista de usuarios listar usuarios vulnerables</h3>
@@ -116,9 +65,9 @@ nxc ldap &lt;ip_dc&gt; -u &lt;user_list&gt; -p &#x27;&#x27; --asreproast</code><
               <p>Una vez tengamos credenciales válidas, el siguiente paso suele ser Kerberoasting para buscar una vía de escalada de privilegios.</p>
             </aside>
 
-            <h3>KERBEROASTING</h3>
+            <h3>Kerberoasting</h3>
 
-            <p>Usuario solicita un Service Ticket (<code>TGS</code>) para un Service Principal Name (<code>SPN</code>), el Domain Controller responde con un t<code>icket cifrado con el hash NTLM de la contraseña de la cuenta de servicio</code>. Un atacante puede solicitar tickets para múltiples SPNs y luego intentar crackearlos offline. (Son hashes TGS que no sirven para PassTheHash)</p>
+            <p>En Kerberoasting, un usuario autenticado solicita un Service Ticket (<code>TGS</code>) para un Service Principal Name (<code>SPN</code>). El Domain Controller devuelve un ticket cifrado con material derivado de la contraseña de la cuenta de servicio. Después se intenta crackear offline para recuperar esa contraseña. Estos hashes TGS no sirven para Pass-the-Hash.</p>
 
             <section class="code-card">
               <h3>Kerberoasting: Con credenciales válidas</h3>
@@ -134,11 +83,11 @@ impacket-GetUserSPNs &lt;dominio&gt;/&lt;usuario&gt;:&lt;contraseña&gt; -reques
             </section>
 
             <aside class="callout warning">
-              <p><strong>TGT (Ticket-Granting Ticket):</strong> permite acceso amplio al dominio y puede dar control sobre máquinas o servicios como <code>Domain Admin</code>. Relacionado con <code>Golden Ticket</code>.</p>
+              <p><strong>TGT (Ticket-Granting Ticket):</strong> permite solicitar tickets de servicio durante su validez. No da privilegios de <code>Domain Admin</code> por sí solo; el impacto depende de la cuenta y de las claves comprometidas. Relacionado con <code>Golden Ticket</code>.</p>
             </aside>
 
             <aside class="callout warning">
-              <p><strong>TGS (Ticket-Granting Service ticket):</strong> permite acceder a un servicio SPN concreto, como <code>CIFS</code>, <code>MSSQL</code> o <code>HTTP</code>. Relacionado con <code>Silver Ticket</code>.</p>
+              <p><strong>TGS (Ticket-Granting Service ticket):</strong> permite acceder a un servicio SPN concreto, como <code>CIFS</code>, <code>MSSQL</code> o <code>HTTP</code>, si la cuenta tiene permisos sobre ese servicio. Relacionado con <code>Silver Ticket</code>.</p>
             </aside>
 
             <h2>Tags</h2>
@@ -155,7 +104,9 @@ impacket-GetUserSPNs &lt;dominio&gt;/&lt;usuario&gt;:&lt;contraseña&gt; -reques
         </article>
       </section>
     </main>
-    <script src="/notebook/folder-state.js"></script>`r`n    <script src="/notebook/search.js"></script>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
   </body>
 </html>
 

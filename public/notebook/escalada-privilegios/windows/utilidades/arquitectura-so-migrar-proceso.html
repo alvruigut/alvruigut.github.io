@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Arquitectura SO (Migrar Proceso) | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="arquitectura-so-migrar-proceso">
+          <div class="note-tabbar">
+            <span>Arquitectura SO (Migrar Proceso)</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Utilidades</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / utilidades</p>
+            <h2>Arquitectura SO (Migrar Proceso)</h2>
+
+            <section class="code-card">
+              <h3>PowerShell: Determinar arquitectura</h3>
+              <pre><code>[Environment]::Is64BitOperatingSystem # Bits Sistema Operativo
+[Environment]::Is64BitProcess         # Bits Proceso Actual</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD: x86 a x64</h3>
+              <pre><code>%windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe # PowerShell
+%windir%\sysnative\cmd.exe # CMD</code></pre>
+            </section>
+
+            <aside class="callout">
+              <p><strong>Concepto Procesos</strong> Solo tiene sentido migrar de x86 a x64 cuando el sistema operativo es x64, porque en un sistema x86 no hay procesos x64</p>
+            </aside>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>utilidades</span>
+              <span>arquitectura</span>
+              <span>so</span>
+              <span>migrar</span>
+              <span>proceso</span>
+              <span>arquitectura_windows</span>
+              <span>64bits</span>
+              <span>32bits</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

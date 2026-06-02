@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Aplicaciones Instaladas | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="aplicaciones-instaladas">
+          <div class="note-tabbar">
+            <span>Aplicaciones Instaladas</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Enumeración local</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / enumeración local</p>
+            <h2>Aplicaciones Instaladas</h2>
+
+            <h2><a href="https://github.com/Daniel10Barredo/OSCP_AuxReconTools">AuxRecon.ps1</a> (PowerShell)</h2>
+
+            <section class="code-card">
+              <h3>PowerShell: Enumerar programas instalados. Los últimos de la lista suelen ser los vulnerables ya que los ordena por LastWriteTime</h3>
+              <pre><code>Import-Module .\recon.ps1
+recon.programs</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>enumeracion_local</span>
+              <span>aplicaciones</span>
+              <span>instaladas</span>
+              <span>auxrecon</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

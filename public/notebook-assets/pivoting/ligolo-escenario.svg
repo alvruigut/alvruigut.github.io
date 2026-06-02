@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img" aria-labelledby="title desc">
+  <title id="title">Escenario Ligolo</title>
+  <desc id="desc">Kali conecta con Target A en la red 10.0.2.0/24. Target A tiene otra interfaz en 192.168.1.0/24 y permite llegar a Target B.</desc>
+
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#d1d5db"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="300" rx="14" fill="#06090b"/>
+  <rect x="24" y="24" width="912" height="252" rx="12" fill="#0b1118" stroke="#243244" stroke-width="1.5"/>
+
+  <text x="48" y="62" fill="#e5e7eb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Escenario Ligolo</text>
+  <text x="48" y="88" fill="#9ca3af" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14">Target A actua como pivote entre la red externa y la red interna.</text>
+
+  <line x1="258" y1="154" x2="380" y2="154" stroke="#d1d5db" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="580" y1="154" x2="702" y2="154" stroke="#d1d5db" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <text x="319" y="137" text-anchor="middle" fill="#93c5fd" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">10.0.2.0/24</text>
+  <text x="641" y="137" text-anchor="middle" fill="#fcd34d" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">192.168.1.0/24</text>
+
+  <g>
+    <rect x="72" y="112" width="186" height="86" rx="10" fill="#101820" stroke="#38bdf8" stroke-width="2"/>
+    <text x="165" y="146" text-anchor="middle" fill="#f9fafb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20" font-weight="800">KALI</text>
+    <text x="165" y="176" text-anchor="middle" fill="#bae6fd" font-family="Consolas, Cascadia Mono, monospace" font-size="18">10.0.2.100</text>
+  </g>
+
+  <g>
+    <rect x="387" y="100" width="186" height="110" rx="10" fill="#101820" stroke="#a3a3a3" stroke-width="2"/>
+    <text x="480" y="133" text-anchor="middle" fill="#f9fafb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20" font-weight="800">Target A</text>
+    <text x="480" y="163" text-anchor="middle" fill="#bae6fd" font-family="Consolas, Cascadia Mono, monospace" font-size="17">10.0.2.102</text>
+    <text x="480" y="190" text-anchor="middle" fill="#fde68a" font-family="Consolas, Cascadia Mono, monospace" font-size="17">192.168.1.101</text>
+  </g>
+
+  <g>
+    <rect x="702" y="112" width="186" height="86" rx="10" fill="#101820" stroke="#facc15" stroke-width="2"/>
+    <text x="795" y="146" text-anchor="middle" fill="#f9fafb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20" font-weight="800">Target B</text>
+    <text x="795" y="176" text-anchor="middle" fill="#fde68a" font-family="Consolas, Cascadia Mono, monospace" font-size="18">192.168.1.102</text>
+  </g>
+
+  <rect x="386" y="226" width="188" height="30" rx="15" fill="#18212f" stroke="#334155"/>
+  <text x="480" y="246" text-anchor="middle" fill="#d1d5db" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">pivote / agente Ligolo</text>
+</svg>

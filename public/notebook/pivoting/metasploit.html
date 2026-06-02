@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
     <title>Metasploit | Notebook</title>
+    <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -12,59 +13,7 @@
       <a class="back-link" href="/notebook.html">~/notebook</a>
 
       <section class="notebook-workspace" aria-label="Notebook">
-        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
-          <h1>Notebook</h1>
-
-          <nav class="vault-tree" aria-label="Ficheros">
-            <a class="vault-file" href="/notebook.html">Inicio</a>
-            <details class="vault-folder">
-              <summary>Pivoting</summary>
-              <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
-              <a class="vault-file is-active" href="/notebook/pivoting/metasploit.html">Metasploit</a>
-              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Hacking Wifi</summary>
-              <a class="vault-file" href="/notebook/hacking-wifi/captura-wpa-wpa2.html">Captura WPA/WPA2</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Enumeración de Puertos</summary>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/21-ftp.html">21 - FTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/22-ssh.html">22 - SSH</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/23-telnet.html">23 - Telnet</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/25-smtp.html">25 - SMTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Escalada de Privilegios</summary>
-              <details class="vault-folder vault-subfolder" open>
-                <summary>Linux</summary>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
-              </details>
-              <details class="vault-folder vault-subfolder">
-                <summary>Windows</summary>
-              </details>
-            </details>
-          </nav>
-        </aside>
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
         <article class="note-panel is-active" id="metasploit">
           <div class="note-tabbar">
@@ -105,7 +54,7 @@ run autoroute -p</code></pre>
 route print # Vemos las rutas activas</code></pre>
             </section>
 
-            <h2>3. Escanear red interna</h2>
+            <h2>3. Escanear la red interna</h2>
             <section class="code-card">
               <h3>Enumerar hosts: one-liner</h3>
               <pre><code># Bash
@@ -167,7 +116,7 @@ portfwd list # Listar port-forwardings activos
 
             <aside class="callout danger">
               <p>Si queremos conectarnos desde Kali por SSH a la máquina víctima final, sí haría falta port-forwarding o usar Proxychains.</p>
-              <p>Ojo con los payloads: en escenarios de pivoting suele ser más práctico usar payloads de tipo <code>bind</code>, porque la víctima final normalmente no tiene conectividad directa de vuelta hacia la máquina atacante.</p>
+              <p>Ojo con los payloads: en escenarios de pivoting puede ser más práctico usar payloads de tipo <code>bind</code> cuando la víctima final no puede conectar de vuelta hacia la máquina atacante. Si sí existe una ruta de retorno o un listener intermedio, una reverse shell puede seguir siendo válida.</p>
             </aside>
 
             <h2>5. Montar escenario de prueba</h2>
@@ -183,7 +132,7 @@ portfwd list # Listar port-forwardings activos
             <p><span class="lab-red">Máquina Linux atacante:</span> ponemos la red en modo <code>Bridged</code> con una sola interfaz.</p>
             <p><span class="lab-blue">Máquina Windows 7 vulnerable intermedia:</span> ponemos una interfaz en modo <code>Bridged</code> y otra en <code>NAT</code>, creando una red NAT propia con una <code>IP de red</code>, por ejemplo <code>10.10.10.0/24</code>.</p>
             <p><span class="lab-yellow">Máquina Windows 7 vulnerable final:</span> conectamos una sola interfaz a la misma red <code>NAT</code> que la máquina intermedia.</p>
-            <p>Finalmente comprobamos que mediante <code>ping</code> la máquina <span class="lab-red">Linux</span> tenga accesibilidad con la máquina <span class="lab-blue">intermedia</span>, pero no con la máquina <span class="lab-yellow">final</span>. La máquina <span class="lab-blue">intermedia</span> debe tener conectividad con ambas mediante <code>ping</code>.</p>
+            <p>Finalmente comprobamos con <code>ping</code> que la máquina <span class="lab-red">Linux</span> tenga conectividad con la máquina <span class="lab-blue">intermedia</span>, pero no con la máquina <span class="lab-yellow">final</span>. La máquina <span class="lab-blue">intermedia</span> debe tener conectividad con ambas.</p>
 
             <h2>Tags</h2>
             <div class="tag-list">
@@ -199,7 +148,9 @@ portfwd list # Listar port-forwardings activos
         </article>
       </section>
     </main>
-    <script src="/notebook/folder-state.js"></script>`r`n    <script src="/notebook/search.js"></script>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
   </body>
 </html>
 

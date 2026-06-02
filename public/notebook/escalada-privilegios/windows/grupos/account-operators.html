@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Account Operators | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="account-operators">
+          <div class="note-tabbar">
+            <span>Account Operators</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Grupos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / grupos</p>
+            <h2>Account Operators</h2>
+
+            <p><span>DNS Admins</span> <span>Exchange Windows Permissions</span></p>
+
+            <h3>Permiten crear usuarios</h3>
+
+            <h2>Permite añadir usuarios a grupos que no sean administradores</h2>
+
+            <section class="code-card">
+              <h3>CMD: Crear usuario y Añadirlo a DnsAdmins</h3>
+              <pre><code>net user &lt;user&gt; &lt;password&gt; /add
+net localgroup &quot;DnsAdmins&quot; &lt;user&gt; /add
+# Si no se añade, reiniciar la terminal</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD: Crear usuario y Añadirlo a Exchange Windows Permissions</h3>
+              <pre><code>net user &lt;user&gt; &lt;password&gt; /add
+net group &quot;Exchange Windows Permissions&quot; &lt;user&gt; /add</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=forest">Forest</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>grupos</span>
+              <span>active_directory</span>
+              <span>account</span>
+              <span>operators</span>
+              <span>account_operators</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

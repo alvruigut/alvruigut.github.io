@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Kernel HotFixes | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="kernel-hotfixes">
+          <div class="note-tabbar">
+            <span>Kernel HotFixes</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Kernel y drivers</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / kernel y drivers</p>
+            <h2>Kernel HotFixes</h2>
+
+            <h2>Windows Exploit Suggester</h2>
+
+            <aside class="callout warning">
+              <p>Los exploits de kernel pueden provocar inestabilidad o pantallazo azul. En pentest real, priorizar validación de versión/parches y evidencias antes de ejecutar PoCs invasivas.</p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Kali: Entorno Virtual</h3>
+              <pre><code>python3 -m venv .venv
+source .venv/bin/activate</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Clonar WES</h3>
+              <pre><code>git clone https://github.com/strozfriedberg/Windows-Exploit-Suggester.git</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD: Copiar HotFixes del sistema</h3>
+              <pre><code>systeminfo # Copiamos todo el contenido</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Ejecutar WES</h3>
+              <pre><code># Actualiza la bd
+python2 windows-exploit-suggester.py --updates
+# Ejcuta el reconocimiento de systeminfo
+python2 windows-exploit-suggester.py --database &lt;file.xlsx&gt; --systeminfo sys_info.txt
+
+# Priorizar Exploits Públicos [E] frente a Módulos de Metasploit [M].
+# Buscar en ExploitDB los EDB-ID de la vuln y buscar el exploit en el link abajo</code></pre>
+            </section>
+
+            <p><a href="https://gitlab.com/exploit-database/exploitdb-bin-sploits">ExploitDB Binarios</a> <a href="https://github.com/SecWiki/windows-kernel-exploits">Exploits Kernel</a></p>
+
+            <section class="code-card">
+              <h3>Error de Libreria</h3>
+              <pre><code>python2 -m pip install xlrd==1.2.0</code></pre>
+            </section>
+
+            <h2>WES-NG Suggester</h2>
+
+            <section class="code-card">
+              <h3>Kali: Entorno Virtual</h3>
+              <pre><code>python3 -m venv .venv
+source .venv/bin/activate</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Instalar WES-NG</h3>
+              <pre><code>git clone https://github.com/bitsadmin/wesng.git --depth 1 &amp;&amp; cd wesng
+pip install  wesng</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD: Copiar Parches HotFixes del sistema</h3>
+              <pre><code>systeminfo # Copiamos todo el contenido</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Pegar contenido de systeminfo</h3>
+              <pre><code>nano windows_info.txt
+
+./wes.py --update
+./wes.py windows_info.txt</code></pre>
+            </section>
+
+            <p><a href="https://gitlab.com/exploit-database/exploitdb-bin-sploits">ExploitDB Binarios</a> <a href="https://github.com/SecWiki/windows-kernel-exploits">Exploits Kernel</a></p>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=devel">Devel</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>kernel</span>
+              <span>drivers</span>
+              <span>hotfixes</span>
+              <span>suggester</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

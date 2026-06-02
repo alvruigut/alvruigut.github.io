@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Archivo KeePass | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="archivo-keepass">
+          <div class="note-tabbar">
+            <span>Archivo KeePass</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Credenciales</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / credenciales</p>
+            <h2>Archivo KeePass</h2>
+
+            <h2>KeePass (.kdbx)</h2>
+
+            <section class="code-card">
+              <h3>Extraer Hash de la contraseña maestra del archivo.kdbx</h3>
+              <pre><code>keepass2john &lt;fichero.kdbx&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Crackear Hash</h3>
+              <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt &lt;keepass_hash&gt;
+hashcat -m 13400 &lt;keepass_hash&gt; /usr/share/wordlists/rockyou.txt</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Acceso Interfaz de KeePass</h3>
+              <pre><code>keepassxc &lt;file&gt;.kdbx
+# Buscar en la interfaz la app</code></pre>
+            </section>
+
+            <p><span class="notebook-review-note">[REVISAR]: imagen de Obsidian no migrada: Pasted image 20260316125449.png|166</span></p>
+
+            <h2>KeePass (.dmp)</h2>
+
+            <p><a href="https://github.com/matro7sh/keepass-dump-masterkey">Exploit</a></p>
+
+            <section class="code-card">
+              <h3>Kali: Recuperar contraseña maestra de.dmp</h3>
+              <pre><code>python3 exploit.py KeePassDumpFull.dmp</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=jeeves">Jeeves</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>credenciales</span>
+              <span>archivo</span>
+              <span>keepass</span>
+              <span>kdbx</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

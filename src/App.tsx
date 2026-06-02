@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
+declare global {
+  interface Window {
+    setSiteTheme?: (theme: string) => void
+  }
+}
+
 const whoamiCommand = 'whoami'
 
 const whoamiOutput = [
@@ -21,6 +27,13 @@ function App() {
   const [booting, setBooting] = useState(true)
   const [typedCommand, setTypedCommand] = useState('')
   const [showOutput, setShowOutput] = useState(false)
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'green')
+  const themeLabels: Record<string, string> = {
+    green: 'verde',
+    red: 'rojo',
+    blue: 'azul',
+  }
+  const profileImage = theme === 'green' ? '/nft.png' : `/nft-${theme}.png`
 
   useEffect(() => {
     const timer = window.setTimeout(() => setBooting(false), 1150)
@@ -48,8 +61,42 @@ function App() {
     return () => window.clearTimeout(startDelay)
   }, [booting])
 
+  useEffect(() => {
+    const syncTheme = (event: Event) => {
+      const nextTheme = event instanceof CustomEvent ? event.detail?.theme : document.documentElement.dataset.theme
+      setTheme(nextTheme || 'green')
+    }
+
+    window.addEventListener('site-theme-change', syncTheme)
+    return () => window.removeEventListener('site-theme-change', syncTheme)
+  }, [])
+
+  function toggleTheme() {
+    const themeOrder = ['green', 'red', 'blue']
+    const nextTheme = themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length]
+
+    if (window.setSiteTheme) {
+      window.setSiteTheme(nextTheme)
+      return
+    }
+
+    document.documentElement.dataset.theme = nextTheme
+    localStorage.setItem('site-theme', nextTheme)
+    setTheme(nextTheme)
+  }
+
   return (
     <main className="portfolio-shell">
+      <button
+        className="theme-toggle"
+        type="button"
+        onClick={toggleTheme}
+        aria-label={`Tema ${themeLabels[theme] || 'verde'}. Cambiar color`}
+        title={`Tema ${themeLabels[theme] || 'verde'}`}
+      >
+        <span aria-hidden="true" />
+      </button>
+
       {booting && (
         <div className="boot-screen" aria-live="polite">
           <p>Booting portfolio...</p>
@@ -64,7 +111,7 @@ function App() {
 
       <section className="profile-hero" aria-label="Perfil">
         <span className="profile-orb-frame">
-          <img className="profile-orb" src="/nft.png" alt="Avatar de Álvaro" />
+          <img className="profile-orb" src={profileImage} alt="Avatar de Álvaro" />
         </span>
         <h1>Álvaro Ruiz Gutiérrez</h1>
         <p className="profile-role">Pentester Junior | Ingeniero del Software | OSCP | OSCP+ | eCPPTv3 | eJPTv2</p>

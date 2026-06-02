@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Búsqueda en archivos | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="busqueda-en-archivos">
+          <div class="note-tabbar">
+            <span>Búsqueda en archivos</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Credenciales</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / credenciales</p>
+            <h2>Búsqueda en archivos</h2>
+
+            <h2>Strings</h2>
+
+            <section class="code-card">
+              <h3>PowerShell</h3>
+              <pre><code># String: password   Ruta: C:/users
+Get-ChildItem &quot;C:/users&quot; -Recurse -File | Select-String &quot;password&quot;
+# Ocultar Errores: -Recurse -File
+Get-ChildItem &quot;C:/users&quot; -Recurse -File -ErrorAction SilentlyContinue | Select-String &quot;password&quot;
+
+# Strings: password y user  Ruta: C:/users
+Get-ChildItem &quot;C:\users&quot; -Recurse -File | Select-String &quot;password|user&quot;
+
+# String: password Ruta: C:/users Fichero:.bak .txt
+Get-ChildItem &quot;C:\users&quot; -Recurse -File -Include *.bak,*.txt | Select-String &quot;password&quot;
+
+# String: password   Ruta: C:/users Formato: Tabla
+Get-ChildItem &quot;C:/users&quot; -Recurse -File | Select-String &quot;password&quot; | Format-Table Path,LineNumber,Line
+
+# Strings: cpassword, password, pass, pwd, db, db_pwd, db_pass, user, username, db_user...</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD</h3>
+              <pre><code># String: password Directorio actual en fichero con extensiones ...
+
+findstr /SIM /C:&quot;password&quot; *.txt *.ini *.cfg *.config *.xml *.git *.ps1 *.yml
+
+# /S: Recursivo
+# /I: Key InSensitive
+# /M: Nombre del archivo
+# /N: Número línea
+# /C: String
+
+# Strings: cpassword, password, pass, pwd, db, db_pwd, db_pass, user, username, db_user...</code></pre>
+            </section>
+
+            <h2>Ficheros</h2>
+
+            <section class="code-card">
+              <h3>PowerShell</h3>
+              <pre><code># Ficheros: .bak .txt   Ruta: C:/users
+Get-ChildItem &quot;C:\users&quot; -Recurse -File -Include *.bak,*.txt -ErrorAction SilentlyContinue | Select-Object FullName
+
+# Ficheros:.txt Ruta: C:/users Ocultar: C:\Windows\
+Get-ChildItem &quot;C:\users&quot; -Recurse -File -Include *.bak,*.txt -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notlike &quot;C:\Windows\*&quot; } | Select-Object FullName
+
+#*.xml,*.ini,*.txt,*.config,*.kdbx,*.bak,.vmdk,.vdhx,.ppk</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD</h3>
+              <pre><code># Ficheros: .bak .txt   Ruta: Actual
+dir /s *.txt *.bak
+# Desde powershell: cmd /c dir /s *.txt *.bak
+
+#*.xml,*.ini,*.txt,*.config,*.kdbx,*.bak,.vmdk,.vdhx,.ppk</code></pre>
+            </section>
+
+            <h2>Ficheros y Rutas de Interés</h2>
+
+            <section class="code-card">
+              <h3>Ficheros y rutas webs</h3>
+              <pre><code># Ficheros
+web.config
+unattend.xml
+sysprep.ini
+# Servidor IIS (Ver logs, configuraciones...)
+C:\inetpub\
+# Servidor XAMPP (Ver logs, configuraciones...)
+C:\xampp\</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Rutas</h3>
+              <pre><code>C:\inetpub\wwwroot\web.config
+C:\ProgramData\Configs\*
+C:\Program Files\Windows PowerShell\*
+C:\Windows\Panther\Autounattend.xml # Plain text o base 64
+C:\Windows\Panther\Unattend.xml # Plain text o base 64
+
+%SYSTEMDRIVE%\pagefile.sys
+
+%USERPROFILE%\.aws\credentials
+%USERPROFILE%\.azure\accessTokens.json
+%USERPROFILE%\.azure\azureProfile.json
+%USERPROFILE%\AppData\Local\Microsoft\Remote Desktop Connection Manager\RDCMan.settings
+%USERPROFILE%\AppData\Roaming\gcloud\access_tokens.db
+%USERPROFILE%\AppData\Roaming\gcloud\credentials.db
+%USERPROFILE%\AppData\Roaming\gcloud\legacy_credentials
+%USERPROFILE%\LocalS~1\Tempor~1\Content.IE5\index.dat
+%USERPROFILE%\ntuser.dat
+
+%WINDIR%\debug\NetSetup.log
+%WINDIR%\iis6.log
+%WINDIR%\repair\sam
+%WINDIR%\repair\security
+%WINDIR%\repair\software
+%WINDIR%\repair\system
+%WINDIR%\System32\drivers\etc\hosts
+%WINDIR%\system32\CCM\logs\*.log
+%WINDIR%\system32\config\AppEvent.Evt
+%WINDIR%\system32\config\default.sav
+%WINDIR%\system32\config\SecEvent.Evt
+%WINDIR%\system32\config\security.sav
+%WINDIR%\system32\config\software.sav
+%WINDIR%\system32\config\system.sav
+
+%LOCALAPPDATA%\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\plum.sqlite</code></pre>
+            </section>
+
+                        <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>credenciales</span>
+              <span>busqueda</span>
+              <span>archivos</span>
+              <span>búsqueda</span>
+              <span>ficheros</span>
+              <span>buscar</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

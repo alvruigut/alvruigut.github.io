@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
     <title>Ligolo | Notebook</title>
+    <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -12,59 +13,7 @@
       <a class="back-link" href="/notebook.html">~/notebook</a>
 
       <section class="notebook-workspace" aria-label="Notebook">
-        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
-          <h1>Notebook</h1>
-
-          <nav class="vault-tree" aria-label="Ficheros">
-            <a class="vault-file" href="/notebook.html">Inicio</a>
-            <details class="vault-folder">
-              <summary>Pivoting</summary>
-              <a class="vault-file is-active" href="/notebook/pivoting/ligolo.html">Ligolo</a>
-              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
-              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Hacking Wifi</summary>
-              <a class="vault-file" href="/notebook/hacking-wifi/captura-wpa-wpa2.html">Captura WPA/WPA2</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Enumeración de Puertos</summary>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/21-ftp.html">21 - FTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/22-ssh.html">22 - SSH</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/23-telnet.html">23 - Telnet</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/25-smtp.html">25 - SMTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Escalada de Privilegios</summary>
-              <details class="vault-folder vault-subfolder" open>
-                <summary>Linux</summary>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
-              </details>
-              <details class="vault-folder vault-subfolder">
-                <summary>Windows</summary>
-              </details>
-            </details>
-          </nav>
-        </aside>
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
         <article class="note-panel is-active" id="ligolo">
           <div class="note-tabbar">
@@ -86,11 +35,10 @@
 
             <h2>Escenario</h2>
 
-            <div class="note-kv">
-              <p><code>KALI:</code> <span class="ip-green">10.0.2.100</span></p>
-              <p><code>Target A:</code> <span class="ip-green">10.0.2.102</span> / <span class="ip-yellow">192.168.1.101</span></p>
-              <p><code>Target B:</code> <span class="ip-yellow">192.168.1.102</span></p>
-            </div>
+            <figure class="note-figure">
+              <img class="note-image" src="/notebook-assets/pivoting/ligolo-escenario.svg" alt="Escenario Ligolo: Kali 10.0.2.100 conecta con Target A 10.0.2.102 y Target A pivota hacia Target B 192.168.1.102 desde la red interna 192.168.1.0/24" />
+              <figcaption>Target A tiene una interfaz en cada red y sirve como pivote hacia Target B.</figcaption>
+            </figure>
 
             <h2>Preparativos</h2>
 
@@ -130,14 +78,14 @@ start</code></pre>
             </section>
 
             <aside class="callout danger">
-              <p>Ya podemos lanzar comandos como si estuviésemos dentro de ese segmento de red desde Kali.</p>
+              <p>Ya podemos enrutar tráfico hacia ese segmento desde Kali a través del agente de Ligolo. No es lo mismo que estar físicamente dentro de la red, pero para enumeración y conexión a servicios TCP/ICMP funciona como un pivote.</p>
               <pre><code>ping -c1 &lt;ip_target_b&gt;</code></pre>
             </aside>
 
             <h2>Portforwarding</h2>
 
             <aside class="callout warning">
-              <p>Kali tiene visibilidad sobre la red interna, pero el Target B no tiene visibilidad directa con Kali.</p>
+              <p>Kali tiene visibilidad hacia la red interna mediante Ligolo, pero el Target B no tiene visibilidad directa de vuelta hacia Kali.</p>
               <p><strong>Transferencia de archivos:</strong> abrir el puerto 8080 de Target A para redirigir el tráfico al puerto 80 de Kali.</p>
               <p><strong>Reverse shells:</strong> abrir el puerto 4443 de Target A para redirigir el tráfico al puerto 443 de Kali.</p>
               <p>Los puertos usados para portforwarding deberían ser superiores a 1000 para evitar problemas de permisos.</p>
@@ -197,7 +145,7 @@ sudo ip link del ligolo</code></pre>
             <p><a href="https://github.com/nicocha30/ligolo-ng/releases/tag/v0.8.3">Ligolo Releases</a></p>
 
             <section class="code-card">
-              <h3>Kali: Descomprimir agent y proxy</h3>
+              <h3>Kali: descomprimir agent y proxy</h3>
               <pre><code># Descargar Ligolo proxy Linux AMD64 para Kali
 # Descargar Ligolo agent Linux/Windows según la máquina pivot
 
@@ -210,7 +158,8 @@ chmod +x agent
 # Eliminar comprimidos de Ligolo
 rm -f ligolo-ng_*</code></pre>
             </section>
-                 <h2>Tags</h2>
+
+            <h2>Tags</h2>
             <div class="tag-list">
               <span>pivoting</span>
               <span>portforwarding</span>
@@ -220,7 +169,9 @@ rm -f ligolo-ng_*</code></pre>
         </article>
       </section>
     </main>
-    <script src="/notebook/folder-state.js"></script>`r`n    <script src="/notebook/search.js"></script>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
   </body>
 </html>
 

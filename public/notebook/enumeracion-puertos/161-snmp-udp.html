@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
     <title>161 - SNMP (UDP) | Notebook</title>
+    <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -12,59 +13,7 @@
       <a class="back-link" href="/notebook.html">~/notebook</a>
 
       <section class="notebook-workspace" aria-label="Notebook">
-        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
-          <h1>Notebook</h1>
-
-          <nav class="vault-tree" aria-label="Ficheros">
-            <a class="vault-file" href="/notebook.html">Inicio</a>
-            <details class="vault-folder">
-              <summary>Pivoting</summary>
-              <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
-              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
-              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Hacking Wifi</summary>
-              <a class="vault-file" href="/notebook/hacking-wifi/captura-wpa-wpa2.html">Captura WPA/WPA2</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Enumeración de Puertos</summary>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/21-ftp.html">21 - FTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/22-ssh.html">22 - SSH</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/23-telnet.html">23 - Telnet</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/25-smtp.html">25 - SMTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
-              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Escalada de Privilegios</summary>
-              <details class="vault-folder vault-subfolder" open>
-                <summary>Linux</summary>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
-              </details>
-              <details class="vault-folder vault-subfolder">
-                <summary>Windows</summary>
-              </details>
-            </details>
-          </nav>
-        </aside>
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
         <article class="note-panel is-active" id="161-snmp-udp">
           <div class="note-tabbar">
@@ -86,7 +35,7 @@
 
             <p>Simple Network Management Protocol: Protocolo que monitoriza y administra equipos en una red (servidores, routers, switches, impresoras, etc.).</p>
 
-            <p>Para leer información normalmente necesitas una <code>community string</code> (contraseña). La típica es <code>public</code> (solo lectura) y <code>private</code> (a veces escritura)</p>
+            <p>Para leer información normalmente necesitas una <code>community string</code>. La típica es <code>public</code> (solo lectura) y <code>private</code> (a veces escritura). No es cifrado ni autenticación fuerte en SNMPv1/v2c; funciona más como un secreto compartido.</p>
 
             <section class="code-card">
               <h3>Recorrido por SNMP</h3>
@@ -94,7 +43,7 @@
 nmap -sU --top-ports 100 --open -vvv -n 10.129.230.96 
 # Enumerar versión
 nmap -sU -sCV -p161 10.129.230.96
-# Fuerza Bruta CommunityString. Suele ser public
+# Fuerza bruta de community strings. Suele aparecer public
 onesixtyone -c /usr/share/seclists/Discovery/SNMP/common-snmp-community-strings.txt 10.129.230.96
 # Enumerar SNMP
 snmpwalk -v1 -c public 10.129.230.96 
@@ -105,7 +54,7 @@ snmpbulkwalk -v2c -c public  10.129.230.96 # TOP (Enumera todo)</code></pre>
               <h3>Comandos útiles</h3>
               <pre><code># Exportar output mientras lo vemos por pantalla
 snmpbulkwalk -v2c -c public  10.129.230.96 | tee snmp_scan
-# Usar MIBS (Se puede enuemrar con Números o Strings)
+# Usar MIBs (se puede enumerar con números o strings)
 snmpbulkwalk -v2c -c public  10.129.230.96 1.3.6.1.2.1.1.1.0
 snmpbulkwalk -v2c -c public  10.129.230.96 SNMPv2-MIB::sysDescr
 # Excluir output
@@ -124,7 +73,7 @@ snmpbulkwalk -v2c -c public  &lt;ip_target&gt; NET-SNMP-EXTEND-MIB::nsExtendObje
 
 # Red
 1.3.6.1.2.1.2.2.1.2 Interfaces
-1.3.6.1.2.1.4.20.1.1 Direcciones IPs
+1.3.6.1.2.1.4.20.1.1 Direcciones IP
 1.3.6.1.2.1.6.13.1.3 TCP Puertos abiertos
 1.3.6.1.2.1.6.13.1.1 TCP Puertos estado
 1.3.6.1.2.1.7.5.1.2 UDP Puertos abiertos
@@ -141,10 +90,7 @@ snmpbulkwalk -v2c -c public  &lt;ip_target&gt; NET-SNMP-EXTEND-MIB::nsExtendObje
 1.3.6.1.2.1.25.6.3.1.2 Aplicaciones instaladas # HOST-RESOURCES-MIB::hrSWInstalledName</code></pre>
             </section>
 
-            <section class="code-card">
-              <h3>Enumeración UDP SNMP</h3>
-              <pre><code></code></pre>
-            </section>
+  
 
             <h2>Tags</h2>
             <div class="tag-list">
@@ -158,7 +104,9 @@ snmpbulkwalk -v2c -c public  &lt;ip_target&gt; NET-SNMP-EXTEND-MIB::nsExtendObje
         </article>
       </section>
     </main>
-    <script src="/notebook/folder-state.js"></script>`r`n    <script src="/notebook/search.js"></script>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
   </body>
 </html>
 

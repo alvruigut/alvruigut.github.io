@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
     <title>3306 - MySQL | Notebook</title>
+    <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
   <body>
@@ -12,59 +13,7 @@
       <a class="back-link" href="/notebook.html">~/notebook</a>
 
       <section class="notebook-workspace" aria-label="Notebook">
-        <aside class="notebook-sidebar" aria-label="Explorador de apuntes">
-          <h1>Notebook</h1>
-
-          <nav class="vault-tree" aria-label="Ficheros">
-            <a class="vault-file" href="/notebook.html">Inicio</a>
-            <details class="vault-folder">
-              <summary>Pivoting</summary>
-              <a class="vault-file" href="/notebook/pivoting/ligolo.html">Ligolo</a>
-              <a class="vault-file" href="/notebook/pivoting/metasploit.html">Metasploit</a>
-              <a class="vault-file" href="/notebook/pivoting/chisel-socat.html">Chisel y Socat</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Hacking Wifi</summary>
-              <a class="vault-file" href="/notebook/hacking-wifi/captura-wpa-wpa2.html">Captura WPA/WPA2</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Enumeración de Puertos</summary>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/21-ftp.html">21 - FTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/22-ssh.html">22 - SSH</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/23-telnet.html">23 - Telnet</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/25-smtp.html">25 - SMTP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/53-dns.html">53 - DNS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/79-finger.html">79 - Finger</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/80-443-http-https.html">80,443 - HTTP,HTTPS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/88-kerberos.html">88 - Kerberos</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/135-rpc.html">135 - RPC</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/139-445-smb.html">139,445 - SMB</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/143-imap.html">143 - IMAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/161-snmp-udp.html">161 - SNMP (UDP)</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/389-636-3268-3269-ldap.html">389, 636, 3268, 3269 - LDAP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1433-mssql.html">1433 - MSSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/1521-oracle-database.html">1521 - Oracle Database</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/2049-nfs.html">2049 - NFS</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3128-squid-proxy.html">3128 - Squid Proxy</a>
-              <a class="vault-file is-active" href="/notebook/enumeracion-puertos/3306-mysql.html">3306 - MySQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/3389-rdp.html">3389 - RDP</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5432-5437-postgresql.html">5432,5437 - PostgreSQL</a>
-              <a class="vault-file" href="/notebook/enumeracion-puertos/5985-5986-winrm.html">5985,5986 - WinRM</a>
-            </details>
-            <details class="vault-folder">
-              <summary>Escalada de Privilegios</summary>
-              <details class="vault-folder vault-subfolder" open>
-                <summary>Linux</summary>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/sudoers.html">Sudoers</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/suid.html">SUID</a>
-                <a class="vault-file" href="/notebook/escalada-privilegios/linux/grupos-vulnerables.html">Grupos Vulnerables</a>
-              </details>
-              <details class="vault-folder vault-subfolder">
-                <summary>Windows</summary>
-              </details>
-            </details>
-          </nav>
-        </aside>
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
         <article class="note-panel is-active" id="3306-mysql">
           <div class="note-tabbar">
@@ -85,7 +34,7 @@
             <h2>3306 - MySQL</h2>
 
             <section class="code-card">
-              <h3>Iniciar sesión con credenciales válidas -&gt; Credencial predeterminada: sa:</h3>
+              <h3>Iniciar sesión con credenciales válidas</h3>
               <pre><code>mysql -u &lt;usuario&gt; -p
 mysql -h &lt;ip_target&gt; -u &lt;usuario&gt; -p
 mysql -h &lt;ip_target&gt; -u &lt;usuario&gt; -p  -P &lt;puerto&gt;</code></pre>
@@ -93,14 +42,14 @@ mysql -h &lt;ip_target&gt; -u &lt;usuario&gt; -p  -P &lt;puerto&gt;</code></pre>
 
             <section class="code-card">
               <h3>Comandos en MySQL</h3>
-              <pre><code>help # Abre el menu de ayuda
+              <pre><code>help # Abre el menú de ayuda
 show databases;  # Mostrar Bases de Datos.
 use &lt;nombre_basededatos&gt;; # Seleccionar una Base de Datos.
 show tables; # Mostrar Tablas dentro de la Base de Datos.
 describe &lt;nombre&gt;; # Describir la Estructura de una Tabla.
 select * from &lt;nombre&gt;; # Extraer Todos los Registros de una Tabla.
 
-# Muestra todas las columnas** de una tabla sin necesidad de DESCRIBE.
+# Muestra todas las columnas de una tabla sin necesidad de DESCRIBE.
 SELECT &lt;nombre_columna&gt; FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=&#x27;&lt;nombre_tabla&gt;&#x27;; 
 
 SELECT user,host FROM mysql.user; # Buscar Usuarios de MySQL
@@ -140,10 +89,7 @@ select * from Alumnos;
 select username,passwors from alumnos where id=1;</code></pre>
             </section>
 
-            <h3>SQLI</h3>
-
-            <p><code>Bypass Login</code></p>
-
+      
             <h3>Explotación con Metasploit</h3>
 
             <section class="code-card">
@@ -170,10 +116,10 @@ use auxiliary/admin/mysql/mysql_sql
 # Enumeración de Archivos en el Sistema
 use auxiliary/scanner/mysql/mysql_file_enum 
 
-#Extracción de Hashes de Contraseñas
+# Extracción de hashes de contraseñas
 use auxiliary/scanner/mysql/mysql_hashdump 
 
-# Extracción de la Estructura de la Base de Datos
+# Extracción de la estructura de la base de datos
 use auxiliary/scanner/mysql/mysql_schemadump 
 
 # Identificación de la Versión de MySQL
@@ -184,12 +130,12 @@ use auxiliary/scanner/mysql/mysql_writable_dirs
 
 # Ataque de Fuerza Bruta contra MySQL
 msfconsole -q
-use auxiliary/scanner/mysql/mysql_login L
+use auxiliary/scanner/mysql/mysql_login
 set RHOSTS &lt;ip_victima&gt;
 set USER_FILE /ruta_diccionario.txt
 set PASS_FILE /ruta_diccionario.txt
 set USERNAME &lt;username&gt;
-set password &lt;password&gt;
+set PASSWORD &lt;password&gt;
 set THREADS &lt;número&gt; # (5 por defecto) 
 exploit</code></pre>
             </section>
@@ -199,13 +145,15 @@ exploit</code></pre>
               <span>ports</span>
               <span>mysql</span>
               <span>p3306</span>
-              <span>Extracci</span>
+              <span>extracción</span>
             </div>
           </div>
         </article>
       </section>
     </main>
-    <script src="/notebook/folder-state.js"></script>`r`n    <script src="/notebook/search.js"></script>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
   </body>
 </html>
 

