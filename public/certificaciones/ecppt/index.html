@@ -16,39 +16,231 @@
         <div><p class="eyebrow">INE / certificacion</p><h1>eCPPTv3</h1></div>
       </section>
       <section class="terminal-stack">
-        <article class="terminal-panel">
-          <div class="terminal-titlebar"><span class="terminal-tab">zsh</span><span class="terminal-path">~/ecppt</span></div>
-          <div class="terminal-body">
-            <p class="terminal-line"><span class="prompt-user">RuyzTz7@Kali</span><span class="prompt-dir">~/ecppt</span><span class="zsh-symbol">❯</span><span>cat preparacion.md</span></p>
-            <p>Para preparar la eCPPTv3 fui un poco a lo práctico: máquinas de Hack The Box, el contenido de INE de la propia certificación y muchos apuntes en Obsidian. No quería quedarme solo viendo vídeos, así que intentaba ir probando las técnicas en máquinas reales y apuntar lo que de verdad me servía.</p>
-            <p>Obsidian fue bastante clave aquí. Iba metiendo comandos, formas de enumerar, errores que me encontraba, rutas típicas de ataque y notas rápidas para no tener que buscar lo mismo veinte veces.</p>
-            <p>Como el examen tira bastante por Active Directory, también añadí módulos de AD de la academia de Hack The Box. Quería reforzar esa parte por mi cuenta, sobre todo enumeración, movimiento lateral, credenciales y herramientas típicas desde Kali, no solo seguir exactamente lo que salía en el curso.</p>
-          </div>
-        </article>
-        <article class="terminal-panel">
-          <div class="terminal-body">
-            <p class="terminal-line"><span class="prompt-user">RuyzTz7@Kali</span><span class="prompt-dir">~/ecppt</span><span class="zsh-symbol">❯</span><span>cat experiencia.md</span></p>
-            <p>La experiencia fue mucho más tranquila que la OSCP. Al no ser proctored, se nota muchísimo: empiezas cuando quieres, te organizas a tu manera y no tienes esa presión rara de estar con la cámara, el navegador vigilado y todo el rollo encima.</p>
-            <p>Eso hace que el examen se lleve bastante mejor de cabeza. Puedes parar, revisar tus notas, comer algo, pensar con calma y volver sin esa sensación de que cada minuto pesa una barbaridad.</p>
-            <p>Aun así, el formato no me termina de convencer del todo. La parte práctica está bien, pero lo de las preguntas teóricas me chirría un poco. Algunas pueden dar lugar a confusión y otras directamente te van guiando por el examen, que por un lado ayuda, pero por otro le quita bastante gracia.</p>
-          </div>
-        </article>
-        <article class="terminal-panel">
-          <div class="terminal-body">
-            <p class="terminal-line"><span class="prompt-user">RuyzTz7@Kali</span><span class="prompt-dir">~/ecppt</span><span class="zsh-symbol">❯</span><span>cat formato.md</span></p>
-            <p>Para mí el punto más flojo va por ahí: las preguntas te pueden servir casi como apoyo. Si las lees bien, a veces te están diciendo sin decirte por dónde tirar, qué máquina mirar o qué técnica probar.</p>
-            <p>Y claro, eso está cómodo porque te desbloquea, pero también hace que el examen se sienta menos real. A mí me gusta más cuando tienes que montarte tú el camino entero con tu enumeración, tus pruebas y tus errores, sin que el propio examen te empuje tanto.</p>
-            <p>Con todo, la eCPPTv3 me parece útil para aprender y subir un escalón después de la eJPT. Pero siendo sincero, no me dejó la misma sensación de reto libre y exigente que me dejó la OSCP.</p>
-          </div>
-        </article>
-        <article class="terminal-panel">
-          <div class="terminal-body">
-            <p class="terminal-line"><span class="prompt-user">RuyzTz7@Kali</span><span class="prompt-dir">~/ecppt</span><span class="zsh-symbol">❯</span><span>cat recomendaciones.md</span></p>
-            <p>Yo no me quedaría solo con INE. El curso te da una base, pero reforzaría Active Directory fuera, sobre todo con HTB, porque es donde más vas a notar si de verdad entiendes lo que estás haciendo.</p>
-            <p>También llevaría buenos apuntes en Obsidian: comandos, herramientas de AD, payloads, rutas típicas y mini checklists para no llegar al examen improvisando todo.</p>
-            <p>Y aunque no sea mi formato favorito, leería muy bien las preguntas. Muchas veces te ayudan a ordenar el examen, priorizar máquinas y no perder tiempo dando vueltas sin sentido.</p>
-          </div>
-        </article>
+
+
+
+<article class="terminal-panel">
+  <div class="terminal-titlebar">
+    <span class="terminal-tab">zsh</span>
+    <span class="terminal-path">~/ecppt</span>
+  </div>
+
+  <div class="terminal-body">
+    <p class="terminal-line">
+      <span class="prompt-user">RuyzTz7@Kali</span>
+      <span class="prompt-dir">~/ecppt</span>
+      <span class="zsh-symbol">❯</span>
+      <span>cat contexto.md</span>
+    </p>
+
+    <p>
+      La eCPPTv3 fue mi siguiente paso después de la eJPTv2.
+      En teoría, ya es una certificación más seria, con un entorno más amplio, presencia de Active Directory
+      y más necesidad de encadenar enumeración, explotación, credenciales y movimiento lateral.
+    </p>
+
+    <p>&gt; El examen dura 24 horas.</p>
+
+    <p>&gt; El formato consiste en responder 45 preguntas basadas en lo que vas encontrando durante el pentest.</p>
+
+    <p>&gt; El entorno incluye máquinas Linux, máquinas Windows y un entorno de Active Directory.</p>
+
+    <p>&gt; No completé el examen al 100%, pero aprobé con un 80/100.</p>
+  </div>
+</article>
+
+<article class="terminal-panel">
+  <div class="terminal-titlebar">
+    <span class="terminal-tab">zsh</span>
+    <span class="terminal-path">~/ecppt</span>
+  </div>
+
+  <div class="terminal-body">
+    <p class="terminal-line">
+      <span class="prompt-user">RuyzTz7@Kali</span>
+      <span class="prompt-dir">~/ecppt</span>
+      <span class="zsh-symbol">❯</span>
+      <span>cat preparacion.md</span>
+    </p>
+
+    <p>
+      Para preparar la eCPPTv3 fui bastante a lo práctico.
+      No quería quedarme solo viendo vídeos, así que intenté combinar el contenido de INE con máquinas reales,
+      módulos de Active Directory y apuntes bien organizados en Obsidian.
+    </p>
+
+    <p>&gt; Usé el contenido de INE como base inicial de la certificación.</p>
+
+    <p>&gt; También practiqué con máquinas de Hack The Box.</p>
+
+    <p>&gt; Obsidian como siempre fue la clave del éxito.</p>
+
+    <p>&gt; Como el examen tiene bastante peso de Active Directory, reforcé esa parte con módulos de la academia de Hack The Box.</p>
+
+    <p>&gt; Me centré especialmente en enumeración de AD, credenciales, password spraying, movimiento lateral y herramientas típicas desde Kali.</p>
+
+    <p>&gt; Un recurso que me ayudó mucho fue el vídeo de Omar Palomino: <strong>“Simulación de Certificación eCPPTv3 de INE: Review y recomendaciones”</strong>, el cual simula el entorno del examen.</p>
+  </div>
+</article>
+
+<article class="terminal-panel">
+  <div class="terminal-titlebar">
+    <span class="terminal-tab">zsh</span>
+    <span class="terminal-path">~/ecppt</span>
+  </div>
+
+  <div class="terminal-body">
+    <p class="terminal-line">
+      <span class="prompt-user">RuyzTz7@Kali</span>
+      <span class="prompt-dir">~/ecppt</span>
+      <span class="zsh-symbol">❯</span>
+      <span>cat experiencia.md</span>
+    </p>
+
+    <p>
+      La experiencia fue bastante más tranquila que la OSCP.
+      Al no ser proctored, puedes organizarte mejor, parar cuando lo necesites, comer tranquilo y revisar tus notas
+      sin tener esa presión constante de cámara, pantalla compartida y vigilancia.
+    </p>
+
+    <p>&gt; Empecé el examen sobre las 15:00.</p>
+
+    <p>&gt; De lo que recuerdo, el examen tiene bastante fuerza bruta, password spraying y búsqueda de credenciales reutilizadas.</p>
+
+    <p>&gt; Una de las partes que más tiempo me quitó fue encontrar una credencial escondida en un fichero del sistema. Me quedé muchas horas atascado en modo buscaminas, revisando rutas, ficheros y posibles pistas sin encontrar la credencial que necesitaba.</p>
+
+    <p>&gt; Esa credencial era necesaria para continuar con el movimiento lateral y seguir respondiendo más preguntas del examen, por lo que no tuve la oportunidad de completar todas la demás preguntas.</p>
+
+    <p>&gt; Sobre las 14:00 del día siguiente ya di el examen por terminado, obteniendo un 80/100.</p>
+  </div>
+</article>
+
+<article class="terminal-panel">
+  <div class="terminal-titlebar">
+    <span class="terminal-tab">zsh</span>
+    <span class="terminal-path">~/ecppt</span>
+  </div>
+
+  <div class="terminal-body">
+    <p class="terminal-line">
+      <span class="prompt-user">RuyzTz7@Kali</span>
+      <span class="prompt-dir">~/ecppt</span>
+      <span class="zsh-symbol">❯</span>
+      <span>cat formato.md</span>
+    </p>
+
+    <p>
+      El formato me dejó una sensación parecida a la eJPTv2, pero aplicado a un entorno más grande y con más presencia de Active Directory.
+      Tiene cosas buenas, pero también varios puntos que no me terminaron de convencer.
+    </p>
+
+    <p>&gt; El formato de preguntas tipo test no me gusta demasiado para una certificación práctica.</p>
+
+    <p>&gt; Algunas preguntas son confusas y puedes saber perfectamente lo que has encontrado, pero dudar sobre qué respuesta poner.</p>
+
+    <p>&gt; Otras preguntas te guían demasiado y te dan pistas claras sobre por dónde avanzar.</p>
+
+    <p>&gt; También hay preguntas teóricas, algo que personalmente me chirría en un examen que debería sentirse más práctico.</p>
+
+    <p>&gt; El entorno de Guacamole tampoco me gustó: se nota limitado y tienes que acostumbrarte a trabajar con las herramientas que trae.</p>
+
+    <p>&gt; Sigue habiendo demasiada fuerza bruta y password spraying, algo que no me parece especialmente realista.</p>
+
+    <p>&gt; Como punto positivo, introducir Active Directory me parece una mejora importante respecto a una certificación más básica como la eJPTv2.</p>
+
+    <p>&gt; También te obliga a trabajar con credenciales, relaciones entre máquinas, movimiento lateral y una metodología algo más seria.</p>
+  </div>
+</article>
+
+<article class="terminal-panel">
+  <div class="terminal-titlebar">
+    <span class="terminal-tab">zsh</span>
+    <span class="terminal-path">~/ecppt</span>
+  </div>
+
+  <div class="terminal-body">
+    <p class="terminal-line">
+      <span class="prompt-user">RuyzTz7@Kali</span>
+      <span class="prompt-dir">~/ecppt</span>
+      <span class="zsh-symbol">❯</span>
+      <span>cat diccionarios.md</span>
+    </p>
+
+    <p>
+      En esta certificación los diccionarios tienen bastante peso.
+      No me parece lo más realista del mundo, pero si te vas a presentar conviene llevar claro qué listas probar y en qué orden.
+    </p>
+    <p>&gt; <code>1.seasons.txt</code></p>
+
+    <p>&gt; <code>2.months.txt</code></p>
+
+    <p>&gt; <code>3.xato-net-10-million-passwords-10000.txt</code></p>
+
+    <p>&gt; <code>4.rockyou.txt</code></p>
+  </div>
+</article>
+
+<article class="terminal-panel">
+  <div class="terminal-titlebar">
+    <span class="terminal-tab">zsh</span>
+    <span class="terminal-path">~/ecppt</span>
+  </div>
+
+  <div class="terminal-body">
+    <p class="terminal-line">
+      <span class="prompt-user">RuyzTz7@Kali</span>
+      <span class="prompt-dir">~/ecppt</span>
+      <span class="zsh-symbol">❯</span>
+      <span>cat recomendaciones.md</span>
+    </p>
+
+    <p>
+      Para preparar la eCPPTv3, yo no me quedaría solo con el contenido de INE.
+      Te da una base, pero reforzaría fuera las partes más importantes, sobre todo Active Directory.
+    </p>
+
+    <p>&gt; Practica Active Directory con módulos de Hack The Box Academy.</p>
+
+    <p>&gt; Trabaja bien enumeración de usuarios, grupos, shares, permisos, servicios y relaciones dentro del dominio.</p>
+
+    <p>&gt; Ve cómodo con password spraying, fuerza bruta controlada y reutilización de credenciales.</p>
+
+    <p>&gt; Lleva buenos apuntes en Obsidian: comandos, herramientas de AD, rutas típicas, payloads y mini checklists.</p>
+
+    <p>&gt; Lee muy bien las preguntas del examen, porque muchas veces te ayudan a ordenar el entorno y priorizar máquinas.</p>
+
+    <p>&gt; No ignores las preguntas teóricas, aunque el examen sea práctico, porque también pueden sumar puntos importantes.</p>
+
+    <p>&gt; Cuidado con la pregunta buscaminas. Si alguien se encuentra con ella y la resuelve, que me contacte, porque a día de hoy sigo con la espina clavada.</p>  </div>
+</article>
+
+<article class="terminal-panel">
+  <div class="terminal-titlebar">
+    <span class="terminal-tab">zsh</span>
+    <span class="terminal-path">~/ecppt</span>
+  </div>
+
+  <div class="terminal-body">
+    <p class="terminal-line">
+      <span class="prompt-user">RuyzTz7@Kali</span>
+      <span class="prompt-dir">~/ecppt</span>
+      <span class="zsh-symbol">❯</span>
+      <span>cat opinion.md</span>
+    </p>
+
+ <p>&gt; Mi opinión general es que la eCPPTv3 está bien como paso intermedio entre la eJPTv2 y certificaciones más exigentes.</p>
+
+<p>&gt; Me parece útil para tocar Active Directory, practicar movimiento lateral y ganar soltura con entornos algo más grandes.</p>
+
+<p>&gt; Aun así, si vas justo de dinero y tienes claro que tu objetivo principal es la OSCP, creo que es una certificación que puedes saltarte perfectamente.</p>
+
+<p>&gt; No la veo imprescindible, sino como un buen escalón intermedio si quieres llegar con más confianza y algo más de rodaje.</p>
+
+  </div>
+</article>
+
+
+
       </section>
     </main>
   </body>
