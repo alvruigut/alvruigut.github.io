@@ -81,6 +81,41 @@ const notebookIndex = [
     ],
   },
   {
+    title: 'Aplicaciones Web',
+    children: [
+      {
+        title: 'CMS',
+        children: [
+          { title: 'Drupal', href: '/notebook/aplicaciones-web/cms/drupal.html' },
+          { title: 'Joomla', href: '/notebook/aplicaciones-web/cms/joomla.html' },
+          { title: 'WordPress', href: '/notebook/aplicaciones-web/cms/wordpress.html' },
+        ],
+      },
+      {
+        title: 'Servidores y plataformas web',
+        children: [
+          { title: 'Adobe ColdFusion', href: '/notebook/aplicaciones-web/servidores-plataformas-web/adobe-coldfusion.html' },
+          { title: 'Apache Tomcat', href: '/notebook/aplicaciones-web/servidores-plataformas-web/apache-tomcat.html' },
+          { title: 'Microsoft IIS', href: '/notebook/aplicaciones-web/servidores-plataformas-web/microsoft-iis.html' },
+        ],
+      },
+      {
+        title: 'Administración y monitorización',
+        children: [
+          { title: 'Jenkins', href: '/notebook/aplicaciones-web/administracion-monitorizacion/jenkins.html' },
+          { title: 'PRTG Network Monitor', href: '/notebook/aplicaciones-web/administracion-monitorizacion/prtg-network-monitor.html' },
+          { title: 'Splunk', href: '/notebook/aplicaciones-web/administracion-monitorizacion/splunk.html' },
+        ],
+      },
+      {
+        title: 'Comunicaciones',
+        children: [
+          { title: 'Elastix', href: '/notebook/aplicaciones-web/comunicaciones/elastix.html' },
+        ],
+      },
+    ],
+  },
+  {
     title: 'Fuerza Bruta',
     children: [
       { title: 'Hashcat', href: '/notebook/fuerza-bruta/hashcat.html' },

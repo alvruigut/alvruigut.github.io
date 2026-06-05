@@ -39,6 +39,16 @@
               <option value="insane">Insane</option>
             </select>
           </label>
+
+          <label class="writeup-select-field">
+            <span>Certificación</span>
+            <select id="certification-filter">
+              <option value="all">Todas</option>
+              <option value="ejpt">eJPT</option>
+              <option value="ecppt">eCPPT</option>
+              <option value="oscp">OSCP</option>
+            </select>
+          </label>
         </div>
 
       </section>
@@ -1520,10 +1530,33 @@
       const searchInput = document.querySelector('#writeup-search')
       const platformFilter = document.querySelector('#platform-filter')
       const difficultyFilter = document.querySelector('#difficulty-filter')
+      const certificationFilter = document.querySelector('#certification-filter')
       const cards = [...document.querySelectorAll('.writeup-search-results .machine-card')]
       const resultCount = document.querySelector('#writeup-result-count')
       const emptyState = document.querySelector('#writeup-empty')
       const hiddenTagValues = new Set(['linux', 'windows', 'active', 'directory', 'ad', 'cs', 'easy', 'medium', 'hard', 'insane'])
+      const certificationMachines = {
+        ejpt: ['bashed', 'blue', 'devel', 'jerry', 'lame', 'legacy', 'netmon', 'nibbles', 'optimum', 'shocker'],
+        ecppt: [
+          'bashed',
+          'blue',
+          'devel',
+          'jerry',
+          'lame',
+          'legacy',
+          'netmon',
+          'nibbles',
+          'optimum',
+          'shocker',
+          'active',
+          'authority',
+          'forest',
+          'sauna',
+          'return',
+          'dog',
+          'validation',
+        ],
+      }
       const tagLabels = {
         'acl': 'ACL',
         'ad_cs': 'AD CS',
@@ -1539,6 +1572,8 @@
         'dcsync': 'DCSync',
         'dockerfile': 'Dockerfile',
         'dotpeek': 'dnSpy/dotPeek',
+        'ecppt': 'eCPPT',
+        'ejpt': 'eJPT',
         'env': 'ENV',
         'follina': 'Follina',
         'git-dumper': 'Git Dumper',
@@ -1557,6 +1592,7 @@
         'nginx': 'nginx',
         'ntds': 'NTDS',
         'ntlmv2': 'NTLMv2',
+        'oscp': 'OSCP',
         'path_hijacking': 'Path Hijacking',
         'pfx': 'PFX',
         'phpbash': 'phpbash',
@@ -1585,12 +1621,29 @@
         return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       }
 
+      function applyCertificationTags() {
+        cards.forEach((card) => {
+          const machineName = normalize(card.dataset.name || '')
+          const certifications = ['oscp']
+
+          if (certificationMachines.ejpt.includes(machineName)) certifications.push('ejpt')
+          if (certificationMachines.ecppt.includes(machineName)) certifications.push('ecppt')
+
+          card.dataset.certifications = certifications.join(' ')
+
+          const tags = new Set((card.dataset.tags || '').split(/\s+/).filter(Boolean))
+          certifications.forEach((certification) => tags.add(certification))
+          card.dataset.tags = [...tags].join(' ')
+        })
+      }
+
       function cardText(card) {
         return normalize([
           card.dataset.name,
           card.dataset.platform,
           card.dataset.difficulty,
           card.dataset.tags,
+          card.dataset.certifications,
           card.textContent,
         ].join(' '))
       }
@@ -1613,8 +1666,10 @@
           const visibleTags = []
           const seenTags = new Set()
           const machineName = normalize(card.dataset.name || '')
+          const certificationTags = (card.dataset.certifications || '').split(/\s+/).filter(Boolean)
+          const cardTags = (card.dataset.tags || '').split(/\s+/).filter(Boolean)
 
-          ;(card.dataset.tags || '').split(/\s+/).forEach((tag) => {
+          ;[...certificationTags, ...cardTags].forEach((tag) => {
             const normalizedTag = normalize(tag)
             if (!tag || hiddenTagValues.has(normalizedTag) || normalizedTag === machineName || seenTags.has(normalizedTag)) return
 
@@ -1636,13 +1691,16 @@
         const query = normalize(searchInput.value.trim())
         const platform = platformFilter.value
         const difficulty = difficultyFilter.value
+        const certification = certificationFilter.value
         let visible = 0
 
         cards.forEach((card) => {
           const matchesSearch = !query || cardText(card).includes(query)
           const matchesPlatform = platform === 'all' || normalize(card.dataset.platform).includes(platform)
           const matchesDifficulty = difficulty === 'all' || card.dataset.difficulty === difficulty
-          const show = matchesSearch && matchesPlatform && matchesDifficulty
+          const certifications = (card.dataset.certifications || '').split(/\s+/).map(normalize)
+          const matchesCertification = certification === 'all' || certifications.includes(certification)
+          const show = matchesSearch && matchesPlatform && matchesDifficulty && matchesCertification
 
           card.hidden = !show
           visible += show ? 1 : 0
@@ -1655,12 +1713,20 @@
       searchInput.addEventListener('input', updateResults)
       platformFilter.addEventListener('change', updateResults)
       difficultyFilter.addEventListener('change', updateResults)
+      certificationFilter.addEventListener('change', updateResults)
 
-      const initialMachine = new URLSearchParams(window.location.search).get('machine')
+      const params = new URLSearchParams(window.location.search)
+      const initialMachine = params.get('machine')
       if (initialMachine) {
         searchInput.value = initialMachine
       }
 
+      const initialCertification = normalize(params.get('cert') || '')
+      if (initialCertification && [...certificationFilter.options].some((option) => option.value === initialCertification)) {
+        certificationFilter.value = initialCertification
+      }
+
+      applyCertificationTags()
       renderTagChips()
       updateResults()
     </script>

