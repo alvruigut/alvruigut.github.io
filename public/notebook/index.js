@@ -156,9 +156,55 @@ const notebookIndex = [
       {
         title: 'Linux',
         children: [
-          { title: 'Sudoers', href: '/notebook/escalada-privilegios/linux/sudoers.html' },
-          { title: 'SUID', href: '/notebook/escalada-privilegios/linux/suid.html' },
-          { title: 'Grupos Vulnerables', href: '/notebook/escalada-privilegios/linux/grupos-vulnerables.html' },
+          {
+            title: 'Grupos y Privilegios',
+            children: [
+              { title: 'Sudoers', href: '/notebook/escalada-privilegios/linux/sudoers.html' },
+              { title: 'SUID', href: '/notebook/escalada-privilegios/linux/suid.html' },
+              { title: 'Grupos Vulnerables', href: '/notebook/escalada-privilegios/linux/grupos-vulnerables.html' },
+            ],
+          },
+          {
+            title: 'Enumeración local',
+            children: [
+              { title: 'Autoenumeración', href: '/notebook/escalada-privilegios/linux/enumeracion-local/autoenumeracion.html' },
+              { title: 'Procesos', href: '/notebook/escalada-privilegios/linux/enumeracion-local/procesos.html' },
+              { title: 'Banner Grabbing', href: '/notebook/escalada-privilegios/linux/enumeracion-local/banner-grabbing.html' },
+              { title: 'Puertos Internos', href: '/notebook/escalada-privilegios/linux/enumeracion-local/puertos-internos.html' },
+              { title: 'Virtual Hosting', href: '/notebook/escalada-privilegios/linux/enumeracion-local/virtual-hosting.html' },
+            ],
+          },
+          {
+            title: 'Credenciales',
+            children: [
+              { title: 'Credenciales', href: '/notebook/escalada-privilegios/linux/credenciales/credenciales.html' },
+              { title: 'Historial Bash', href: '/notebook/escalada-privilegios/linux/credenciales/historial-bash.html' },
+              { title: 'Shadow', href: '/notebook/escalada-privilegios/linux/credenciales/shadow.html' },
+              { title: 'Fuerza bruta con su', href: '/notebook/escalada-privilegios/linux/credenciales/fuerza-bruta-su.html' },
+              { title: 'Variables de entorno en contenedores', href: '/notebook/escalada-privilegios/linux/credenciales/variables-entorno-contenedores.html' },
+            ],
+          },
+          {
+            title: 'Tareas y automatización',
+            children: [
+              { title: 'Cron', href: '/notebook/escalada-privilegios/linux/tareas-automatizacion/cron.html' },
+            ],
+          },
+          {
+            title: 'Permisos y rutas',
+            children: [
+              { title: 'Capabilities', href: '/notebook/escalada-privilegios/linux/permisos-rutas/capabilities.html' },
+              { title: 'Permisos de archivos', href: '/notebook/escalada-privilegios/linux/permisos-rutas/permisos-archivos.html' },
+              { title: 'Path Hijacking', href: '/notebook/escalada-privilegios/linux/permisos-rutas/path-hijacking.html' },
+            ],
+          },
+          {
+            title: 'Kernel y versiones',
+            children: [
+              { title: 'Kernel', href: '/notebook/escalada-privilegios/linux/kernel-versiones/kernel.html' },
+              { title: 'Versión de sudo', href: '/notebook/escalada-privilegios/linux/kernel-versiones/version-sudo.html' },
+            ],
+          },
         ],
       },
       {
@@ -257,8 +303,146 @@ const notebookIndex = [
               { title: 'Arquitectura SO (Migrar Proceso)', href: '/notebook/escalada-privilegios/windows/utilidades/arquitectura-so-migrar-proceso.html' },
               { title: 'Cambiar de Usuario en Windows', href: '/notebook/escalada-privilegios/windows/utilidades/cambiar-de-usuario-en-windows.html' },
               { title: 'CMD a PowerShell', href: '/notebook/escalada-privilegios/windows/utilidades/cmd-a-powershell.html' },
+              { title: 'Herramientas automatizadas', href: '/notebook/escalada-privilegios/windows/utilidades/herramientas-automatizadas.html' },
             ],
           },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Post-Explotación',
+    children: [
+      {
+        title: 'Linux',
+        children: [
+          {
+            title: 'Enumeración local',
+            children: [
+              { title: 'Usuarios y grupos', href: '/notebook/post-explotacion/linux/enumeracion-local/usuarios-grupos.html' },
+              { title: 'Sistema', href: '/notebook/post-explotacion/linux/enumeracion-local/sistema.html' },
+              { title: 'Procesos y servicios', href: '/notebook/post-explotacion/linux/enumeracion-local/procesos-servicios.html' },
+              { title: 'Red', href: '/notebook/post-explotacion/linux/enumeracion-local/red.html' },
+              { title: 'Seguridad', href: '/notebook/post-explotacion/linux/enumeracion-local/seguridad.html' },
+              { title: 'Logs y auditoría', href: '/notebook/post-explotacion/linux/enumeracion-local/logs-auditoria.html' },
+            ],
+          },
+          {
+            title: 'Dumping hashes',
+            children: [
+              { title: 'Metasploit', href: '/notebook/post-explotacion/linux/dumping-hashes/metasploit.html' },
+              { title: 'Shadow', href: '/notebook/post-explotacion/linux/dumping-hashes/shadow.html' },
+            ],
+          },
+          {
+            title: 'Persistencia',
+            children: [
+              { title: 'Clave PuTTY', href: '/notebook/post-explotacion/linux/persistencia/clave-putty.html' },
+              { title: 'Clave RSA', href: '/notebook/post-explotacion/linux/persistencia/clave-rsa.html' },
+              { title: 'Cron', href: '/notebook/post-explotacion/linux/persistencia/cron.html' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Windows',
+        children: [
+          {
+            title: 'Enumeración local',
+            children: [
+              { title: 'Usuarios y grupos', href: '/notebook/post-explotacion/windows/enumeracion-local/usuarios-grupos.html' },
+              { title: 'Procesos y servicios', href: '/notebook/post-explotacion/windows/enumeracion-local/procesos-servicios.html' },
+              { title: 'Sistema', href: '/notebook/post-explotacion/windows/enumeracion-local/sistema.html' },
+              { title: 'Red', href: '/notebook/post-explotacion/windows/enumeracion-local/red.html' },
+              { title: 'Enumeración con Metasploit', href: '/notebook/post-explotacion/windows/enumeracion-local/metasploit.html' },
+            ],
+          },
+          {
+            title: 'Dumping hashes',
+            children: [
+              { title: 'LSASS', href: '/notebook/post-explotacion/windows/dumping-hashes/lsass.html' },
+              { title: 'Mimikatz', href: '/notebook/post-explotacion/windows/dumping-hashes/mimikatz.html' },
+              { title: 'NTDS', href: '/notebook/post-explotacion/windows/dumping-hashes/ntds.html' },
+              { title: 'SAM, SYSTEM y SECURITY', href: '/notebook/post-explotacion/windows/dumping-hashes/sam-system-security.html' },
+            ],
+          },
+          {
+            title: 'Persistencia',
+            children: [
+              { title: 'Cambiar contraseñas de usuarios', href: '/notebook/post-explotacion/windows/persistencia/cambiar-contrasenas-usuarios.html' },
+              { title: 'Deshabilitar Firewall', href: '/notebook/post-explotacion/windows/persistencia/deshabilitar-firewall.html' },
+              { title: 'Metasploit', href: '/notebook/post-explotacion/windows/persistencia/metasploit.html' },
+              { title: 'Alternate Data Streams (ADS)', href: '/notebook/post-explotacion/windows/persistencia/alternate-data-streams.html' },
+              { title: 'RDP', href: '/notebook/post-explotacion/windows/persistencia/rdp.html' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Active Directory',
+    children: [
+      {
+        title: 'Enumeración',
+        children: [
+          { title: 'AD Enumeración', href: '/notebook/active-directory/enumeracion/ad-enumeracion.html' },
+          { title: 'ACL Enumeración', href: '/notebook/active-directory/enumeracion/acl-enumeracion.html' },
+          { title: 'BloodHound', href: '/notebook/active-directory/enumeracion/bloodhound.html' },
+          { title: 'Fuerza bruta de usuarios', href: '/notebook/active-directory/enumeracion/fuerza-bruta-usuarios.html' },
+          { title: 'MSSQL', href: '/notebook/active-directory/enumeracion/mssql.html' },
+          { title: 'Objetos eliminados', href: '/notebook/active-directory/enumeracion/objetos-eliminados.html' },
+        ],
+      },
+      {
+        title: 'Escalada',
+        children: [
+          {
+            title: 'Kerberos',
+            children: [
+              { title: 'AS-REP Roasting', href: '/notebook/active-directory/escalada/kerberos/as-rep-roasting.html' },
+              { title: 'Kerberoasting', href: '/notebook/active-directory/escalada/kerberos/kerberoasting.html' },
+              { title: 'Kubernetes y Kerberos', href: '/notebook/active-directory/escalada/kerberos/kubernetes-kerberos.html' },
+            ],
+          },
+          {
+            title: 'Dominio y servicios',
+            children: [
+              { title: 'DCSync Attack', href: '/notebook/active-directory/escalada/dominio/dcsync-attack.html' },
+              { title: 'SYSVOL GPP Password', href: '/notebook/active-directory/escalada/dominio/sysvol-gpp-password.html' },
+            ],
+          },
+          {
+            title: 'ACL',
+            children: [
+              { title: 'ACL', href: '/notebook/active-directory/escalada/acl/acl.html' },
+              { title: 'AllExtendedRights', href: '/notebook/active-directory/escalada/acl/allextendedrights.html' },
+              { title: 'Generic Write', href: '/notebook/active-directory/escalada/acl/generic-write.html' },
+              { title: 'Kerberos Constrained Delegation', href: '/notebook/active-directory/escalada/acl/kerberos-constrained-delegation.html' },
+              { title: 'Write DACL', href: '/notebook/active-directory/escalada/acl/write-dacl.html' },
+              { title: 'Write Owner', href: '/notebook/active-directory/escalada/acl/write-owner.html' },
+            ],
+          },
+          {
+            title: 'ADCS',
+            children: [
+              { title: 'ADCS - Certificados', href: '/notebook/active-directory/escalada/adcs/adcs-certificados.html' },
+              { title: 'Enumerar ADCS', href: '/notebook/active-directory/escalada/adcs/enumerar-adcs.html' },
+              { title: 'ESC1', href: '/notebook/active-directory/escalada/adcs/esc1.html' },
+              { title: 'ESC7', href: '/notebook/active-directory/escalada/adcs/esc7.html' },
+              { title: 'ESC9', href: '/notebook/active-directory/escalada/adcs/esc9.html' },
+              { title: 'ESC15', href: '/notebook/active-directory/escalada/adcs/esc15.html' },
+              { title: 'ESC16', href: '/notebook/active-directory/escalada/adcs/esc16.html' },
+              { title: 'PFX', href: '/notebook/active-directory/escalada/adcs/pfx.html' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Persistencia',
+        children: [
+          { title: 'Golden Ticket (TGT)', href: '/notebook/active-directory/persistencia/golden-ticket-tgt.html' },
+          { title: 'Silver Ticket (TGS)', href: '/notebook/active-directory/persistencia/silver-ticket-tgs.html' },
         ],
       },
     ],

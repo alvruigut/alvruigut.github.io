@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Kubernetes y Kerberos | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="kubernetes-kerberos">
+          <div class="note-tabbar">
+            <span>Kubernetes y Kerberos</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/Kerberos</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / kerberos</p>
+            <h2>Kubernetes y Kerberos</h2>
+
+            <p>Notas para configurar Kerberos desde Kali y usar tickets cuando el acceso con usuario y contraseña falla en servicios del dominio.</p>
+
+            <p><span class="notebook-review-note">Info: Conexión con <code>user:password</code> en el dominio falla</span></p>
+            <p><code>SSH</code>: Permission denied (gssapi-with-mic,keyboard-interactive)</p>
+            <p><code>SMB</code>: STATUS_NOT_SUPPORTED / STATUS_NOLOGON_WORKSTATION_TRUST_ACCOUNT</p>
+            <p><code>WINRM</code>:  No responde</p>
+            <p>Trataremos de usar <code>Kubernetes</code> para conectarnos a través de <code>Kerberos 88</code> generando un <code>ticket</code></p>
+            <section class="code-card">
+              <h3>Modificar /etc/hosts</h3>
+              <pre><code>&lt;ip_dc&gt; &lt;hostname&gt;.&lt;domain&gt; &lt;domain&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Configurar Kerberos: /etc/krb5.conf</h3>
+              <pre><code>[domain_realm]
+    .&lt;domain&gt; = &lt;DOMAIN&gt;
+    &lt;domain&gt; = &lt;DOMAIN&gt;
+ 
+[libdefaults]
+    default_realm = &lt;DOMAIN&gt;
+    dns_lookup_realm = false
+    dns_lookup_kdc = true
+    ticket_lifetime = 24h
+    forwardable = true
+ 
+[realms]
+    &lt;DOMAIN&gt; = {
+        kdc = &lt;HOSTNAME&gt;.&lt;DOMAIN&gt;
+        admin_server = &lt;HOSTNAME&gt;.&lt;DOMAIN&gt;
+        default_domain = &lt;DOMAIN&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Ajustar Reloj</h3>
+              <pre><code>ntpdate &lt;ip_dc&gt;
+systemctl stop systemd-timesyncd</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Generar Ticket TGT del usuario f.frizzle</h3>
+              <pre><code>impacket-getTGT &lt;domain&gt;/&#x27;user&#x27;:&#x27;password&#x27; -dc-ip &lt;ip_dc&gt;
+# Exportar Ticket a la variable de entorno  
+export KRB5CCNAME=&lt;user&gt;.ccache</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Conexión con la flag -k</h3>
+              <pre><code># Ya podemos acceder a los servicios con la flag -k. Ej SMB
+nxc smb &lt;ip_dc&gt; -u &#x27;user&#x27; -p &#x27;password&#x27; -k 
+# Login SSH con ticket Kerberos
+ssh &lt;user&gt;@&lt;ip_dc&gt; -k</code></pre>
+            </section>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=thefrizz">TheFrizz</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>kerberos</span>
+              <span>kubernetes</span>
+              <span>ccache</span>
+              <span>krb5</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

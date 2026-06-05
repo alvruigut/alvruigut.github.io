@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Capabilities | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="capabilities">
+          <div class="note-tabbar">
+            <span>Capabilities</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Linux/Permisos y rutas</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / linux / permisos y rutas</p>
+            <h2>Capabilities</h2>
+
+            <p>Las Linux capabilities dividen privilegios de root en permisos más concretos. Algunas capabilities mal asignadas permiten leer archivos sensibles, cambiar UID o modificar el sistema.</p>
+
+            <section class="code-card">
+              <h3>Enumerar capabilities</h3>
+              <pre><code>getcap -r / 2&gt;/dev/null</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Abusar de la capability de python cap_setuid+ep</h3>
+              <pre><code># Obtener una shell como root
+python3.4
+
+&gt;&gt;&gt;&gt; import os
+&gt;&gt;&gt;&gt; os.setuid(0)
+&gt;&gt;&gt;&gt; os.system(&quot;bash&quot;)
+
+# Ganamos acceso como root</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Abusar de la capability de vim cap_dac_override=eip</h3>
+              <pre><code># Editar passwd
+/usr/bin/vim.basic /etc/passwd</code></pre>
+            </section>
+            <p><code>CAP_SETUID:</code> permite cambiar el UID efectivo de un proceso. Si un intérprete como Python tiene esta capability, puede permitir obtener una shell con UID 0.</p>
+            <p><code>CAP_SETGID:</code> permite cambiar el GID efectivo de un proceso. Puede ser útil para acceder a recursos protegidos por grupo o combinarse con otras debilidades.</p>
+            <p><code>▪ CAP_CHOWN:</code> Permite cambiar el propietario y el grupo de cualquier archivo en el sistema.</p>
+            <p><code>▪ CAP_DAC_OVERRIDE:</code> Permite ignorar los permisos de acceso a archivos y realizar operaciones de lectura, escritura y ejecución en cualquier archivo.</p>
+            <p><code>▪ CAP_DAC_READ_SEARCH:</code> Permite leer y buscar cualquier archivo en el sistema, incluso si los permisos de lectura o búsqueda no están concedidos al usuario.</p>
+            <p><code>▪ CAP_NET_RAW:</code> Permite utilizar sockets de red de manera directa, lo que podría permitir realizar acciones de red fuera del alcance autorizado.</p>
+            <p><code>▪ CAP_SYS_ADMIN:</code> Concede una amplia variedad de capacidades de administración del sistema, como montar sistemas de archivos, cargar y descargar módulos de kernel, y realizar operaciones de administración de red.</p>
+            <p><code>▪ CAP_SYS_PTRACE:</code> Permite rastrear y manipular los procesos de otros usuarios, lo que podría ser utilizado para obtener información confidencial o realizar ataques.</p>
+            <p><code>▪ CAP_SYS_MODULE:</code> Permite cargar y descargar módulos de kernel en el sistema, lo que puede ser explotado para cargar módulos controlados o modificar el comportamiento del kernel.</p>
+            <p><code>▪ CAP_FOWNER:</code> Permite ignorar los permisos de propiedad de archivo y realizar operaciones de cambio de propiedad en cualquier archivo.</p>
+            <p><code>▪ CAP_SETFCAP:</code> Permite establecer atributos de archivo extendidos, lo que podría utilizarse para modificar atributos críticos de seguridad de archivos.</p>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>linux</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>capabilities</span>
+              <span>getcap</span>
+              <span>cap_setuid</span>
+              <span>cap_dac_override</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

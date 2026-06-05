@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Red | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="red">
+          <div class="note-tabbar">
+            <span>Red</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Linux/Enumeración local</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / linux / enumeración local</p>
+            <h2>Red</h2>
+
+            <p>La enumeración de red local ayuda a descubrir rutas, interfaces, DNS, hosts internos y servicios que solo escuchan desde localhost o redes privadas.</p>
+
+            <section class="code-card">
+              <h3>Comandos de red</h3>
+              <pre><code># BASH
+route                # Tabla de Enrutamiento
+ip route             # Tabla de Enrutamiento
+netstat -r           # Enumeración de red
+netstat -antp        # Enumeración de red
+ifconfig             # Redes conectadas
+ip a                 # ifconfig moderno
+cat /etc/hosts       # Dominios y resolución de hosts DNS
+cat /etc/networks    # Redes conectadas
+cat /etc/resolv.conf # Servidor DNS por defecto</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Enumerar puertos abiertos ocultos de la red del target</h3>
+              <pre><code>netstat -tuln localhost
+# -t TCP -u UDP -l Listener -n Name/IP</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Comprobar si devuelve algo ese puerto</h3>
+              <pre><code># Vemos si devuelve algo esa conexión al conectarnos con netcat
+nc 127.0.0.1 8888</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>linux</span>
+              <span>post_explotacion</span>
+              <span>enumeracion_local</span>
+              <span>red</span>
+              <span>netstat</span>
+              <span>ip</span>
+              <span>route</span>
+              <span>hosts</span>
+              <span>dns</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

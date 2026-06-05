@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>ACL Enumeración | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="acl-enumeracion">
+          <div class="note-tabbar">
+            <span>ACL Enumeración</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Enumeración</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / enumeración</p>
+            <h2>ACL Enumeración</h2>
+
+            <p>Checklist para enumerar ACLs, ACEs, SIDs y permisos delegados que puedan derivar en rutas de escalada.</p>
+
+            <p><span class="notebook-review-note">Aviso: las ACL se pueden enumerar de forma manual o con <code>PowerView</code>, pero mi forma favorita y la más cómoda para interpretar relaciones es <code>BloodHound</code>.</span></p>
+            <h2><a href="https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1">PowerView.ps1</a></h2>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code>Import-Module .\PowerView.ps1
+
+# Información General del Dominio. Mucho texto. No recomendado
+Find-InterestingDomainAcl 
+
+# Enumerar ACL del usuario alvaro
+$sid = Convert-NameToSid alvaro
+Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid} 
+# Enumerar ACL del grupo: Help Desk Level 1
+$hdlgroupsid = Convert-NameToSid &quot;Help Desk Level 1&quot;
+Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $hdlgroupsid}
+
+# Enumerar grupos anidado del grupo: Help Desk Level 1
+Get-DomainGroup -Identity &quot;Help Desk Level 1&quot; | select memberof
+
+# Crear una lista de usuario del dominio
+Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName &gt; ad_users.txt
+# Enumerar ACL de todos los usuarios de la lista que guarden relación con alvaro
+foreach($line in [System.IO.File]::ReadLines(&quot;C:\Users\htb-student\Desktop\ad_users.txt&quot;)) {get-acl  &quot;AD:\$(Get-ADUser $line)&quot; | Select-Object Path -ExpandProperty Access | Where-Object {$_.IdentityReference -match &#x27;INLANEFREIGHT\\alvaro&#x27;}}
+
+# Búsqueda Inversa: Aplicar un valor a un GUID
+# ObjectType: 00299570-246d-11d0-a768-00aa006e0529
+$guid= &quot;00299570-246d-11d0-a768-00aa006e0529&quot;
+Get-ADObject -SearchBase &quot;CN=Extended-Rights,$((Get-ADRootDSE).ConfigurationNamingContext)&quot; -Filter {ObjectClass -like &#x27;ControlAccessRight&#x27;} -Properties * |Select Name,DisplayName,DistinguishedName,rightsGuid| ?{$_.rightsGuid -eq $guid} | fl
+
+# Transformar CN=Lidia Jim en nombre de usuario del dominio lidjim
+Get-DomainUser &quot;Lidia Jim&quot; | select samaccountname</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Output</h3>
+              <pre><code># ObjectDN: Objeto sobre el que tenemos derechos 
+# ActiveDirectoryRights: Derechos 
+# ObjectAceType: Permisos</code></pre>
+            </section>
+            <h2>Enumeración encadenada sobre usuarios y grupos</h2>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># 1. Enumerar ACL del usuario wley
+$sid = Convert-NameToSid wley
+Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid}
+# wley tiene permiso ForceChange sobre el usuarios damundsen: Podemos cambiar su contraseña y conectarnos como ese usuario
+
+# 2. Enumerar ACL del usuario damundsen
+$sid2 = Convert-NameToSid damundsen
+Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid2} -Verbose
+# damundsen tiene permisos GenericWrite sobre el grupo Help Desk Level 1: Podemos agregar a wley o damundsen a ese grupo para continuar con el ataque
+
+# 3. Enumerar ACL del grupo Help Desk Level 1
+$hdlgroupsid = Convert-NameToSid &quot;Help Desk Level 1&quot;
+Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $hdlgroupsid}
+# No encontramos nada
+# 3.1 Enumerar grupos anidado de Help Desk Level 1
+Get-DomainGroup -Identity &quot;Help Desk Level 1&quot; | select memberof
+# Help Desk Level 1 tiene de grupo anidado al grupo Information Technology: CN=Information Technology,DC=INLANEFREIGHT,DC=LOCAL
+
+# 4. Enumerar ACL del grupo Information Technology
+$itgroupsid = Convert-NameToSid &quot;Information Technology&quot;
+Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $itgroupsid}
+# usuarios que pertenecen al grupo Help Desk Level 1 -&gt; Information Technology tienen permisos GenericAll sobre el usuario adunn
+
+# 5. Enumerar ACL del usuario adunn
+$adunnsid = Convert-NameToSid adunn 
+Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $adunnsid} -Verbose
+# adunn tiene permisos DCSync sobre el dominio. Puede dumpear NTDS.dit del DC</code></pre>
+            </section>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/notebook/active-directory/enumeracion/bloodhound.html">BloodHound</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>enumeracion</span>
+              <span>acl</span>
+              <span>ace</span>
+              <span>sid</span>
+              <span>powerview</span>
+              <span>bloodhound</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

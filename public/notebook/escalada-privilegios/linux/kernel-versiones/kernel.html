@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Archivo KeePass | Notebook</title>
+    <title>Kernel | Notebook</title>
     <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
@@ -15,9 +15,9 @@
       <section class="notebook-workspace" aria-label="Notebook">
         <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
-        <article class="note-panel is-active" id="archivo-keepass">
+        <article class="note-panel is-active" id="kernel">
           <div class="note-tabbar">
-            <span>Archivo KeePass</span>
+            <span>Kernel</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -26,60 +26,48 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Windows/Credenciales</span>
+            <span>~/notebook/Escalada de Privilegios/Linux/Kernel y versiones</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / windows / credenciales</p>
-            <h2>Archivo KeePass</h2>
+            <p class="eyebrow">escalada de privilegios / linux / kernel y versiones</p>
+            <h2>Kernel</h2>
 
-            <h2>KeePass (.kdbx)</h2>
+            <p>Los exploits de kernel deben tratarse como último recurso: pueden ser inestables, provocar caídas del sistema y dependen mucho de versión, arquitectura y mitigaciones.</p>
 
-            <section class="code-card">
-              <h3>Extraer Hash de la contraseña maestra del archivo.kdbx</h3>
-              <pre><code>keepass2john &lt;fichero.kdbx&gt;</code></pre>
-            </section>
-
-            <section class="code-card">
-              <h3>Crackear Hash</h3>
-              <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt &lt;keepass_hash&gt;
-hashcat -m 13400 &lt;keepass_hash&gt; /usr/share/wordlists/rockyou.txt</code></pre>
-            </section>
+            <aside class="callout warning">
+              <p>Valida siempre la versión exacta, arquitectura y alcance antes de ejecutar exploits públicos. En sistemas reales, evita técnicas destructivas y trabaja solo con autorización.</p>
+            </aside>
 
             <section class="code-card">
-              <h3>Kali: Acceso Interfaz de KeePass</h3>
-              <pre><code>keepassxc &lt;file&gt;.kdbx
-# Buscar en la interfaz la app</code></pre>
+              <h3>Enumerar Versión Kernel</h3>
+              <pre><code>uname -a
+searchsploit &quot;Linux Kernel&quot;</code></pre>
             </section>
-
-            <figure class="note-figure">
-              <img src="/notebook/assets/obsidian/windows-keepass-dump.png" alt="Evidencia de fichero o dump de KeePass" />
-            </figure>
-
-            <h2>KeePass (.dmp)</h2>
-
-            <p><a href="https://github.com/matro7sh/keepass-dump-masterkey">Exploit</a></p>
-
+            <h2><a href="https://github.com/The-Z-Labs/linux-exploit-suggester">Suggester Linux Github</a></h2>
             <section class="code-card">
-              <h3>Kali: Recuperar contraseña maestra de.dmp</h3>
-              <pre><code>python3 exploit.py KeePassDumpFull.dmp</code></pre>
+              <h3>Descargar Suggester</h3>
+              <pre><code>wget https://raw.githubusercontent.com/mzet-/linux-exploit-suggester/master/linux-exploit-suggester.sh -O les.sh</code></pre>
             </section>
+            <section class="code-card">
+              <h3>Lanzar Suggester</h3>
+              <pre><code>./linux-exploit-suggester.sh</code></pre>
+            </section>
+            <p><a href="https://github.com/diego-treitos/linux-smart-enumeration.git">Smart Enumeration Linux Github</a></p>
 
             <h2>Máquinas relacionadas</h2>
             <div class="notebook-related-links">
-              <a href="/writeups.html?machine=jeeves">Jeeves</a>
+              <a href="/writeups.html?machine=analytics">Analytics</a>
             </div>
 
             <h2>Tags</h2>
             <div class="tag-list">
               <span>notebook</span>
-              <span>windows</span>
+              <span>linux</span>
               <span>privesc</span>
               <span>escalada_privilegios</span>
-              <span>credenciales</span>
-              <span>archivo</span>
-              <span>keepass</span>
-              <span>kdbx</span>
+              <span>kernel</span>
+              <span>linux_exploit_suggester</span>
             </div>
           </div>
         </article>

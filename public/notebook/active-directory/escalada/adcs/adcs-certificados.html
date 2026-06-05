@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>ADCS - Certificados | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="adcs-certificados">
+          <div class="note-tabbar">
+            <span>ADCS - Certificados</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/ADCS</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / adcs</p>
+            <h2>ADCS - Certificados</h2>
+
+            <p>Resumen de conceptos de ADCS, plantillas, autenticación con certificados y abusos habituales en entornos Active Directory.</p>
+
+            <p><span class="notebook-review-note">Aviso: <code>ADCS</code>: Es el rol que maneja la emisión de certificados para usuarios, equipos y servicios en AD</span></p>
+            <p>Componentes:</p>
+            <p>- <code>CA (Certification Authority):</code> Usuario que emite y gestiona certificados</p>
+            <p>- <code>Certificate Templates:</code> Plantillas de configuración, permisos y requisitos para emitir certificados</p>
+            <p>- <code>CES (Certificate Enrollment Server):</code> Permite renovar certificados</p>
+            <p>Formatos de certificados X.509:</p>
+            <p>- <code>PEM:</code> Certificado DER codificado en base64, puede almacenar múltiples claves sin protección por contraseña</p>
+            <p>- <code>DER:</code> Certificado en formato binario</p>
+            <p>- <code>PFX/P12 (PKCS#12):</code> Almacena claves privadas con protección por contraseña</p>
+            <p>- <code>P7B (PKCS#7):</code> Almacena certificados de cadena, pero no claves privadas</p>
+            <h2>KDC_ERR_PADATA_TYPE_NOSUPP</h2>
+            <p>No permite autenticarnos con el certificado <code>PFX</code> cuando el controlador de dominio no soporta <code>PKINIT</code></p>
+            <h2>Tiempo es oro</h2>
+            <p>Los cambios relacionados con certificados pueden revertirse o expirar rápido. Si el flujo falla, revisa la plantilla y repite el proceso desde el inicio.</p>
+            <h2><a href="https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation">ESCs PoC</a></h2>
+            <p><code>ESC2</code>: una plantilla permite uso amplio con cualquier EKU y puede derivar en abuso similar a ESC1 según el entorno.</p>
+            <p><code>ESC3</code>: abuso de Enrollment Agent para emitir certificados en nombre de otros usuarios.</p>
+            <p><code>ESC4</code>: permisos de escritura sobre una plantilla; si puedes modificarla, puedes convertirla en vulnerable y abusarla como ESC1.</p>
+            <p><code>ESC6</code>: CA con <code>EDITF_ATTRIBUTESUBJECTALTNAME2</code>, lo que permite inyectar SAN arbitrario.</p>
+            <p><code>ESC8</code>: relay NTLM contra ADCS para obtener un certificado y autenticarse como la víctima.</p>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>adcs</span>
+              <span>certificados</span>
+              <span>certipy</span>
+              <span>templates</span>
+              <span>certificaciones</span>
+              <span>esc</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

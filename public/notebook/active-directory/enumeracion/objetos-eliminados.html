@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Objetos eliminados | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="objetos-eliminados">
+          <div class="note-tabbar">
+            <span>Objetos eliminados</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Enumeración</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / enumeración</p>
+            <h2>Objetos eliminados</h2>
+
+            <p>Los objetos eliminados del dominio pueden revelar usuarios, atributos históricos o información útil si se dispone de permisos para consultarlos.</p>
+
+            <section class="code-card">
+              <h3>Flujo Módulo ActiveDirectory</h3>
+              <pre><code># Importar Módulo
+Import-Module ActiveDirectory
+# Enumerar Objetos Eliminados
+Get-ADObject -Filter &#x27;isDeleted -eq $true&#x27; -IncludeDeletedObjects
+# Restaurar Objeto
+Restore-ADObject -Identity &lt;GUID&gt;
+# Habilitar Cuenta
+Enable-ADAccount -Identity cert_admin
+# Cambiar contraseña
+Set-ADAccountPassword -Identity cert_admin -Reset -NewPassword (ConvertTo-SecureString &quot;cert_admin123&quot; -AsPlainText -Force)
+# Eliminar Usuario
+Remove-ADUser -Identity cert_admin -Confirm:$false</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Flujo PowerView (No Probado)</h3>
+              <pre><code># Importar Módulo
+. .\PowerView.ps1
+# Enumerar Objetos Eliminados
+Get-DomainObject -LDAPFilter &quot;(isDeleted=TRUE)&quot; -SearchBase &quot;CN=Deleted Objects,DC=dominio,DC=local&quot;
+Get-DomainObject -LDAPFilter &quot;(isDeleted=TRUE)&quot;
+# Restaurar Objeto
+Set-DomainObject -Identity 938182c3-bf0b-410a-9aaa-45c8e1a02ebf -XOR @{userAccountControl=2}
+# Cambiar contraseña
+Set-DomainUserPassword -Identity cert_admin -AccountPassword (ConvertTo-SecureString &quot;cert_admin123&quot; -AsPlainText -Force)
+# Eliminar Usuario
+Remove-DomainUser -Identity cert_admin</code></pre>
+            </section>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=cascade">Cascade</a>
+              <a href="/writeups.html?machine=tombwatcher">TombWatcher</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>enumeracion</span>
+              <span>deleted_objects</span>
+              <span>recycle_bin</span>
+              <span>ad_bin</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

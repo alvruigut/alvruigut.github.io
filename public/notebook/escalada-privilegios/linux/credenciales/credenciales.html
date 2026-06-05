@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Credenciales | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="credenciales">
+          <div class="note-tabbar">
+            <span>Credenciales</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Escalada de Privilegios/Linux/Credenciales</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">escalada de privilegios / linux / credenciales</p>
+            <h2>Credenciales</h2>
+
+            <p>La búsqueda de credenciales debe centrarse en rutas probables y archivos de configuración. No todo resultado con la palabra password es útil: hay que validar contexto, permisos y reutilización.</p>
+
+            <section class="code-card">
+              <h3>Buscar palabras claves en el sistema</h3>
+              <pre><code>grep -nri &quot;password&quot; /var/www /opt /home # Solo en esas rutas
+grep -B5 -A5 &quot;password&quot; settings.php     # Solo ese archivo leyendo 5 líneas
+grep -nri &quot;db_user&quot;
+grep -rE &quot;db_user|password&quot;
+grep -riE &quot;PASSW|PASSWD|PWD&quot;
+# -r: recursivo -i: case-insensitive -n: línea_match -E: permite expresiones regulares (|)
+
+find /home -exec ls -lad $PWD/* &quot;{}&quot; 2&gt;/dev/null \; | grep -i -I &quot;passw\|pwd&quot;
+
+grep --color=auto -rnw -iIe &quot;PASSW\|PASSWD\|PASSWORD\|PWD&quot; --color=always 2&gt;/dev/null</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Buscar en Home</h3>
+              <pre><code>find /home -type f \( -name &quot;*_history&quot; -o -name &quot;id_rsa&quot; -o -name &quot;.git-credentials&quot; -o -name &#x27;*.db&#x27; -o -name &#x27;*.sqlite&#x27; -o -name &#x27;*.sqlite3&#x27; -o -name &quot;Dockerfile&quot; -o -name &quot;docker-compose.yml&quot; \) 2&gt;/dev/null</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Buscar en /var/www</h3>
+              <pre><code>grep --color=auto -rnw /var/www/ -iIe &quot;PASSW\|PASSWD\|PASSWORD\|PWD&quot; --color=always | grep -v &quot;.js&quot; 2&gt;/dev/null</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Rutas Interesantes</h3>
+              <pre><code># Buscar fichero
+find / -name wp-config.php 2&gt;/dev/null
+# Ficheros
+~/.ssh
+/root/.ssh/id_rsa
+.env
+settings.php
+config.php
+database.yml
+wp-config.php
+web.config</code></pre>
+            </section>
+            <h2>Keepass (.kdbx .dmp)</h2>
+            <section class="code-card">
+              <h3>Kali: En caso de encontrar un fichero .kdbx leemos su información</h3>
+              <pre><code>python2.7 keepass2john.py &lt;fichero.kdbx&gt;
+hashcat -m 13400 &lt;keepass_hash&gt; /seclists/Passwords/Leaked-Databases/rockyou.txt</code></pre>
+            </section>
+            <p>Si además aparece un volcado de memoria de KeePass, se puede revisar si aplica la técnica documentada en <a href="https://github.com/matro7sh/keepass-dump-masterkey">keepass-dump-masterkey</a>. No es universal: depende de la versión, del estado de la memoria y de cómo se obtuvo el dump.</p>
+            <section class="code-card">
+              <h3>Kali: Recuperar contraseña maestra de .dmp</h3>
+              <pre><code>python3 exploit.py KeePassDumpFull.dmp</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Acceso Interfaz de Keepass</h3>
+              <pre><code>sudo apt install keepassxc
+keepassxc passcodes.kdbx</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>linux</span>
+              <span>privesc</span>
+              <span>escalada_privilegios</span>
+              <span>credenciales</span>
+              <span>grep</span>
+              <span>keepass</span>
+              <span>kdbx</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

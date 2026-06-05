@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Shadow | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="shadow">
+          <div class="note-tabbar">
+            <span>Shadow</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Linux/Dumping hashes</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / linux / dumping hashes</p>
+            <h2>Shadow</h2>
+
+            <p>/etc/shadow almacena hashes de contraseñas locales. Leerlo requiere root o permisos equivalentes, y el cracking debe hacerse solo dentro de laboratorio o pentest autorizado.</p>
+
+            <p>Los hashes en Linux se almacenan en el archivo <code>/etc/shadow</code> con el formato <code>$id$salt$hash</code>. El <code>id</code>, el número entre símbolos <code>$</code>, indica el algoritmo usado.</p>
+            <p>Solo es legible como usuario <code>root</code></p>
+            <p>- <code>$1</code> → <code>MD5</code></p>
+            <p>- <code>$2</code> → <code>Blowfish / bcrypt</code></p>
+            <p>- <code>$5</code> → <code>SHA-256</code></p>
+            <p>- <code>$6</code> → <code>SHA-512</code></p>
+            <section class="code-card">
+              <h3>Kali: Como root podemos leer el fichero /etc/shadow</h3>
+              <pre><code>cat /etc/shadow
+
+# Nos copiamos el hash: root:$6$sgewtGbw$ihhoUYASuXTh7Dmw0adpC7a3fBGkf9hkOQCffBQRMIF8/0w6g/Mh4jMWJ0yEFiZyqVQhZ4.vuS8XOyq.hLQBb.:18348:0:99999:7:::
+
+# Desde kali desciframos el hash con john con el formato 512 por el id:6
+
+# Copiamos el hash en un txt
+nano hash.txt
+john --format=sha512crypt --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
+john --show hash.txt</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Metasploit y una sesión Meterpreter</h3>
+              <pre><code>use post/linux/gather/hashdump
+set SESSION
+run
+loot</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>linux</span>
+              <span>post_explotacion</span>
+              <span>dumping_hashes</span>
+              <span>shadow</span>
+              <span>john</span>
+              <span>sha512crypt</span>
+              <span>hashdump</span>
+              <span>hash_linux</span>
+              <span>dump_hash</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

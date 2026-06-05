@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Procesos y servicios | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="procesos-servicios">
+          <div class="note-tabbar">
+            <span>Procesos y servicios</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Post-Explotación/Windows/Enumeración local</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">post-explotación / windows / enumeración local</p>
+            <h2>Procesos y servicios</h2>
+
+            <p>Procesos, servicios, tareas programadas y aplicaciones instaladas ayudan a localizar software vulnerable, rutas modificables y ejecuciones con cuentas privilegiadas.</p>
+
+            <section class="code-card">
+              <h3>Meterpreter</h3>
+              <pre><code>ps # Procesos en ejecución 
+pgrep explorer.exe # Localizar un proceso
+migrate 2252 # Migrar a ese proceso</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>CMD</h3>
+              <pre><code>ps # Procesos en ejecución 
+tasklist /SVC  # Procesos en ejecución en el sistema
+
+net start # Servicios iniciados
+wmic service list brief # Servicios en ejecución
+schtasks /query /fo LIST /v # Tareas programadas
+
+## Programas Instalados
+dir /a &quot;C:\Program Files&quot;, &quot;C:\Program Files (x86)&quot;
+reg query HKEY_LOCAL_MACHINE\SOFTWARE</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>PowerShell</h3>
+              <pre><code>Get-WmiObject Win32_Service | Select-Object Name, StartName  # Servicios con cuentas privilegiadas</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>notebook</span>
+              <span>windows</span>
+              <span>post_explotacion</span>
+              <span>enumeracion_local</span>
+              <span>procesos</span>
+              <span>servicios</span>
+              <span>schtasks</span>
+              <span>wmic</span>
+              <span>programas</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

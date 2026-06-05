@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>AD Enumeración | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="ad-enumeracion">
+          <div class="note-tabbar">
+            <span>AD Enumeración</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Enumeración</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / enumeración</p>
+            <h2>AD Enumeración</h2>
+
+            <p>Comandos base para obtener contexto del dominio, controladores, usuarios, grupos, equipos, shares y permisos relevantes.</p>
+
+            <section class="code-card">
+              <h3>PowerShell</h3>
+              <pre><code>net user /domain # Enumerar usuarios del dominio
+net group /domain # Enumerar grupos del dominio
+net user alvaro alvaro123 /add /domain # Crear nuevo usuario y añadirlo al dominio
+net group &quot;Exchange Windows Permissions&quot; alvaro /add # Añadir al usuario alvaro a un grupo</code></pre>
+            </section>
+            <h2><a href="https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1">PowerView.ps1</a></h2>
+            <section class="code-card">
+              <h3>PowerView</h3>
+              <pre><code>Import-Module .\PowerView.ps1
+
+Get-NetDomain # Información básica del dominio
+Get-NetDomainController # Listar DCs
+Get-NetPolicy # Políticas de contraseñas
+
+Get-NetUser  # Listar todos los usuarios del dominio
+Get-NetUser &quot;user&quot;  # Listar un usuario específico
+Get-NetUser | select samaccountname, description, pwdlastset  # Listar usuario con filtros (Descripciones de Usuarios)
+Get-ADGroupMember &quot;Domain Admins&quot; # Listar Domain Admins
+
+Get-DomainUser -PreauthNotRequired             # Identifica usuarios AS-REP Roastable
+Get-NetUser -SPN                               # Identifica usuarios Kerberoastable
+Get-NetUser -SPN | select serviceprincipalname # Identifica usuarios Kerberoastable
+Get-NetUser -SPN | select samaccountname,serviceprincipalname  # Cuentas SPN del dominio 
+
+Get-NetGroup # Listar todos los grupos del dominio
+Get-NetGroup &quot;group name&quot; # Listar un grupo específico
+Get-NetComputer # Enumera Computers Objects del dominio
+
+Find-LocalAdminAccess # Enumera las máquinas del dominio donde el usuario actual es ADMIN LOCAL
+Find-DomainShare # Busca Shares del dominio
+
+Get-ObjectAcl -Identity &lt;user&gt; # Enumera ACE, listas SID, objetosSID 
+Convert-SidToName &lt;sid/objsid&gt; # Convierte SID a nombre común
+Get-ObjectAcl -Identity &quot;group-name&quot; | ? {$_.ActiveDirectoryRights -eq &quot;GenericAll&quot;} | select SecurityIdentifier,ActiveDirectoryRights  # Check del permiso &quot;GenericAll&quot;</code></pre>
+            </section>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>enumeracion</span>
+              <span>powerview</span>
+              <span>usuarios</span>
+              <span>grupos</span>
+              <span>shares</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

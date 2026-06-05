@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
-    <title>Azure Admins | Notebook</title>
+    <title>ACL | Notebook</title>
     <script src="/theme.js"></script>
     <link rel="stylesheet" href="/section.css" />
   </head>
@@ -15,9 +15,9 @@
       <section class="notebook-workspace" aria-label="Notebook">
         <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
 
-        <article class="note-panel is-active" id="azure-admins">
+        <article class="note-panel is-active" id="acl">
           <div class="note-tabbar">
-            <span>Azure Admins</span>
+            <span>ACL</span>
             <details class="notebook-tag-search">
               <summary>Buscar tags</summary>
               <label>
@@ -26,44 +26,37 @@
               </label>
               <div class="notebook-search-results" aria-live="polite"></div>
             </details>
-            <span>~/notebook/Escalada de Privilegios/Windows/Grupos</span>
+            <span>~/notebook/Active Directory/Escalada/ACL</span>
           </div>
 
           <div class="note-content">
-            <p class="eyebrow">escalada de privilegios / windows / grupos</p>
-            <h2>Azure Admins</h2>
+            <p class="eyebrow">active directory / escalada / acl</p>
+            <h2>ACL</h2>
 
-            <p><a href="https://github.com/VbScrub/AdSyncDecrypt">Repositorio GitHub</a> <a href="https://github.com/VbScrub/AdSyncDecrypt/releases/download/v1.0/AdDecrypt.zip">Payloads.zip</a></p>
-
-            <section class="code-card">
-              <h3>Subir payloads y Ejecutarlo desde esa ruta</h3>
-              <pre><code># Subir payload AdDecrypt.exe
-# Subir payload mcrypt.dll
-cd 'C:\Program Files\Microsoft Azure AD Sync\Bin'
-# Ruta AdDecrypt.exe y mcrypt.dll
-C:\Users\&lt;user&gt;\Desktop\AdDecrypt.exe -FullSQL</code></pre>
-            </section>
+            <p>Resumen de permisos de ACL habituales y cómo interpretarlos antes de elegir una técnica concreta.</p>
 
             <figure class="note-figure">
-              <img src="/notebook/assets/obsidian/windows-azure-admins.png" alt="Abuso del grupo Azure Admins" />
+              <img src="/notebook/active-directory/assets/acl-overview.png" alt="Resumen visual de permisos ACL en Active Directory" />
             </figure>
+            <p><code>WriteDACL</code>: privilegio que permite modificar la DACL de un objeto y conceder permisos adicionales.</p>
+            <p><code>GenericAll</code>: permiso de control total sobre el objeto.</p>
 
-            <h2>Máquinas relacionadas</h2>
+            <h2>Relacionados</h2>
             <div class="notebook-related-links">
-              <a href="/writeups.html?machine=monteverde">Monteverde</a>
+              <a href="/notebook/active-directory/enumeracion/acl-enumeracion.html">ACL Enumeración</a>
             </div>
 
             <h2>Tags</h2>
             <div class="tag-list">
-              <span>notebook</span>
-              <span>windows</span>
-              <span>privesc</span>
-              <span>escalada_privilegios</span>
-              <span>grupos</span>
+              <span>ad</span>
               <span>active_directory</span>
-              <span>azure</span>
-              <span>admins</span>
-              <span>azure_admins</span>
+              <span>escalada</span>
+              <span>acl</span>
+              <span>ace</span>
+              <span>genericall</span>
+              <span>writedacl</span>
+              <span>writeowner</span>
+              <span>extendedrights</span>
             </div>
           </div>
         </article>

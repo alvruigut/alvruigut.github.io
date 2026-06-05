@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>BloodHound | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="bloodhound">
+          <div class="note-tabbar">
+            <span>BloodHound</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Enumeración</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / enumeración</p>
+            <h2>BloodHound</h2>
+
+            <p>BloodHound permite modelar relaciones del dominio y encontrar caminos entre usuarios, grupos, equipos, sesiones y privilegios.</p>
+
+            <h2>Cargar base de datos NEO4J</h2>
+            <section class="code-card">
+              <h3>Comandos</h3>
+              <pre><code># Iniciar servicio Neo4j: http://localhost:7474
+sudo neo4j start
+# Abrir BloodHound con USUARIO NORMAL
+bloodhound
+# neo4j:&lt;neo4j_password&gt;</code></pre>
+            </section>
+            <h2>Recolectores</h2>
+            <h2>Linux - BloodHound.py</h2>
+            <p><a href="https://github.com/dirkjanm/BloodHound.py">BloodHound.py GitHub para Linux</a></p>
+            <section class="code-card">
+              <h3>Nos clonamos el repositorio</h3>
+              <pre><code>git clone https://github.com/dirkjanm/BloodHound.py</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Extraer datos del AD</h3>
+              <pre><code>bloodhound-python -u &lt;username&gt; -p &lt;password&gt; -ns &lt;ip_dc&gt; -d &lt;dominio.local&gt; -c all
+# Alternativa
+nxc ldap &lt;ip_target&gt; -u &lt;username&gt; -p &lt;password&gt; --bloodhound -c All -ns &lt;ip_dc&gt;
+# Proxychains
+proxychains bloodhound-python -d &lt;domain&gt; -u &lt;u&gt; -p &lt;p&gt; -c all -ns &lt;ip_dc&gt; --dns-tcp --zip</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Error DNS</h3>
+              <pre><code>dnschef --fakeip 10.10.225.134</code></pre>
+            </section>
+            <h2>Windows - SharpHound</h2>
+            <p><a href="https://github.com/SpecterOps/BloodHound-Legacy/blob/master/Collectors/SharpHound.ps1">SharpHound GitHub para Windows</a></p>
+            <section class="code-card">
+              <h3>Windows CMD: SharpHound</h3>
+              <pre><code>SharpHound.exe -c All</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Windows PowerShell: SharpHound</h3>
+              <pre><code>. .\SharpHound.ps1
+Invoke-Bloodhound -CollectionMethod All</code></pre>
+            </section>
+            <h2>Cargar Ficheros en BloodHound</h2>
+            <p>En <code>BloodHound</code> subimos el <code>zip</code></p>
+            <p>Abrimos la interfaz de <code>BloodHound</code> y usamos las credenciales definidas en Neo4j, por ejemplo <code>neo4j:&lt;neo4j_password&gt;</code>.</p>
+            <p>Cargamos los ficheros en <code>upload files/data</code>, y subimos todos los  <code>.json</code></p>
+            <h2>Ejemplo Caso Práctico</h2>
+            <p>En <code>BloodHound</code> subimos el <code>zip</code> e interpretamos los <code>ACL</code> y relaciones de los objetos del <code>AD</code></p>
+            <figure class="note-figure">
+              <img src="/notebook/active-directory/assets/bloodhound-acl-graph-1.png" alt="Grafo de BloodHound con relaciones ACL del dominio" />
+            </figure>
+            <figure class="note-figure">
+              <img src="/notebook/active-directory/assets/bloodhound-acl-graph-2.png" alt="Detalle de ruta de ataque en BloodHound" />
+            </figure>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>enumeracion</span>
+              <span>bloodhound</span>
+              <span>sharphound</span>
+              <span>neo4j</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>
