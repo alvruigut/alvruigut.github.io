@@ -59,14 +59,14 @@ whatweb -v &lt;url&gt; # Escaneo detallado con más información.
               <h3>Fuzzing Directorios</h3>
               <pre><code>wfuzz -c --hc=404 -t 200 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt  http://target/FUZZ/
 
-gobuster dir -u http://target/ -w /directory-list-2.3-medium.txt -t 50</code></pre>
+gobuster dir -u http://target/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50</code></pre>
             </section>
 
             <section class="code-card">
               <h3>Fuzzing Archivos</h3>
-              <pre><code>wfuzz -c --hc=404 -t 200 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -z list,html-php-txt-aps-aspx http://target/FUZZ.FUZ2Z/
+              <pre><code>wfuzz -c --hc=404 -t 200 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -z list,html-php-txt-asp-aspx http://target/FUZZ.FUZ2Z/
 
-gobuster dir -u http://target/ -w /directory-list-2.3-medium.txt -x php,aspx -t 50</code></pre>
+gobuster dir -u http://target/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,aspx -t 50</code></pre>
             </section>
 
             <section class="code-card">
@@ -84,7 +84,7 @@ gobuster vhost -u http://&lt;IP&gt; -w /usr/share/wordlists/SecLists/Discovery/D
 
             <section class="code-card">
               <h3>Fuzzing en webs con SSL usando gobuster</h3>
-              <pre><code># Añadir parametro -k</code></pre>
+              <pre><code># Añadir parámetro -k</code></pre>
             </section>
 
             <section class="code-card">
@@ -95,12 +95,12 @@ gobuster vhost -u http://&lt;IP&gt; -w /usr/share/wordlists/SecLists/Discovery/D
             <h3>.git</h3>
 
             <section class="code-card">
-              <h3>Dumpear repositorio .git expuesto</h3>
+              <h3>Volcar repositorio .git expuesto</h3>
               <pre><code>pipx install git-dumper
 git-dumper http://url/.git git_loot
-# Check último commit
+# Ver último commit
 git log
-# Check commit diff
+# Ver diff de un commit
 git show 967fa71c359fffcbeb7e2b72b27a321612e3ad11</code></pre>
             </section>
 

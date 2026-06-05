@@ -42,9 +42,9 @@
  use /path/module
  use &lt;number_id_module&gt;
  ifconfig # Ver datos localhost
- show options #Ver datos que necesita un módulo
+ show options # Ver datos que necesita un módulo
  info # Ver información del exploit
- set RHOST 192.168.1.1 #Set para cambiar datos</code></pre>
+ set RHOST 192.168.1.1 # Cambiar el valor de una opción</code></pre>
             </section>
             <section class="code-card">
               <h3>WORKSPACE en metasploit</h3>
@@ -81,7 +81,7 @@
  vulns -p 445 # vulns del puerto 445</code></pre>
             </section>
             <aside class="callout">
-              <p>Si usamos un <code>exploit</code> que conlleve una sesión, debemos preparar el <code>payload</code>, el cual podemos usar un payload de <code>meterpreter</code> para que haga la función de <code>netcat</code> y nos proporcione una<code>reverse shell</code></p>
+              <p>Un <code>exploit</code> aprovecha una vulnerabilidad concreta y el <code>payload</code> define qué acción se ejecuta si la explotación funciona. Por ejemplo, se puede usar un payload de <code>Meterpreter</code> o una <code>reverse shell</code> para recibir una sesión en la máquina objetivo.</p>
             </aside>
             <section class="code-card">
               <h3>Payloads</h3>
@@ -91,7 +91,7 @@ set payload &lt;number&gt;
 set payload windows/meterpreter/reverse_tcp</code></pre>
             </section>
             <aside class="callout warning">
-              <p>IMPORTANTE DIFERENCIAR EL HECHO DE EXPLOTAR UNA VULNERABILIDAD A CIEGAS, A COMPROBAR SI ES VULNERABLE PRIMERO, PARA ASÍ EVITAR HACER RUIDO EN LA VÍCTIMA. USAR PRIMERO LOS SCANNERS (AUXILIARY) Y (EXPLOITS) PARA ATACAR</p>
+              <p>Es importante diferenciar entre comprobar una posible vulnerabilidad y explotarla directamente. Antes de lanzar un exploit conviene validar el servicio con módulos <code>auxiliary</code>, opciones <code>check</code> cuando existan y la información de enumeración disponible, para reducir ruido y evitar impactos innecesarios.</p>
             </aside>
             <h3>PLUGINS</h3>
             <p><a href="https://github.com/hahwul/metasploit-autopwn">Github DB_AUTOPWN</a></p>

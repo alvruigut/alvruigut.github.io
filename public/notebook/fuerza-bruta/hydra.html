@@ -35,7 +35,7 @@
 
             <section class="code-card">
               <h3>Fuerza bruta en un servicio</h3>
-              <pre><code>hydra -l &lt;username&gt; -P /usr/share/wordlist/rockyou.txt ftp://&lt;ip_objetivo&gt;:&lt;puerto&gt;</code></pre>
+              <pre><code>hydra -l &lt;username&gt; -P /usr/share/wordlists/rockyou.txt ftp://&lt;ip_objetivo&gt;:&lt;puerto&gt;</code></pre>
             </section>
             <section class="code-card">
               <h3>Fuerza bruta en un panel login web</h3>
@@ -44,7 +44,7 @@
 hydra -L &lt;users.txt&gt;  -P &lt;pass.txt&gt; &lt;ip_target&gt; http-post-form &quot;&lt;target_domain&gt;/login:username=^USER^&amp;password=^PASS^:Invalid username or password&quot; -t 50 -F</code></pre>
             </section>
             <aside class="callout">
-              <p>Se usa los marcadores estándar <code>^USER^</code> y <code>^PASS^</code> que Hydra reconoce para sustituir usuario/contraseña en formularios web.</p>
+              <p>Se usan los marcadores estándar <code>^USER^</code> y <code>^PASS^</code> que Hydra reconoce para sustituir usuario/contraseña en formularios web.</p>
             </aside>
             <ul>
               <li><code>-l &lt;user&gt;</code>: un usuario</li>

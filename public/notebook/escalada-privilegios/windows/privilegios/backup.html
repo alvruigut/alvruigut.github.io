@@ -34,7 +34,7 @@
             <h2>Backup</h2>
 
             <aside class="callout warning">
-              <p><strong><a href="https://github.com/giuliano108/SeBackupPrivilege">SeBackupPrivilege</a></strong> Permite <code>leer archivos protegidos</code>, <code>SAM y SYSTEM</code>, <code>SECURITY</code> y <code>NTDS.dit</code> <a href="https://daniel10barredo.github.io/PrivEscAssist_Windows/tools/EnableSeBackupPrivilege.ps1">EnableSeBackupPrivilege.ps1</a>: Habilitar Privilegio si esta deshabilitado</p>
+              <p><strong><a href="https://github.com/giuliano108/SeBackupPrivilege">SeBackupPrivilege</a></strong> Permite <code>leer archivos protegidos</code>, <code>SAM y SYSTEM</code>, <code>SECURITY</code> y <code>NTDS.dit</code>. <a href="https://daniel10barredo.github.io/PrivEscAssist_Windows/tools/EnableSeBackupPrivilege.ps1">EnableSeBackupPrivilege.ps1</a>: habilitar privilegio si está deshabilitado.</p>
             </aside>
 
             <aside class="callout warning">
@@ -54,10 +54,10 @@ Import-Module .\SeBackupPrivilegeCmdLets.dll</code></pre>
               <pre><code>Copy-FileSeBackupPrivilege 'C:\Confidential\Contract.txt' .\Contract.txt</code></pre>
             </section>
 
-            <h2>Volcar SAM/SYSTEM/SECURITY del DC</h2>
+            <h2>Volcar SAM/SYSTEM/SECURITY</h2>
 
             <aside class="callout">
-              <p><strong><code>SAM</code>/<code>SYSTEM</code></strong> <code>SAM</code>: Almacena hashes de usuarios locales cifrados <code>SYSTEM</code>: LLave que descifra los hashes de <code>SAM</code></p>
+              <p><strong><code>SAM</code>/<code>SYSTEM</code></strong>: <code>SAM</code> almacena hashes de cuentas locales y <code>SYSTEM</code> contiene la bootkey necesaria para derivarlos correctamente con herramientas como <code>secretsdump</code> o <code>samdump2</code>.</p>
             </aside>
 
             <aside class="callout">
@@ -108,7 +108,7 @@ diskshadow.exe /s c:\Temp\shadow.txt</code></pre>
             </section>
 
             <section class="code-card">
-              <h3>Recuperar el fichero ntds.dit que se encuentra en originalmente en c:\Windows\NTDS\ desde z:\Windows\NTDS\</h3>
+              <h3>Recuperar el fichero ntds.dit desde z:\Windows\NTDS\</h3>
               <pre><code># Windows
 robocopy /b z:\Windows\NTDS\ . ntds.dit</code></pre>
             </section>

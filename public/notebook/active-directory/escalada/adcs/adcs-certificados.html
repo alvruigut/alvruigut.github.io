@@ -37,11 +37,11 @@
 
             <p><span class="notebook-review-note">Aviso: <code>ADCS</code>: Es el rol que maneja la emisión de certificados para usuarios, equipos y servicios en AD</span></p>
             <p>Componentes:</p>
-            <p>- <code>CA (Certification Authority):</code> Usuario que emite y gestiona certificados</p>
+            <p>- <code>CA (Certification Authority):</code> Autoridad certificadora que emite y gestiona certificados</p>
             <p>- <code>Certificate Templates:</code> Plantillas de configuración, permisos y requisitos para emitir certificados</p>
             <p>- <code>CES (Certificate Enrollment Server):</code> Permite renovar certificados</p>
             <p>Formatos de certificados X.509:</p>
-            <p>- <code>PEM:</code> Certificado DER codificado en base64, puede almacenar múltiples claves sin protección por contraseña</p>
+            <p>- <code>PEM:</code> Contenedor en Base64 que puede incluir certificados y, si se exporta, claves privadas. Las claves PEM pueden estar protegidas con contraseña o quedar sin cifrar.</p>
             <p>- <code>DER:</code> Certificado en formato binario</p>
             <p>- <code>PFX/P12 (PKCS#12):</code> Almacena claves privadas con protección por contraseña</p>
             <p>- <code>P7B (PKCS#7):</code> Almacena certificados de cadena, pero no claves privadas</p>

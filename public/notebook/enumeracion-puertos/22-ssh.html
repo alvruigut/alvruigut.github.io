@@ -53,7 +53,7 @@ ssh -i id_ed25519 &lt;username&gt;@&lt;ip&gt;</code></pre>
 ssh2john id_rsa &gt; hash
 ssh2john id_ed25519 &gt; hash
 
-john --wordlist=/usr/share/wordlist/rockyou.txt hash</code></pre>
+john --wordlist=/usr/share/wordlists/rockyou.txt hash</code></pre>
             </section>
 
             <h3>Banner Grabbing</h3>
@@ -94,7 +94,7 @@ ssh -i id_rsa user@ip</code></pre>
 
             <section class="code-card">
               <h3>Fuerza Bruta login SSH</h3>
-              <pre><code>hydra -l &lt;username&gt; -P /usr/share/wordlist/rockyou.txt ssh://&lt;ip_objetivo&gt;</code></pre>
+              <pre><code>hydra -l &lt;username&gt; -P /usr/share/wordlists/rockyou.txt ssh://&lt;ip_objetivo&gt;</code></pre>
             </section>
 
             <h3>ERRORES</h3>

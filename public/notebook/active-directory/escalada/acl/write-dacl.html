@@ -36,7 +36,7 @@
             <p>WriteDACL permite modificar la DACL de un objeto y conceder derechos adicionales como DCSync, GenericAll o control sobre el objetivo.</p>
 
             <p><span class="notebook-review-note">Info: <code>WriteDACL</code>: Privilegio que permite al usuario modificar el <code>DACL</code> (lista de permisos de un objeto en <code>AD</code>). Un objeto puede ser un <code>usuario</code>, un <code>grupo</code>, un <code>ordenador</code>, el <code>dominio</code>, <code>OU</code> , <code>GPO</code>...</span></p>
-            <p>El botón gordo está en otorgar siempre permisos <code>GenericAll</code> ya que este contiene todos los permisos, pero cada permiso se adapta según el objeto en el que tengamos privilegios</p>
+            <p>La vía más directa suele ser conceder <code>GenericAll</code>, porque agrupa muchos permisos sobre el objeto. Aun así, conviene elegir el derecho mínimo necesario según el tipo de objeto y el objetivo de la técnica.</p>
             <p><span class="notebook-review-note">Aviso: <code>WriteDACL</code> sobre <code>Dominio</code> (<code>DCSync</code>)</span></p>
             <section class="code-card">
               <h3>Comandos</h3>

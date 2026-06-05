@@ -34,7 +34,7 @@
             <h2>WFUZZ</h2>
 
             <section class="code-card">
-              <h3>wfuf</h3>
+              <h3>wfuzz</h3>
               <pre><code># Versión normal (barrido simple de directorios)
 wfuzz -c -L  -t 40 --hc=404 -w /ruta/wordlist.txt -u &quot;http://target/FUZZ/&quot; 
 
@@ -42,7 +42,7 @@ wfuzz -c -L  -t 40 --hc=404 -w /ruta/wordlist.txt -u &quot;http://target/FUZZ/&q
 wfuzz -c --hc=404 -t 200 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -z list,html-asp-txt http://target/FUZZ.FUZ2Z/
 
 # Multiple payloads siguiendo la secuencia numérica FUZ2Z, FUZ3Z...
-wfuzz -c -w users.txt -w passwords.txt -u &quot;http://target/login?user=FUZZ&amp;pass=FUZ2Z</code></pre>
+wfuzz -c -w users.txt -w passwords.txt -u &quot;http://target/login?user=FUZZ&amp;pass=FUZ2Z&quot;</code></pre>
             </section>
             <ul>
               <li><code>--hc</code>=404 hide codes (ej. <code>--hc 404</code>)</li>
@@ -60,7 +60,7 @@ wfuzz -c -w users.txt -w passwords.txt -u &quot;http://target/login?user=FUZZ&am
             <section class="code-card">
               <h3>Comandos</h3>
               <pre><code># Cambiando cabeceras de la petición
-wfuzz -c -L -H &quot; User-Agent: Google Chrome&quot;  -t 400 --hc=404 -w /ruta/wordlist.txt  -w /ruta/worlist/extensiones.txt  http://dominio.com/FUZZ.FUZ2Z
+wfuzz -c -L -H &quot;User-Agent: Google Chrome&quot; -t 400 --hc=404 -w /ruta/wordlist.txt -w /ruta/wordlist/extensiones.txt http://dominio.com/FUZZ.FUZ2Z
 
 # POST fuzzing
 wfuzz -c -w payloads.txt -u &quot;http://target/login&quot; -d &quot;user=FUZZ&amp;pass=123&quot; -H &quot;Content-Type: application/x-www-form-urlencoded&quot;</code></pre>
