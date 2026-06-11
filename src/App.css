@@ -80,6 +80,10 @@
   margin: 0;
 }
 
+.boot-screen.mail-sent-boot {
+  animation-delay: 2600ms;
+}
+
 .profile-hero,
 .console-layout,
 .site-footer {

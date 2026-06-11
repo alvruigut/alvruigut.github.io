@@ -58,9 +58,9 @@ function App() {
   const profileImage = theme === 'green' ? '/nft.png' : `/nft-${theme}.png`
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setBooting(false), 1150)
+    const timer = window.setTimeout(() => setBooting(false), mailSentBoot ? 2850 : 1150)
     return () => window.clearTimeout(timer)
-  }, [])
+  }, [mailSentBoot])
 
   useEffect(() => {
     const syncScreen = () => setContactState(getContactState())
@@ -234,7 +234,7 @@ function App() {
       </button>
 
       {booting && (
-        <div className="boot-screen" aria-live="polite">
+        <div className={`boot-screen ${mailSentBoot ? 'mail-sent-boot' : ''}`} aria-live="polite">
           {mailSentBoot ? (
             <>
               <p>Returning to /home...</p>
