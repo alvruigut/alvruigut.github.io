@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 import './App.css'
 
 declare global {
@@ -23,10 +23,32 @@ const sectionLinks = [
   { label: './certificaciones', href: '/certificaciones.html' },
 ]
 
+function getContactState() {
+  const params = new URLSearchParams(window.location.search)
+
+  return {
+    screen: params.has('contacto') ? 'contact' : 'home',
+  }
+}
+
+function consumeMailSentBoot() {
+  const hasMailSentBoot = sessionStorage.getItem('portfolio-mail-sent') === 'true'
+
+  if (hasMailSentBoot) {
+    sessionStorage.removeItem('portfolio-mail-sent')
+  }
+
+  return hasMailSentBoot
+}
+
 function App() {
+  const [contactState, setContactState] = useState(getContactState)
   const [booting, setBooting] = useState(true)
+  const [mailSentBoot] = useState(consumeMailSentBoot)
   const [typedCommand, setTypedCommand] = useState('')
   const [showOutput, setShowOutput] = useState(false)
+  const [emailSubject, setEmailSubject] = useState('Nuevo mensaje desde el portafolio de Álvaro')
+  const { screen } = contactState
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'green')
   const themeLabels: Record<string, string> = {
     green: 'verde',
@@ -38,6 +60,13 @@ function App() {
   useEffect(() => {
     const timer = window.setTimeout(() => setBooting(false), 1150)
     return () => window.clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    const syncScreen = () => setContactState(getContactState())
+
+    window.addEventListener('popstate', syncScreen)
+    return () => window.removeEventListener('popstate', syncScreen)
   }, [])
 
   useEffect(() => {
@@ -85,6 +114,113 @@ function App() {
     setTheme(nextTheme)
   }
 
+  function openContact(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault()
+    window.history.pushState({}, '', '/?contacto')
+    setContactState({ screen: 'contact' })
+    setBooting(false)
+  }
+
+  function openHome(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault()
+    window.history.pushState({}, '', '/')
+    setContactState({ screen: 'home' })
+    setBooting(false)
+  }
+
+  function markMailAsSent() {
+    sessionStorage.setItem('portfolio-mail-sent', 'true')
+  }
+
+  if (screen === 'contact') {
+    return (
+      <main className="portfolio-shell contact-shell">
+        <button
+          className="theme-toggle"
+          type="button"
+          onClick={toggleTheme}
+          aria-label={`Tema ${themeLabels[theme] || 'verde'}. Cambiar color`}
+          title={`Tema ${themeLabels[theme] || 'verde'}`}
+        >
+          <span aria-hidden="true" />
+        </button>
+
+        <section className="contact-terminal" aria-label="Formulario de contacto">
+          <a className="back-link" href="/" onClick={openHome}>~/home</a>
+
+          <div className="terminal-frame contact-frame">
+            <div className="terminal-titlebar">
+              <span className="terminal-tab">zsh</span>
+              <span className="terminal-path">/home/contacto</span>
+            </div>
+
+            <div className="terminal-body contact-terminal-body">
+              <div className="zsh-line contact-command" aria-label="Comando contact">
+                <span className="prompt-block prompt-user">RuyzTz7@Kali</span>
+                <span className="prompt-block prompt-dir">/contacto</span>
+                <span className="zsh-symbol">❯</span>
+                <span className="typed-command">sendmail --to alvarorugu7@gmail.com</span>
+              </div>
+
+              <form
+                className="contact-form"
+                action="https://formsubmit.co/alvarorugu7@gmail.com"
+                method="POST"
+                onSubmit={markMailAsSent}
+              >
+                <input
+                  type="hidden"
+                  name="_subject"
+                  value={emailSubject.trim() || 'Nuevo mensaje desde el portafolio de Álvaro'}
+                  readOnly
+                />
+                <input type="hidden" name="_template" value="table" />
+                <input type="hidden" name="_captcha" value="false" />
+                <input type="hidden" name="_next" value="https://alvruigut.github.io/" />
+                <input
+                  className="form-honey"
+                  type="text"
+                  name="_honey"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  hidden
+                />
+
+                <label>
+                  <span>Nombre</span>
+                  <input type="text" name="nombre" placeholder="Nombre" required />
+                </label>
+                <label>
+                  <span>Tu correo</span>
+                  <input type="email" name="email" placeholder="usuario@email.com" required />
+                </label>
+                <label>
+                  <span>Asunto</span>
+                  <input
+                    type="text"
+                    name="asunto"
+                    placeholder="Asunto del mensaje"
+                    required
+                    onChange={(event) => setEmailSubject(event.target.value)}
+                  />
+                </label>
+                <label>
+                  <span>Mensaje</span>
+                  <textarea name="mensaje" rows={6} placeholder="Tu mensaje aquí" required />
+                </label>
+
+                <div className="contact-actions">
+                  <button className="terminal-button" type="submit">Enviar mensaje</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
   return (
     <main className="portfolio-shell">
       <button
@@ -99,13 +235,25 @@ function App() {
 
       {booting && (
         <div className="boot-screen" aria-live="polite">
-          <p>Booting portfolio...</p>
-          <p>[OK] whoami</p>
-          <p>[OK] projects</p>
-          <p>[OK] writeups</p>
-          <p>[OK] notebook</p>
-          <p>[OK] certs</p>
-          <strong>Access granted.</strong>
+          {mailSentBoot ? (
+            <>
+              <p>Returning to /home...</p>
+              <p>[OK] SMTP handshake</p>
+              <p>[OK] payload delivered</p>
+              <p>[OK] inbox signal received</p>
+              <strong>Mail sent successfully.</strong>
+            </>
+          ) : (
+            <>
+              <p>Booting portfolio...</p>
+              <p>[OK] whoami</p>
+              <p>[OK] projects</p>
+              <p>[OK] writeups</p>
+              <p>[OK] notebook</p>
+              <p>[OK] certs</p>
+              <strong>Access granted.</strong>
+            </>
+          )}
         </div>
       )}
 
@@ -156,7 +304,7 @@ function App() {
         <section className="footer-actions" aria-label="Links profesionales">
           <a href="https://www.linkedin.com/in/%C3%A1lvaro-ruiz-guti%C3%A9rrez-515684314/">LinkedIn</a>
           <a href="https://github.com/alvruigut">GitHub</a>
-          <a href="mailto:alvarorugu7@gmail.com">Contacto</a>
+          <a href="/?contacto" onClick={openContact}>Contacto</a>
         </section>
 
         <div className="footer-legal">
