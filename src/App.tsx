@@ -302,7 +302,7 @@ function App() {
 
       <footer className="site-footer">
         <section className="footer-actions" aria-label="Links profesionales">
-          <a href="https://www.linkedin.com/in/%C3%A1lvaro-ruiz-guti%C3%A9rrez-515684314/">LinkedIn</a>
+          <a href="https://www.linkedin.com/in/alvaro-ruiz-gutierrez/">LinkedIn</a>
           <a href="https://github.com/alvruigut">GitHub</a>
           <a href="/?contacto" onClick={openContact}>Contacto</a>
         </section>
