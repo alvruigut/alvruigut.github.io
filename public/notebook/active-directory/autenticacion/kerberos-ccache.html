@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-monkey.png?v=20260601" />
+    <title>Autenticación Kerberos con ccache | Notebook</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/section.css" />
+  </head>
+  <body>
+    <main class="section-shell notebook-shell">
+      <a class="back-link" href="/notebook.html">~/notebook</a>
+
+      <section class="notebook-workspace" aria-label="Notebook">
+        <aside class="notebook-sidebar" aria-label="Explorador de apuntes" data-notebook-index></aside>
+
+        <article class="note-panel is-active" id="kerberos-ccache">
+          <div class="note-tabbar">
+            <span>Autenticación Kerberos con ccache</span>
+            <details class="notebook-tag-search">
+              <summary>Buscar tags</summary>
+              <label>
+                <span>Tags de apuntes</span>
+                <input class="notebook-search-input" type="search" placeholder="Busca por herramienta, técnica o tag del apunte" autocomplete="off" />
+              </label>
+              <div class="notebook-search-results" aria-live="polite"></div>
+            </details>
+            <span>~/notebook/Active Directory/Autenticación</span>
+          </div>
+
+          <div class="note-content">
+            <p class="eyebrow">active directory / autenticación / kerberos</p>
+            <h2>Autenticación Kerberos con ccache</h2>
+
+            <p>Configuración de un cliente Kerberos en Kali para obtener un TGT, guardarlo en una caché <code>ccache</code> y autenticarse contra servicios del dominio que admiten Kerberos.</p>
+
+            <p><span class="notebook-review-note">Aviso: un fallo con usuario y contraseña no demuestra por sí solo que Kerberos sea obligatorio. Este procedimiento aplica cuando el servicio acepta Kerberos, el KDC es alcanzable y la resolución DNS y el reloj son correctos.</span></p>
+            <p>Kerberos identifica los servicios mediante SPN, por lo que se debe usar el nombre DNS completo del host y no su dirección IP al acceder a SMB o SSH.</p>
+            <section class="code-card">
+              <h3>Configurar resolución de nombres</h3>
+              <pre><code># Es preferible usar el DNS del dominio. En un laboratorio también puede
+# resolverse el DC de forma temporal mediante /etc/hosts:
+&lt;ip_dc&gt; &lt;hostname&gt;.&lt;domain&gt; &lt;hostname&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Configurar Kerberos: /etc/krb5.conf</h3>
+              <pre><code>[domain_realm]
+    .&lt;domain&gt; = &lt;DOMAIN&gt;
+    &lt;domain&gt; = &lt;DOMAIN&gt;
+ 
+[libdefaults]
+    default_realm = &lt;DOMAIN&gt;
+    dns_lookup_realm = false
+    dns_lookup_kdc = true
+    ticket_lifetime = 24h
+    forwardable = true
+ 
+[realms]
+    &lt;DOMAIN&gt; = {
+        kdc = &lt;HOSTNAME&gt;.&lt;DOMAIN&gt;
+        admin_server = &lt;HOSTNAME&gt;.&lt;DOMAIN&gt;
+        default_domain = &lt;DOMAIN&gt;
+    }</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Comprobar y sincronizar el reloj</h3>
+              <pre><code># Kerberos tolera poco desfase horario. Evitar que dos servicios intenten
+# ajustar el reloj al mismo tiempo.
+sudo systemctl stop systemd-timesyncd
+sudo ntpdate &lt;ip_dc&gt;</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Obtener y cargar el TGT</h3>
+              <pre><code>impacket-getTGT '&lt;domain&gt;/&lt;user&gt;:&lt;password&gt;' -dc-ip &lt;ip_dc&gt;
+
+# Usar una ruta absoluta evita cargar por error otra caché con el mismo nombre.
+export KRB5CCNAME="$(pwd)/&lt;user&gt;.ccache"
+klist</code></pre>
+            </section>
+            <section class="code-card">
+              <h3>Usar la caché Kerberos</h3>
+              <pre><code># NetExec consume el ticket indicado por KRB5CCNAME. Usar el FQDN del host.
+nxc smb &lt;hostname&gt;.&lt;domain&gt; --use-kcache
+
+# SSH necesita autenticación GSSAPI habilitada en cliente y servidor.
+# -k NO activa Kerberos: deshabilita la delegación de credenciales GSSAPI.
+ssh -o GSSAPIAuthentication=yes &lt;user&gt;@&lt;hostname&gt;.&lt;domain&gt;</code></pre>
+            </section>
+
+            <aside class="callout warning">
+              <p><strong>Delegación:</strong> no utilizar <code>ssh -K</code> salvo que sea necesario reenviar las credenciales Kerberos al servidor. La autenticación GSSAPI normal no requiere delegarlas.</p>
+            </aside>
+
+            <h2>Relacionados</h2>
+            <div class="notebook-related-links">
+              <a href="/writeups.html?machine=thefrizz">TheFrizz</a>
+            </div>
+
+            <h2>Tags</h2>
+            <div class="tag-list">
+              <span>ad</span>
+              <span>active_directory</span>
+              <span>autenticacion</span>
+              <span>kerberos</span>
+              <span>ccache</span>
+              <span>krb5</span>
+              <span>gssapi</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/notebook/index.js"></script>
+    <script src="/notebook/folder-state.js"></script>
+    <script src="/notebook/search.js"></script>
+  </body>
+</html>

@@ -972,10 +972,10 @@ const notebookNotes = [
     tags: ['ad', 'active_directory', 'escalada', 'kerberos', 'kerberoasting', 'spn', 'tgs'],
   },
   {
-    title: 'Kubernetes y Kerberos',
-    href: '/notebook/active-directory/escalada/kerberos/kubernetes-kerberos.html',
-    path: '~/notebook/Active Directory/Escalada/Kerberos',
-    tags: ['ad', 'active_directory', 'escalada', 'kerberos', 'kubernetes', 'ccache', 'krb5'],
+    title: 'Autenticación Kerberos con ccache',
+    href: '/notebook/active-directory/autenticacion/kerberos-ccache.html',
+    path: '~/notebook/Active Directory/Autenticación',
+    tags: ['ad', 'active_directory', 'autenticacion', 'kerberos', 'ccache', 'krb5', 'gssapi'],
   },
   {
     title: 'DCSync Attack',

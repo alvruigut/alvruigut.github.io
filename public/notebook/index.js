@@ -430,6 +430,12 @@ const notebookIndex = [
         ],
       },
       {
+        title: 'Autenticación',
+        children: [
+          { title: 'Kerberos con ccache', href: '/notebook/active-directory/autenticacion/kerberos-ccache.html' },
+        ],
+      },
+      {
         title: 'Escalada',
         children: [
           {
@@ -437,7 +443,6 @@ const notebookIndex = [
             children: [
               { title: 'AS-REP Roasting', href: '/notebook/active-directory/escalada/kerberos/as-rep-roasting.html' },
               { title: 'Kerberoasting', href: '/notebook/active-directory/escalada/kerberos/kerberoasting.html' },
-              { title: 'Kubernetes y Kerberos', href: '/notebook/active-directory/escalada/kerberos/kubernetes-kerberos.html' },
             ],
           },
           {

